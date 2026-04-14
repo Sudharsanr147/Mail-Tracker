@@ -557,101 +557,124 @@ function parseAndFill(plainText, htmlText) {
   }
 }
 
-// ── NEW OUTLOOK FORMAT (no From:/Subject: labels) ──
-// Line 0: Subject
-// Line 1: "To me" or recipient summary
-// Line 2: "Summarize" (AI label — skip)
-// Line 3: Sender name (no email, just name)
-// Line 4: To recipients
-// Line 5: CC recipients  
-// Line 6: "Team" or group label (skip)
-// Line 7+: Body
+// ── NEW OUTLOOK READING PANE FORMAT ──
+// Verified against 3 real emails. Structure:
+//   Line 1        : Subject
+//   Line 2        : "To me" (UI label — skip)
+//   Line 3        : "Summarize" (UI label — skip)
+//   [blank]
+//   Next nonempty : From  (sender name or email — NO "From:" label)
+//   [blank]
+//   Next nonempty : To    (recipients, may include ";+N others")
+//   Next nonempty : CC    (recipients, may include ";+N others")
+//   [blank]
+//   Rest          : Body  (stop before "-----Original" or "From:" thread block)
 function parseNewOutlook(text) {
-  const lines = text.split('\n').map(l => l.trim());
-  const nonEmpty = lines.filter(Boolean);
+  const lines = text.split('\n');
+  const nonEmpty = lines.map(l=>l.trim()).filter(Boolean);
   if (nonEmpty.length < 3) return null;
 
-  // Detect new Outlook format:
-  // Second non-empty line is exactly "To me" or starts with "To " or is "Summarize"
-  const l1 = nonEmpty[0] || '';
-  const l2 = nonEmpty[1] || '';
-  const l3 = nonEmpty[2] || '';
+  // Must have "To me" or "Summarize" in first 3 non-empty lines
+  const top3 = nonEmpty.slice(0,3).map(l=>l.toLowerCase());
+  if (!top3.includes('to me') && !top3.includes('summarize')) return null;
 
-  const isNewOutlook =
-    l2 === 'To me' ||
-    l2.startsWith('To ') ||
-    l3 === 'Summarize' ||
-    l2 === 'Summarize';
+  const subject = nonEmpty[0];
+  const isNoise = s => /^(to me|summarize|team|reply|forward|cc me)$/i.test(s.trim());
 
-  if (!isNewOutlook) return null;
+  // Work through raw lines (preserving blanks) to find fields positionally
+  let i = 0;
+  // Skip past subject line
+  while (i < lines.length && lines[i].trim() !== subject) i++;
+  i++; // past subject
 
-  const subject = l1;
+  // Skip noise + blanks
+  while (i < lines.length && (lines[i].trim() === '' || isNoise(lines[i].trim()))) i++;
 
-  // Skip lines that are UI labels
-  const skipLabels = ['to me', 'summarize', 'team', 'reply', 'forward', 'cc me'];
-  let idx = 1; // start after subject
-  // skip "To me" / "Summarize" lines
-  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
+  // FROM = next non-empty line
+  const from = lines[i] ? lines[i].trim() : '';
+  i++;
 
-  const from = nonEmpty[idx] || '';
-  idx++;
+  // Skip blanks
+  while (i < lines.length && lines[i].trim() === '') i++;
 
-  // Next non-skip line = To
-  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
-  const to = nonEmpty[idx] || '';
-  idx++;
+  // TO = next non-empty line
+  const to = lines[i] ? lines[i].trim() : '';
+  i++;
 
-  // Next non-skip line = CC (if it looks like names/emails, else skip)
-  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
+  // CC = next non-empty line IF it looks like recipients
   let cc = '';
-  const potentialCC = nonEmpty[idx] || '';
-  // CC line usually has semicolons, commas, "+" or looks like names
-  if (potentialCC && (potentialCC.includes(';') || potentialCC.includes(',') || potentialCC.includes('+') || potentialCC.includes('@'))) {
-    cc = potentialCC;
-    idx++;
+  if (i < lines.length && lines[i].trim() !== '') {
+    const candidate = lines[i].trim();
+    if (candidate.includes(';') || /\+\d+/.test(candidate) || candidate.includes('@') || candidate.includes(',')) {
+      cc = candidate;
+      i++;
+    }
   }
 
-  // Skip more UI labels
-  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
+  // Skip blanks + CAUTION disclaimers
+  while (i < lines.length && (lines[i].trim() === '' || /^CAUTION\s*--/i.test(lines[i].trim()))) i++;
 
-  // Everything remaining = body
-  const body = nonEmpty.slice(idx).join('\n').trim();
+  // Body = everything until "-----Original" or "From:" thread separator
+  const bodyLines = [];
+  while (i < lines.length) {
+    const l = lines[i].trim();
+    if (/^-{3,}\s*Original/i.test(l) || /^From\s*:/i.test(l)) break;
+    bodyLines.push(lines[i]);
+    i++;
+  }
+  const body = bodyLines.join('\n').replace(/^\n+|\n+$/g, '');
 
   return { subject, from, to, cc, body };
 }
 
-// ── CLASSIC OUTLOOK FORMAT (with From:/Subject: labels) ──
+// ── CLASSIC OUTLOOK FORMAT (has From:/Sent:/To:/Cc:/Subject: labels) ──
+// Picks ONLY the FIRST (latest) block — ignores thread history below
 function parseClassicOutlook(text) {
   const lines = text.split('\n');
   let from='', to='', cc='', subject='', body='';
-  let bodyStartIdx = -1;
-  let foundHeader = false;
+  let sentLineIdx = -1;
+  let foundFrom = false;
 
-  const pFrom    = /^(from|de|von)\s*:\s*(.+)/i;
-  const pTo      = /^(to|para|an|à)\s*:\s*(.+)/i;
-  const pCC      = /^(cc|c\.c\.)\s*:\s*(.+)/i;
-  const pSubject = /^(subject|asunto|betreff|objet)\s*:\s*(.+)/i;
-  const pSent    = /^(sent|date|enviado|gesendet)\s*:/i;
+  const pFrom    = /^from\s*:\s*(.+)/i;
+  const pTo      = /^to\s*:\s*(.+)/i;
+  const pCC      = /^cc\s*:\s*(.+)/i;
+  const pSubject = /^subject\s*:\s*(.+)/i;
+  const pSent    = /^sent\s*:/i;
 
+  // Only scan first occurrence of each header (stop after first Sent: line)
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i].trim();
     if (!l) continue;
-    if (pFrom.test(l))    { from = l.match(pFrom)[2].trim(); foundHeader = true; }
-    else if (pTo.test(l)) { to = l.match(pTo)[2].trim(); }
-    else if (pCC.test(l)) { cc = l.match(pCC)[2].trim(); }
-    else if (pSubject.test(l)) { subject = l.match(pSubject)[2].trim(); }
-    else if (pSent.test(l) && foundHeader && bodyStartIdx === -1) { bodyStartIdx = i + 1; }
+    if (!from && pFrom.test(l)) {
+      from = l.match(pFrom)[1].replace(/<[^>]+>/g,'').replace(/'/g,'').trim();
+      foundFrom = true;
+    } else if (!to && pTo.test(l)) {
+      to = l.match(pTo)[1].replace(/<[^>]+>/g,'').replace(/'/g,'').trim();
+    } else if (!cc && pCC.test(l)) {
+      cc = l.match(pCC)[1].replace(/<[^>]+>/g,'').replace(/'/g,'').trim();
+    } else if (!subject && pSubject.test(l)) {
+      subject = l.match(pSubject)[1].trim();
+    } else if (foundFrom && pSent.test(l) && sentLineIdx === -1) {
+      sentLineIdx = i;
+      break; // stop — body starts after this, thread history below is ignored
+    }
   }
 
-  if (!foundHeader) return null;
-  if (bodyStartIdx === -1) {
-    // body starts after last known header line
-    for (let i = 0; i < Math.min(lines.length, 12); i++) {
-      if (pFrom.test(lines[i])||pTo.test(lines[i])||pCC.test(lines[i])||pSubject.test(lines[i])||pSent.test(lines[i])) bodyStartIdx = i + 1;
-    }
-    while (bodyStartIdx < lines.length && !lines[bodyStartIdx].trim()) bodyStartIdx++;
+  if (!foundFrom) return null;
+
+  // Body: lines after Sent: up to next From: separator
+  let bodyStartIdx = sentLineIdx + 1;
+  while (bodyStartIdx < lines.length && !lines[bodyStartIdx].trim()) bodyStartIdx++;
+
+  const bodyLines = [];
+  for (let i = bodyStartIdx; i < lines.length; i++) {
+    const l = lines[i].trim();
+    if (/^From\s*:/i.test(l) || /^-{3,}\s*Original/i.test(l)) break;
+    if (/^CAUTION\s*--/i.test(l)) continue;
+    bodyLines.push(lines[i]);
   }
-  body = lines.slice(bodyStartIdx).join('\n').trim();
+  body = bodyLines.join('\n').replace(/^\n+|\n+$/g, '');
+
   return { subject, from, to, cc, body };
 }
 
