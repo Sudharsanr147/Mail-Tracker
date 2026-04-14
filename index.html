@@ -376,39 +376,51 @@ body.light-theme .sb-item.active{background:var(–surface3);}
 <div class="overlay" id="add-modal">
   <div class="modal">
     <h2 id="modal-title">Add Task</h2>
-    <div class="paste-hint" id="paste-hint">
-      <span>📋</span>
-      <span>Copy an email in Outlook, then press <b>Ctrl+V</b> anywhere on this form to auto-fill all fields!</span>
-    </div>
-    <div style="margin-bottom:14px">
-      <div class="field" style="margin-bottom:4px"><label>Task Type</label></div>
-      <div class="type-toggle">
-        <div class="type-opt email selected" id="type-email" onclick="setTaskType('email')">📧 Email / Forwarded Mail</div>
-        <div class="type-opt manual" id="type-manual" onclick="setTaskType('manual')">✍️ Manual Task</div>
-      </div>
-    </div>
-    <div class="modal-grid tri" style="margin-bottom:12px" id="email-fields">
-      <div class="field"><label>From</label><input type="text" id="f-from" placeholder="sender@email.com"/></div>
-      <div class="field"><label>To</label><input type="text" id="f-to" placeholder="to@email.com"/></div>
-      <div class="field"><label>CC</label><input type="text" id="f-cc" placeholder="cc@email.com"/></div>
-    </div>
-    <div class="modal-grid full" style="margin-bottom:12px">
-      <div class="field"><label id="subject-label">Subject</label><input type="text" id="f-subject" placeholder="Email subject or task title…"/></div>
-    </div>
-    <div class="modal-grid full" style="margin-bottom:12px">
-      <div class="field"><label>Body / Notes</label><textarea id="f-body" rows="4" placeholder="Paste email body or add notes…"></textarea></div>
-    </div>
-    <div class="modal-grid">
-      <div class="field"><label>Assign To</label><select id="f-member"></select></div>
-      <div class="field"><label>Due Date</label><input type="date" id="f-due"/></div>
-    </div>
-    <div style="margin-top:10px">
-      <div class="field"><label style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" id="f-pin-today" style="width:auto;padding:0"/> Pin to Today's Dashboard</label></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('add-modal')">Cancel</button>
-      <button class="btn-primary" onclick="saveTask()">Save Task</button>
-    </div>
+
+```
+<!-- PASTE BOX — shown only for email type, hidden for manual -->
+<div id="paste-box-wrap" style="margin-bottom:14px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+    <label style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">📋 Paste Email Here (Ctrl+V)</label>
+    <span style="font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="clearPasteBox()">Clear</span>
+  </div>
+  <textarea id="paste-box" rows="3"
+    style="width:100%;background:rgba(79,142,247,.06);border:1.5px dashed var(--accent);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;resize:none;line-height:1.5"
+    placeholder="Click here and press Ctrl+V to paste your Outlook email — Subject, From, To, CC and Body will be filled automatically…"
+    oninput="onPasteBoxChange()"></textarea>
+</div>
+
+<div style="margin-bottom:14px">
+  <div class="field" style="margin-bottom:4px"><label>Task Type</label></div>
+  <div class="type-toggle">
+    <div class="type-opt email selected" id="type-email" onclick="setTaskType('email')">📧 Email / Forwarded Mail</div>
+    <div class="type-opt manual" id="type-manual" onclick="setTaskType('manual')">✍️ Manual Task</div>
+  </div>
+</div>
+<div class="modal-grid tri" style="margin-bottom:12px" id="email-fields">
+  <div class="field"><label>From</label><input type="text" id="f-from" placeholder="Sender name"/></div>
+  <div class="field"><label>To</label><input type="text" id="f-to" placeholder="Recipients"/></div>
+  <div class="field"><label>CC</label><input type="text" id="f-cc" placeholder="CC"/></div>
+</div>
+<div class="modal-grid full" style="margin-bottom:12px">
+  <div class="field"><label id="subject-label">Subject</label><input type="text" id="f-subject" placeholder="Email subject or task title…"/></div>
+</div>
+<div class="modal-grid full" style="margin-bottom:12px">
+  <div class="field"><label>Body / Notes</label><textarea id="f-body" rows="4" placeholder="Email body will appear here after paste, or type notes…"></textarea></div>
+</div>
+<div class="modal-grid">
+  <div class="field"><label>Assign To</label><select id="f-member"></select></div>
+  <div class="field"><label>Due Date</label><input type="date" id="f-due"/></div>
+</div>
+<div style="margin-top:10px">
+  <div class="field"><label style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" id="f-pin-today" style="width:auto;padding:0"/> Pin to Today's Dashboard</label></div>
+</div>
+<div class="modal-actions">
+  <button class="btn-cancel" onclick="closeModal('add-modal')">Cancel</button>
+  <button class="btn-primary" onclick="saveTask()">Save Task</button>
+</div>
+```
+
   </div>
 </div>
 
@@ -497,127 +509,150 @@ function toggleTheme() {
 applyTheme();
 
 // ═══════════════════════════════════════════════════════════
-// CLIPBOARD PASTE — MULTI-FORMAT OUTLOOK PARSER
+// CLIPBOARD PASTE — NEW OUTLOOK FORMAT PARSER
 // ═══════════════════════════════════════════════════════════
 
-// Listen on the entire page, not just the modal — works with new Outlook
 document.addEventListener('paste', function(e) {
   const modal = document.getElementById('add-modal');
-  if (!modal.classList.contains('show')) return; // only when modal is open
+  if (!modal.classList.contains('show')) return;
 
-  // Try HTML clipboard first (new Outlook copies rich HTML)
-  let htmlText = e.clipboardData.getData('text/html');
-  let plainText = e.clipboardData.getData('text/plain');
+  const plainText = e.clipboardData.getData('text/plain');
+  const htmlText  = e.clipboardData.getData('text/html');
 
-  let parsed = null;
-  if (htmlText && htmlText.length > 50) {
-    parsed = parseOutlookHTML(htmlText);
-  }
-  if (!parsed || !parsed.isEmail) {
-    parsed = parseOutlookPlain(plainText);
-  }
-
-  if (parsed && parsed.isEmail) {
+  // Always paste into the paste-box textarea first
+  const pasteBox = document.getElementById('paste-box');
+  if (pasteBox) {
     e.preventDefault();
-    if (parsed.from) document.getElementById('f-from').value = parsed.from;
-    if (parsed.to) document.getElementById('f-to').value = parsed.to;
-    if (parsed.cc) document.getElementById('f-cc').value = parsed.cc;
-    if (parsed.subject) document.getElementById('f-subject').value = parsed.subject;
-    if (parsed.body) document.getElementById('f-body').value = parsed.body;
-    setTaskType('email');
-    showToast('✅ Email fields filled from clipboard!', 'success');
-  } else if (plainText && plainText.length > 10) {
-    // If not detected as email, just paste into body field
-    const active = document.activeElement;
-    const isInField = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
-    if (!isInField) {
-      e.preventDefault();
-      document.getElementById('f-body').value = plainText;
-      showToast('📋 Text pasted into body field', 'info');
-    }
+    const text = plainText || '';
+    pasteBox.value = text;
+    parseAndFill(text, htmlText);
   }
 });
 
-// Parse HTML clipboard from new Outlook (copies as rich HTML table)
-function parseOutlookHTML(html) {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  const text = div.innerText || div.textContent || '';
-  // Try plain text parser on extracted text
-  const result = parseOutlookPlain(text);
-  if (result.isEmail) return result;
-
-  // Also look for meta tags / specific outlook HTML patterns
-  const fromMatch = html.match(/From[:\s]+([^<\n]+)/i);
-  const toMatch = html.match(/To[:\s]+([^<\n]+)/i);
-  const subjectMatch = html.match(/Subject[:\s]+([^<\n]+)/i);
-  if (fromMatch || subjectMatch) {
-    return {
-      isEmail: true,
-      from: fromMatch ? fromMatch[1].replace(/<[^>]+>/g,'').trim() : '',
-      to: toMatch ? toMatch[1].replace(/<[^>]+>/g,'').trim() : '',
-      cc: '',
-      subject: subjectMatch ? subjectMatch[1].replace(/<[^>]+>/g,'').trim() : '',
-      body: text.trim()
-    };
-  }
-  return { isEmail: false };
+// Called when user pastes into the paste-box manually too
+function onPasteBoxChange() {
+  const text = document.getElementById('paste-box').value;
+  parseAndFill(text, '');
 }
 
-// Parse plain text — handles Outlook, Gmail, and generic email formats
-function parseOutlookPlain(text) {
-  if (!text || text.length < 10) return { isEmail: false };
-  const lines = text.split('\n');
-  let from='', to='', cc='', subject='', body='', isEmail=false, bodyStartIdx=-1;
+function parseAndFill(plainText, htmlText) {
+  if (!plainText || plainText.trim().length < 5) return;
 
-  // Pattern variants for different Outlook versions and locales
-  const patterns = {
-    from: /^(from|de|von)\s*:\s*(.+)/i,
-    to: /^(to|para|an|à)\s*:\s*(.+)/i,
-    cc: /^(cc|c\.c\.|kopie)\s*:\s*(.+)/i,
-    subject: /^(subject|asunto|betreff|objet|oggetto)\s*:\s*(.+)/i,
-    sent: /^(sent|date|enviado|gesendet|envoyé|data|fecha)\s*:/i,
-  };
+  const parsed = parseNewOutlook(plainText) || parseClassicOutlook(plainText);
+
+  if (parsed) {
+    if (parsed.subject) document.getElementById('f-subject').value = parsed.subject;
+    if (parsed.from)    document.getElementById('f-from').value    = parsed.from;
+    if (parsed.to)      document.getElementById('f-to').value      = parsed.to;
+    if (parsed.cc)      document.getElementById('f-cc').value      = parsed.cc;
+    if (parsed.body)    document.getElementById('f-body').value    = parsed.body;
+    setTaskType('email');
+    showToast('✅ Fields filled! Review and save.', 'success');
+  } else {
+    // Fallback: dump everything into body, use first line as subject
+    const lines = plainText.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length > 0) document.getElementById('f-subject').value = lines[0];
+    document.getElementById('f-body').value = plainText;
+    showToast('📋 Pasted into body. Please fill Subject manually.', 'info');
+  }
+}
+
+// ── NEW OUTLOOK FORMAT (no From:/Subject: labels) ──
+// Line 0: Subject
+// Line 1: "To me" or recipient summary
+// Line 2: "Summarize" (AI label — skip)
+// Line 3: Sender name (no email, just name)
+// Line 4: To recipients
+// Line 5: CC recipients  
+// Line 6: "Team" or group label (skip)
+// Line 7+: Body
+function parseNewOutlook(text) {
+  const lines = text.split('\n').map(l => l.trim());
+  const nonEmpty = lines.filter(Boolean);
+  if (nonEmpty.length < 3) return null;
+
+  // Detect new Outlook format:
+  // Second non-empty line is exactly "To me" or starts with "To " or is "Summarize"
+  const l1 = nonEmpty[0] || '';
+  const l2 = nonEmpty[1] || '';
+  const l3 = nonEmpty[2] || '';
+
+  const isNewOutlook =
+    l2 === 'To me' ||
+    l2.startsWith('To ') ||
+    l3 === 'Summarize' ||
+    l2 === 'Summarize';
+
+  if (!isNewOutlook) return null;
+
+  const subject = l1;
+
+  // Skip lines that are UI labels
+  const skipLabels = ['to me', 'summarize', 'team', 'reply', 'forward', 'cc me'];
+  let idx = 1; // start after subject
+  // skip "To me" / "Summarize" lines
+  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
+
+  const from = nonEmpty[idx] || '';
+  idx++;
+
+  // Next non-skip line = To
+  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
+  const to = nonEmpty[idx] || '';
+  idx++;
+
+  // Next non-skip line = CC (if it looks like names/emails, else skip)
+  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
+  let cc = '';
+  const potentialCC = nonEmpty[idx] || '';
+  // CC line usually has semicolons, commas, "+" or looks like names
+  if (potentialCC && (potentialCC.includes(';') || potentialCC.includes(',') || potentialCC.includes('+') || potentialCC.includes('@'))) {
+    cc = potentialCC;
+    idx++;
+  }
+
+  // Skip more UI labels
+  while (idx < nonEmpty.length && skipLabels.includes(nonEmpty[idx].toLowerCase())) idx++;
+
+  // Everything remaining = body
+  const body = nonEmpty.slice(idx).join('\n').trim();
+
+  return { subject, from, to, cc, body };
+}
+
+// ── CLASSIC OUTLOOK FORMAT (with From:/Subject: labels) ──
+function parseClassicOutlook(text) {
+  const lines = text.split('\n');
+  let from='', to='', cc='', subject='', body='';
+  let bodyStartIdx = -1;
+  let foundHeader = false;
+
+  const pFrom    = /^(from|de|von)\s*:\s*(.+)/i;
+  const pTo      = /^(to|para|an|à)\s*:\s*(.+)/i;
+  const pCC      = /^(cc|c\.c\.)\s*:\s*(.+)/i;
+  const pSubject = /^(subject|asunto|betreff|objet)\s*:\s*(.+)/i;
+  const pSent    = /^(sent|date|enviado|gesendet)\s*:/i;
 
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i].trim();
     if (!l) continue;
-    const fm = l.match(patterns.from);
-    if (fm) { from = fm[2].trim(); isEmail = true; continue; }
-    const tm = l.match(patterns.to);
-    if (tm) { to = tm[2].trim(); continue; }
-    const cm = l.match(patterns.cc);
-    if (cm) { cc = cm[2].trim(); continue; }
-    const sm = l.match(patterns.subject);
-    if (sm) { subject = sm[2].trim(); continue; }
-    if (patterns.sent.test(l) && isEmail && bodyStartIdx === -1) { bodyStartIdx = i + 1; }
+    if (pFrom.test(l))    { from = l.match(pFrom)[2].trim(); foundHeader = true; }
+    else if (pTo.test(l)) { to = l.match(pTo)[2].trim(); }
+    else if (pCC.test(l)) { cc = l.match(pCC)[2].trim(); }
+    else if (pSubject.test(l)) { subject = l.match(pSubject)[2].trim(); }
+    else if (pSent.test(l) && foundHeader && bodyStartIdx === -1) { bodyStartIdx = i + 1; }
   }
 
-  // If sent line not found, body starts after all header lines
-  if (isEmail && bodyStartIdx === -1) {
-    let lastHeaderLine = -1;
-    for (let i = 0; i < Math.min(lines.length, 15); i++) {
-      const l = lines[i].trim();
-      if (patterns.from.test(l)||patterns.to.test(l)||patterns.cc.test(l)||patterns.subject.test(l)||patterns.sent.test(l)) {
-        lastHeaderLine = i;
-      }
+  if (!foundHeader) return null;
+  if (bodyStartIdx === -1) {
+    // body starts after last known header line
+    for (let i = 0; i < Math.min(lines.length, 12); i++) {
+      if (pFrom.test(lines[i])||pTo.test(lines[i])||pCC.test(lines[i])||pSubject.test(lines[i])||pSent.test(lines[i])) bodyStartIdx = i + 1;
     }
-    bodyStartIdx = lastHeaderLine + 1;
-    // Skip blank lines after headers
     while (bodyStartIdx < lines.length && !lines[bodyStartIdx].trim()) bodyStartIdx++;
   }
-
-  if (bodyStartIdx > 0 && bodyStartIdx < lines.length) {
-    body = lines.slice(bodyStartIdx).join('\n').trim();
-  }
-
-  // Last fallback: check if it has email-like keywords even without perfect parsing
-  if (!isEmail && text.length > 30) {
-    const hasEmailSig = /\bFrom\b.*@|\bSubject\b.*:/i.test(text);
-    if (hasEmailSig) isEmail = true;
-  }
-
-  return { isEmail, from, to, cc, subject, body };
+  body = lines.slice(bodyStartIdx).join('\n').trim();
+  return { subject, from, to, cc, body };
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1049,12 +1084,23 @@ function deleteTask(id){
   save();renderAll();
 }
 
+function clearPasteBox(){
+  document.getElementById('paste-box').value='';
+  document.getElementById('f-from').value='';
+  document.getElementById('f-to').value='';
+  document.getElementById('f-cc').value='';
+  document.getElementById('f-subject').value='';
+  document.getElementById('f-body').value='';
+}
+
 function setTaskType(type){
   currentTaskType=type;
   document.getElementById('type-email').className='type-opt email'+(type==='email'?' selected':'');
   document.getElementById('type-manual').className='type-opt manual'+(type==='manual'?' selected':'');
   document.getElementById('subject-label').textContent=type==='manual'?'Task Title':'Subject';
   document.getElementById('email-fields').style.display=type==='email'?'':'none';
+  const pbw=document.getElementById('paste-box-wrap');
+  if(pbw)pbw.style.display=type==='email'?'':'none';
 }
 
 function openAddModal(prefill){
@@ -1067,7 +1113,7 @@ function openAddModal(prefill){
   document.getElementById('f-cc').value='';
   document.getElementById('f-due').value='';
   document.getElementById('f-pin-today').checked=currentFilter==='today';
-  document.getElementById('paste-hint').style.display='';
+  const pb=document.getElementById('paste-box');if(pb)pb.value='';
   setTaskType('email');
   populateMemberSelect('f-member');
   const tm=new Date();tm.setDate(tm.getDate()+1);
@@ -1087,7 +1133,8 @@ function openEditModal(id){
   document.getElementById('f-cc').value=t.cc||'';
   document.getElementById('f-due').value=t.due||'';
   document.getElementById('f-pin-today').checked=!!t.pinnedToday;
-  document.getElementById('paste-hint').style.display='none';
+  const pb=document.getElementById('paste-box');if(pb)pb.value='';
+  const pbw=document.getElementById('paste-box-wrap');if(pbw)pbw.style.display='none';
   setTaskType(t.type||'email');
   populateMemberSelect('f-member',t.memberId);
   openModal('add-modal');
