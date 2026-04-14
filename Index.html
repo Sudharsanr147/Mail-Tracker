@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mail Deliverables Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0d0f18;
+  --surface: #131722;
+  --surface2: #1a1f30;
+  --surface3: #212640;
+  --border: #262d42;
+  --text: #e4e8f5;
+  --muted: #5c6480;
+  --accent: #4f8ef7;
+  --green: #2ecc87;
+  --red: #ff4f6a;
+  --yellow: #f5c518;
+  --orange: #ff8c42;
+  --radius: 12px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; min-height: 100vh; }
+
+/* HEADER */
+header {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+padding: 14px 28px;
+display: flex; align-items: center; justify-content: space-between;
+position: sticky; top: 0; z-index: 100;
+}
+header h1 { font-family: ‘DM Serif Display’, serif; font-size: 20px; color: var(–text); }
+header h1 span { color: var(–accent); }
+.header-stats { display: flex; gap: 28px; }
+.stat { text-align: center; }
+.stat-num { font-size: 18px; font-weight: 600; }
+.stat-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-num.red { color: var(–red); }
+.stat-num.yellow { color: var(–yellow); }
+.stat-num.green { color: var(–green); }
+.stat-num.blue { color: var(–accent); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.pulse { animation: pulse 2s infinite; }
+
+/* LAYOUT */
+.app { display: flex; height: calc(100vh - 57px); }
+
+/* SIDEBAR */
+.sidebar {
+width: 210px; min-width: 210px;
+background: var(–surface);
+border-right: 1px solid var(–border);
+padding: 16px 0;
+overflow-y: auto;
+display: flex; flex-direction: column;
+}
+.sidebar-label {
+font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+color: var(–muted); padding: 0 18px 6px; margin-top: 14px;
+}
+.sidebar-item {
+display: flex; align-items: center; gap: 9px;
+padding: 8px 18px; cursor: pointer;
+border-left: 3px solid transparent;
+transition: background 0.15s;
+}
+.sidebar-item:hover { background: var(–surface2); }
+.sidebar-item.active { background: var(–surface2); border-left-color: var(–accent); }
+.sidebar-item > span:first-of-type { font-size: 13px; flex: 1; }
+.member-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.sb-badge {
+font-size: 10px; padding: 1px 6px; border-radius: 20px;
+background: var(–surface3); border: 1px solid var(–border); color: var(–muted);
+}
+.sb-badge.danger { background: rgba(255,79,106,0.15); border-color: var(–red); color: var(–red); }
+.sb-badge.blue { background: rgba(79,142,247,0.15); border-color: var(–accent); color: var(–accent); }
+.sidebar-bottom { padding: 14px 18px; margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+.sidebar-btn {
+display: flex; align-items: center; gap: 8px;
+padding: 8px 12px; border-radius: 8px;
+background: var(–surface2); border: 1px solid var(–border);
+cursor: pointer; font-size: 12px; color: var(–muted);
+transition: all 0.15s;
+}
+.sidebar-btn:hover { color: var(–text); border-color: var(–border); }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOOLBAR */
+.toolbar {
+padding: 12px 24px; display: flex; align-items: center; gap: 10px;
+border-bottom: 1px solid var(–border); background: var(–surface);
+flex-wrap: wrap;
+}
+.toolbar-title { font-family: ‘DM Serif Display’, serif; font-size: 16px; flex: 1; min-width: 120px; }
+.search-box {
+background: var(–surface2); border: 1px solid var(–border); border-radius: 8px;
+padding: 7px 12px; color: var(–text); font-family: ‘DM Sans’, sans-serif;
+font-size: 13px; width: 200px; outline: none; transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(–accent); }
+.group-toggle {
+display: flex; background: var(–surface2); border: 1px solid var(–border); border-radius: 8px; overflow: hidden;
+}
+.gt-btn {
+padding: 6px 12px; font-size: 11px; cursor: pointer; color: var(–muted);
+transition: all 0.15s; border: none; background: transparent; font-family: ‘DM Sans’, sans-serif;
+}
+.gt-btn.active { background: var(–accent); color: #fff; }
+.filter-chip {
+padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer;
+border: 1px solid var(–border); background: var(–surface2); color: var(–muted);
+transition: all 0.15s;
+}
+.filter-chip.active { background: rgba(79,142,247,0.15); border-color: var(–accent); color: var(–accent); }
+.btn-primary {
+background: var(–accent); color: #fff; border: none; border-radius: 8px;
+padding: 7px 16px; font-family: ‘DM Sans’, sans-serif; font-size: 13px;
+font-weight: 500; cursor: pointer; transition: opacity 0.15s;
+display: flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+/* CONTENT AREA */
+.content-area { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 8px; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; color: var(–muted); padding: 70px 20px; display: none; }
+.empty-state.show { display: block; }
+.empty-state-icon { font-size: 36px; margin-bottom: 10px; }
+
+/* GROUP HEADER */
+.group-header {
+display: flex; align-items: center; gap: 10px;
+padding: 12px 0 4px; font-size: 11px; text-transform: uppercase;
+letter-spacing: 0.8px; color: var(–muted); font-weight: 600; cursor: pointer;
+user-select: none;
+}
+.group-header-line { flex: 1; height: 1px; background: var(–border); }
+.group-count { font-size: 10px; padding: 1px 7px; border-radius: 10px; background: var(–surface2); border: 1px solid var(–border); }
+.group-chevron { font-size: 10px; transition: transform 0.2s; }
+.group-chevron.collapsed { transform: rotate(-90deg); }
+.group-body.collapsed { display: none; }
+
+/* TASK CARD */
+.task-card {
+background: var(–surface); border: 1px solid var(–border); border-radius: var(–radius);
+padding: 13px 16px; display: flex; align-items: flex-start; gap: 12px;
+transition: border-color 0.2s, box-shadow 0.2s; position: relative;
+}
+.task-card:hover { border-color: #323a58; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+.task-card.completed { opacity: 0.38; }
+.task-card.overdue { border-left: 3px solid var(–red); }
+.task-card.due-soon { border-left: 3px solid var(–yellow); }
+.task-card.pinned-today { border-left: 3px solid var(–orange); }
+
+.task-check {
+width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(–border);
+cursor: pointer; flex-shrink: 0; margin-top: 2px;
+transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.task-check:hover { border-color: var(–green); }
+.task-check.checked { background: var(–green); border-color: var(–green); }
+.task-check.checked::after { content: ‘✓’; color: #fff; font-size: 10px; font-weight: 700; }
+
+.task-body { flex: 1; min-width: 0; }
+.task-subject { font-weight: 500; font-size: 13.5px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-card.completed .task-subject { text-decoration: line-through; color: var(–muted); }
+.task-type-badge {
+display: inline-flex; align-items: center; gap: 4px;
+font-size: 10px; padding: 1px 7px; border-radius: 10px; margin-bottom: 5px;
+}
+.task-type-badge.email { background: rgba(79,142,247,0.12); color: var(–accent); border: 1px solid rgba(79,142,247,0.3); }
+.task-type-badge.manual { background: rgba(46,204,135,0.1); color: var(–green); border: 1px solid rgba(46,204,135,0.25); }
+.task-preview {
+color: var(–muted); font-size: 11.5px; margin-bottom: 8px;
+display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+.task-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.member-tag {
+display: flex; align-items: center; gap: 4px; padding: 2px 9px;
+border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid transparent;
+}
+.member-tag .dot { width: 6px; height: 6px; border-radius: 50%; }
+.due-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.due-badge.overdue { background: rgba(255,79,106,0.15); color: var(–red); }
+.due-badge.due-soon { background: rgba(245,197,24,0.12); color: var(–yellow); }
+.due-badge.ok { background: rgba(46,204,135,0.1); color: var(–green); }
+.due-badge.done { background: rgba(107,116,145,0.12); color: var(–muted); }
+.today-pin {
+font-size: 10px; padding: 2px 8px; border-radius: 20px;
+background: rgba(255,140,66,0.15); color: var(–orange); border: 1px solid rgba(255,140,66,0.3);
+cursor: pointer;
+}
+.task-date { font-size: 11px; color: var(–muted); margin-left: auto; }
+.task-actions { display: flex; gap: 5px; flex-shrink: 0; }
+.icon-btn {
+background: var(–surface2); border: 1px solid var(–border); border-radius: 6px;
+width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+cursor: pointer; color: var(–muted); font-size: 13px; transition: all 0.15s;
+}
+.icon-btn:hover { color: var(–text); border-color: #3a4260; }
+.icon-btn.del:hover { color: var(–red); border-color: var(–red); }
+.icon-btn.pin-today:hover { color: var(–orange); border-color: var(–orange); }
+.icon-btn.pinned { color: var(–orange); border-color: var(–orange); background: rgba(255,140,66,0.1); }
+
+/* ═══════════════════════════════════════════════
+TODAY DASHBOARD
+═══════════════════════════════════════════════ */
+.today-panel {
+flex: 1; overflow-y: auto; padding: 20px 24px;
+display: none; flex-direction: column; gap: 16px;
+}
+.today-panel.show { display: flex; }
+.content-area.today-hidden { display: none; }
+
+.today-date-header {
+display: flex; align-items: center; justify-content: space-between;
+padding-bottom: 12px; border-bottom: 1px solid var(–border);
+}
+.today-date-header .date-big {
+font-family: ‘DM Serif Display’, serif; font-size: 24px;
+}
+.today-date-header .date-sub { font-size: 12px; color: var(–muted); margin-top: 2px; }
+.today-progress-wrap { display: flex; align-items: center; gap: 12px; }
+.today-progress-bar {
+width: 140px; height: 6px; background: var(–surface3); border-radius: 3px; overflow: hidden;
+}
+.today-progress-fill { height: 100%; background: var(–green); border-radius: 3px; transition: width 0.4s; }
+.today-progress-label { font-size: 12px; color: var(–muted); }
+
+/* Today sections */
+.today-section-title {
+font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(–muted);
+font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+}
+.today-section-title span { flex: 1; }
+.today-section-title::after { content: ‘’; flex: 1; height: 1px; background: var(–border); }
+
+/* Add today item */
+.add-today-row {
+display: flex; gap: 10px; align-items: center;
+background: var(–surface); border: 1px dashed var(–border); border-radius: 10px;
+padding: 10px 14px; transition: border-color 0.2s;
+}
+.add-today-row:focus-within { border-color: var(–accent); border-style: solid; }
+.add-today-input {
+flex: 1; background: transparent; border: none; color: var(–text);
+font-family: ‘DM Sans’, sans-serif; font-size: 13px; outline: none;
+}
+.add-today-input::placeholder { color: var(–muted); }
+.add-today-member {
+background: var(–surface2); border: 1px solid var(–border); border-radius: 6px;
+padding: 5px 10px; color: var(–text); font-size: 12px; outline: none;
+font-family: ‘DM Sans’, sans-serif; cursor: pointer;
+}
+.btn-add-today {
+background: var(–orange); color: #fff; border: none; border-radius: 7px;
+padding: 6px 14px; font-family: ‘DM Sans’, sans-serif; font-size: 12px;
+font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.15s;
+}
+.btn-add-today:hover { opacity: 0.88; }
+
+/* Today task card */
+.today-card {
+background: var(–surface); border: 1px solid var(–border); border-radius: 10px;
+padding: 11px 14px; display: flex; align-items: center; gap: 10px;
+transition: border-color 0.2s;
+}
+.today-card:hover { border-color: #323a58; }
+.today-card.done-today { opacity: 0.4; }
+.today-card-check {
+width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(–border);
+cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+transition: all 0.2s;
+}
+.today-card-check:hover { border-color: var(–green); }
+.today-card-check.done { background: var(–green); border-color: var(–green); }
+.today-card-check.done::after { content: ‘✓’; color: #fff; font-size: 10px; font-weight: 700; }
+.today-card-text { flex: 1; font-size: 13px; }
+.today-card.done-today .today-card-text { text-decoration: line-through; color: var(–muted); }
+.today-card-meta { display: flex; align-items: center; gap: 6px; }
+.today-source-tag {
+font-size: 10px; padding: 1px 7px; border-radius: 10px;
+background: var(–surface2); border: 1px solid var(–border); color: var(–muted);
+}
+.today-card-del { cursor: pointer; color: var(–muted); font-size: 13px; transition: color 0.15s; }
+.today-card-del:hover { color: var(–red); }
+
+/* ═══════════════════════════════════════════════
+MODALS
+═══════════════════════════════════════════════ */
+.overlay {
+position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+backdrop-filter: blur(4px); z-index: 200;
+display: flex; align-items: center; justify-content: center;
+opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.modal {
+background: var(–surface); border: 1px solid var(–border); border-radius: 16px;
+width: 560px; max-width: 95vw; padding: 28px;
+box-shadow: var(–shadow); transform: translateY(16px); transition: transform 0.22s;
+}
+.overlay.show .modal { transform: translateY(0); }
+.modal h2 { font-family: ‘DM Serif Display’, serif; font-size: 19px; margin-bottom: 22px; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-grid.full { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field select, .field textarea {
+background: var(–surface2); border: 1px solid var(–border); border-radius: 8px;
+padding: 9px 12px; color: var(–text); font-family: ‘DM Sans’, sans-serif;
+font-size: 13px; outline: none; transition: border-color 0.2s; resize: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(–accent); }
+.field select option { background: var(–surface2); }
+.type-toggle { display: flex; gap: 8px; }
+.type-opt {
+flex: 1; padding: 8px; border-radius: 8px; text-align: center; cursor: pointer;
+border: 1px solid var(–border); font-size: 12px; font-weight: 500; transition: all 0.15s;
+color: var(–muted);
+}
+.type-opt.selected.email { background: rgba(79,142,247,0.15); border-color: var(–accent); color: var(–accent); }
+.type-opt.selected.manual { background: rgba(46,204,135,0.1); border-color: var(–green); color: var(–green); }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-cancel {
+background: transparent; border: 1px solid var(–border); border-radius: 8px;
+padding: 7px 16px; color: var(–muted); font-family: ‘DM Sans’, sans-serif;
+font-size: 13px; cursor: pointer; transition: all 0.15s;
+}
+.btn-cancel:hover { color: var(–text); border-color: var(–text); }
+
+/* MANAGE MEMBERS */
+.member-list-manage { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; max-height: 300px; overflow-y: auto; }
+.member-row {
+display: flex; align-items: center; gap: 10px;
+background: var(–surface2); padding: 9px 12px; border-radius: 8px; border: 1px solid var(–border);
+}
+.member-row span { flex: 1; font-size: 13px; }
+.add-member-row { display: flex; gap: 8px; }
+.add-member-row input {
+flex: 1; background: var(–surface2); border: 1px solid var(–border); border-radius: 8px;
+padding: 8px 12px; color: var(–text); font-family: ‘DM Sans’, sans-serif; font-size: 13px; outline: none;
+}
+.add-member-row input:focus { border-color: var(–accent); }
+
+/* VIEW MODAL */
+.view-subject { font-family: ‘DM Serif Display’, serif; font-size: 17px; margin-bottom: 14px; line-height: 1.35; }
+.view-body {
+background: var(–surface2); border: 1px solid var(–border); border-radius: 8px;
+padding: 14px; font-size: 12.5px; color: var(–text); white-space: pre-wrap;
+max-height: 260px; overflow-y: auto; line-height: 1.6; margin-bottom: 14px;
+}
+.view-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border); border-radius: 3px; }
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<header>
+  <h1>Mail <span>Deliverables</span> Tracker</h1>
+  <div class="header-stats">
+    <div class="stat"><div class="stat-num blue" id="stat-today">0</div><div class="stat-label">Today</div></div>
+    <div class="stat"><div class="stat-num red pulse" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div>
+    <div class="stat"><div class="stat-num yellow" id="stat-pending">0</div><div class="stat-label">Pending</div></div>
+    <div class="stat"><div class="stat-num green" id="stat-done">0</div><div class="stat-label">Done</div></div>
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Views</div>
+    <div class="sidebar-item active" data-filter="today" onclick="setFilter('today',this)">
+      <span style="font-size:15px">☀️</span>
+      <span>Today</span>
+      <span class="sb-badge blue" id="badge-today">0</span>
+    </div>
+    <div class="sidebar-item" data-filter="all" onclick="setFilter('all',this)">
+      <span style="font-size:15px">📋</span>
+      <span>All Tasks</span>
+      <span class="sb-badge" id="badge-all">0</span>
+    </div>
+    <div class="sidebar-item" data-filter="overdue" onclick="setFilter('overdue',this)">
+      <span style="font-size:15px">🔴</span>
+      <span>Overdue</span>
+      <span class="sb-badge danger" id="badge-overdue">0</span>
+    </div>
+    <div class="sidebar-item" data-filter="due-soon" onclick="setFilter('due-soon',this)">
+      <span style="font-size:15px">⚠️</span>
+      <span>Due Soon</span>
+      <span class="sb-badge" id="badge-soon">0</span>
+    </div>
+    <div class="sidebar-item" data-filter="completed" onclick="setFilter('completed',this)">
+      <span style="font-size:15px">✅</span>
+      <span>Completed</span>
+      <span class="sb-badge" id="badge-done">0</span>
+    </div>
+
+```
+<div class="sidebar-label">By Member</div>
+<div id="member-sidebar"></div>
+
+<div class="sidebar-bottom">
+  <div class="sidebar-btn" onclick="openManageMembers()">⚙️ <span>Manage Members</span></div>
+</div>
+```
+
+  </div>
+
+  <!-- MAIN -->
+
+  <div class="main">
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="toolbar-title" id="toolbar-title">Today</div>
+      <input class="search-box" type="text" id="search-input" placeholder="Search…" oninput="renderView()"/>
+      <div class="group-toggle" id="group-toggle" style="display:none">
+        <button class="gt-btn active" id="gt-member" onclick="setGroupBy('member')">By Member</button>
+        <button class="gt-btn" id="gt-subject" onclick="setGroupBy('subject')">By Subject</button>
+        <button class="gt-btn" id="gt-none" onclick="setGroupBy('none')">Flat</button>
+      </div>
+      <button class="filter-chip" id="show-completed-btn" onclick="toggleShowCompleted()">Show Done</button>
+      <button class="btn-primary" onclick="openAddModal()">＋ Add Task</button>
+    </div>
+
+```
+<!-- TODAY PANEL -->
+<div class="today-panel show" id="today-panel">
+  <div class="today-date-header">
+    <div>
+      <div class="date-big" id="today-date-display"></div>
+      <div class="date-sub" id="today-date-sub"></div>
+    </div>
+    <div class="today-progress-wrap">
+      <div class="today-progress-bar"><div class="today-progress-fill" id="today-progress" style="width:0%"></div></div>
+      <div class="today-progress-label" id="today-progress-label">0 / 0 done</div>
+    </div>
+  </div>
+
+  <!-- Quick add -->
+  <div>
+    <div class="today-section-title"><span>Quick Add for Today</span></div>
+    <div class="add-today-row">
+      <input class="add-today-input" id="quick-today-input" placeholder="Add a specific item to do today… (press Enter)" onkeydown="if(event.key==='Enter') quickAddToday()"/>
+      <select class="add-today-member" id="quick-today-member"></select>
+      <button class="btn-add-today" onclick="quickAddToday()">Add</button>
+    </div>
+  </div>
+
+  <!-- Pinned from tasks -->
+  <div id="today-pinned-section">
+    <div class="today-section-title"><span>Pinned Tasks</span></div>
+    <div id="today-pinned-list"></div>
+  </div>
+
+  <!-- Overdue -->
+  <div id="today-overdue-section">
+    <div class="today-section-title"><span>🔴 Overdue — Needs Attention</span></div>
+    <div id="today-overdue-list"></div>
+  </div>
+
+  <!-- Quick items -->
+  <div id="today-quick-section">
+    <div class="today-section-title"><span>☀️ Today's Items</span></div>
+    <div id="today-quick-list"></div>
+  </div>
+
+  <div class="empty-state" id="today-empty" style="display:none; padding:40px 0;">
+    <div class="empty-state-icon">🌅</div>
+    <p>Nothing scheduled for today. Add items above or pin tasks from All Tasks.</p>
+  </div>
+</div>
+
+<!-- TASK LIST (all other views) -->
+<div class="content-area today-hidden" id="task-list-area">
+  <div class="empty-state" id="empty-state">
+    <div class="empty-state-icon">📬</div>
+    <p>No tasks found. Click <strong>+ Add Task</strong> to get started.</p>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+
+<div class="overlay" id="add-modal">
+  <div class="modal">
+    <h2 id="modal-title">Add Task</h2>
+    <div style="margin-bottom:16px">
+      <div class="field" style="margin-bottom:4px"><label>Task Type</label></div>
+      <div class="type-toggle">
+        <div class="type-opt email selected" id="type-email" onclick="setTaskType('email')">📧 Email / Forwarded Mail</div>
+        <div class="type-opt manual" id="type-manual" onclick="setTaskType('manual')">✍️ Manual Task</div>
+      </div>
+    </div>
+    <div class="modal-grid full" style="margin-bottom:14px">
+      <div class="field">
+        <label id="subject-label">Email Subject</label>
+        <input type="text" id="f-subject" placeholder="Paste email subject or task title…"/>
+      </div>
+    </div>
+    <div class="modal-grid full" style="margin-bottom:14px" id="body-field-wrap">
+      <div class="field">
+        <label>Email Body / Notes</label>
+        <textarea id="f-body" rows="3" placeholder="Paste forwarded email content or notes…"></textarea>
+      </div>
+    </div>
+    <div class="modal-grid">
+      <div class="field">
+        <label>Assign To</label>
+        <select id="f-member"></select>
+      </div>
+      <div class="field">
+        <label>Due Date</label>
+        <input type="date" id="f-due"/>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="f-pin-today" style="width:auto;padding:0"/> Pin to Today's Dashboard
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('add-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+
+<div class="overlay" id="view-modal">
+  <div class="modal">
+    <div id="view-type-badge" style="margin-bottom:10px"></div>
+    <div class="view-subject" id="view-subject"></div>
+    <div class="view-body" id="view-body"></div>
+    <div class="view-meta" id="view-meta"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('view-modal')">Close</button>
+      <button class="btn-primary" id="view-edit-btn">Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE MEMBERS -->
+
+<div class="overlay" id="members-modal">
+  <div class="modal">
+    <h2>Manage Team Members</h2>
+    <div class="member-list-manage" id="manage-member-list"></div>
+    <div class="add-member-row">
+      <input type="text" id="new-member-input" placeholder="New member name…" onkeydown="if(event.key==='Enter') addMember()"/>
+      <button class="btn-primary" onclick="addMember()">Add</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal('members-modal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── COLORS & STATE ───────────────────────────────────────────────────────────
+const COLORS = ['#4f8ef7','#2ecc87','#f5c518','#ff6b6b','#c084fc','#fb923c','#22d3ee','#f472b6','#a3e635','#fbbf24','#60a5fa','#34d399','#e879f9','#38bdf8','#f97316'];
+
+let state = JSON.parse(localStorage.getItem('mdt-state-v2') || 'null') || {
+  members: [
+    { id:1, name:'Ravi Kumar', color:COLORS[0] },
+    { id:2, name:'Priya Sharma', color:COLORS[1] },
+    { id:3, name:'Arjun Singh', color:COLORS[2] },
+  ],
+  tasks: [],
+  todayItems: [],  // { id, text, memberId, done, date }
+  nextMemberId: 4,
+  nextTaskId: 1,
+  nextTodayId: 1
+};
+
+let currentFilter = 'today';
+let groupBy = 'member'; // 'member' | 'subject' | 'none'
+let showCompleted = false;
+let editingTaskId = null;
+let currentTaskType = 'email';
+
+function save() { localStorage.setItem('mdt-state-v2', JSON.stringify(state)); }
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function getMember(id) { return state.members.find(m => m.id === id); }
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayLabel() {
+  const d = new Date();
+  return d.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+function getDueStatus(task) {
+  if (task.completed) return 'done';
+  if (!task.due) return 'ok';
+  const now = today();
+  if (task.due < now) return 'overdue';
+  const tm = new Date(); tm.setDate(tm.getDate()+1);
+  const tStr = `${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,'0')}-${String(tm.getDate()).padStart(2,'0')}`;
+  if (task.due <= tStr) return 'due-soon';
+  return 'ok';
+}
+function formatDate(str) {
+  if (!str) return '';
+  const [y,m,d] = str.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d} ${months[parseInt(m)-1]} ${y}`;
+}
+function dueLabel(status, due) {
+  if (status === 'done') return 'Completed';
+  if (!due) return 'No due date';
+  if (status === 'overdue') return `Overdue · ${formatDate(due)}`;
+  if (status === 'due-soon') return `Due Today/Tomorrow`;
+  return formatDate(due);
+}
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Normalize subject for grouping (trim, lowercase for comparison, display original)
+function normalizeSubject(s) { return (s||'').trim().toLowerCase().replace(/^(re:|fwd?:|fw:)\s*/i,'').trim(); }
+
+// ─── RENDER ALL ───────────────────────────────────────────────────────────────
+function renderAll() { renderSidebar(); renderStats(); renderView(); }
+
+function renderStats() {
+  const pending = state.tasks.filter(t => !t.completed);
+  const overdueCount = pending.filter(t => getDueStatus(t) === 'overdue').length;
+  const todayCount = state.todayItems.filter(i => i.date === today() && !i.done).length
+    + state.tasks.filter(t => !t.completed && t.pinnedToday).length;
+  document.getElementById('stat-overdue').textContent = overdueCount;
+  document.getElementById('stat-pending').textContent = pending.length;
+  document.getElementById('stat-done').textContent = state.tasks.filter(t => t.completed).length;
+  document.getElementById('stat-today').textContent = todayCount;
+  document.getElementById('badge-today').textContent = todayCount;
+  document.getElementById('badge-all').textContent = pending.length;
+  document.getElementById('badge-overdue').textContent = overdueCount;
+  document.getElementById('badge-soon').textContent = pending.filter(t => getDueStatus(t) === 'due-soon').length;
+  document.getElementById('badge-done').textContent = state.tasks.filter(t => t.completed).length;
+}
+
+function renderSidebar() {
+  const el = document.getElementById('member-sidebar');
+  el.innerHTML = '';
+  state.members.forEach(m => {
+    const pendingCount = state.tasks.filter(t => t.memberId === m.id && !t.completed).length;
+    const overdueCount = state.tasks.filter(t => t.memberId === m.id && !t.completed && getDueStatus(t) === 'overdue').length;
+    const div = document.createElement('div');
+    div.className = 'sidebar-item' + (currentFilter === `member-${m.id}` ? ' active' : '');
+    div.onclick = () => setFilter(`member-${m.id}`, div);
+    div.innerHTML = `<div class="member-dot" style="background:${m.color}"></div><span>${m.name}</span><span class="sb-badge ${overdueCount > 0 ? 'danger' : ''}">${pendingCount}</span>`;
+    el.appendChild(div);
+  });
+}
+
+// ─── VIEW ROUTING ─────────────────────────────────────────────────────────────
+function renderView() {
+  if (currentFilter === 'today') {
+    document.getElementById('today-panel').classList.add('show');
+    document.getElementById('task-list-area').classList.add('today-hidden');
+    document.getElementById('group-toggle').style.display = 'none';
+    renderTodayPanel();
+  } else {
+    document.getElementById('today-panel').classList.remove('show');
+    document.getElementById('task-list-area').classList.remove('today-hidden');
+    document.getElementById('group-toggle').style.display = 'flex';
+    renderTaskList();
+  }
+}
+
+// ─── TODAY PANEL ──────────────────────────────────────────────────────────────
+function renderTodayPanel() {
+  const d = new Date();
+  document.getElementById('today-date-display').textContent = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+  document.getElementById('today-date-sub').textContent = d.toLocaleDateString('en-IN', { year:'numeric' });
+
+  // Progress
+  const todayTasks = state.todayItems.filter(i => i.date === today());
+  const pinnedTasks = state.tasks.filter(t => t.pinnedToday && !t.completed);
+  const totalItems = todayTasks.length + pinnedTasks.length;
+  const doneItems = todayTasks.filter(i => i.done).length + state.tasks.filter(t => t.pinnedToday && t.completed).length;
+  const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+  document.getElementById('today-progress').style.width = pct + '%';
+  document.getElementById('today-progress-label').textContent = `${doneItems} / ${totalItems} done`;
+
+  // Populate member selects
+  populateMemberSelect('quick-today-member');
+
+  // Overdue
+  const overdueTasks = state.tasks.filter(t => !t.completed && getDueStatus(t) === 'overdue');
+  const overdueSection = document.getElementById('today-overdue-section');
+  const overdueList = document.getElementById('today-overdue-list');
+  overdueList.innerHTML = '';
+  if (overdueTasks.length > 0) {
+    overdueSection.style.display = '';
+    overdueTasks.forEach(t => {
+      const m = getMember(t.memberId);
+      const card = document.createElement('div');
+      card.className = 'today-card';
+      card.style.borderLeftColor = 'var(--red)';
+      card.style.borderLeftWidth = '3px';
+      card.innerHTML = `
+        <div class="today-card-check ${t.completed ? 'done' : ''}" onclick="toggleComplete(${t.id})"></div>
+        <div class="today-card-text">${escHtml(t.subject)}</div>
+        <div class="today-card-meta">
+          ${m ? `<span class="today-source-tag" style="color:${m.color};border-color:${m.color}44">${m.name}</span>` : ''}
+          <span class="today-source-tag" style="color:var(--red);border-color:rgba(255,79,106,0.3)">Overdue ${formatDate(t.due)}</span>
+        </div>
+      `;
+      overdueList.appendChild(card);
+    });
+  } else {
+    overdueSection.style.display = 'none';
+  }
+
+  // Pinned tasks
+  const pinnedSection = document.getElementById('today-pinned-section');
+  const pinnedList = document.getElementById('today-pinned-list');
+  pinnedList.innerHTML = '';
+  if (pinnedTasks.length > 0) {
+    pinnedSection.style.display = '';
+    pinnedTasks.forEach(t => {
+      const m = getMember(t.memberId);
+      const card = document.createElement('div');
+      card.className = 'today-card' + (t.completed ? ' done-today' : '');
+      card.style.borderLeftColor = 'var(--orange)';
+      card.style.borderLeftWidth = '3px';
+      card.innerHTML = `
+        <div class="today-card-check ${t.completed ? 'done' : ''}" onclick="toggleComplete(${t.id})"></div>
+        <div class="today-card-text">${escHtml(t.subject)}</div>
+        <div class="today-card-meta">
+          ${m ? `<span class="today-source-tag" style="color:${m.color};border-color:${m.color}44">${m.name}</span>` : ''}
+          ${t.due ? `<span class="today-source-tag">Due ${formatDate(t.due)}</span>` : ''}
+          <span style="cursor:pointer;font-size:11px;color:var(--muted)" onclick="unpinTask(${t.id})" title="Unpin">📌</span>
+        </div>
+      `;
+      pinnedList.appendChild(card);
+    });
+  } else {
+    pinnedSection.style.display = 'none';
+  }
+
+  // Quick today items
+  const quickSection = document.getElementById('today-quick-section');
+  const quickList = document.getElementById('today-quick-list');
+  quickList.innerHTML = '';
+  if (todayTasks.length > 0) {
+    quickSection.style.display = '';
+    todayTasks.sort((a,b) => a.done - b.done);
+    todayTasks.forEach(item => {
+      const m = getMember(item.memberId);
+      const card = document.createElement('div');
+      card.className = 'today-card' + (item.done ? ' done-today' : '');
+      card.innerHTML = `
+        <div class="today-card-check ${item.done ? 'done' : ''}" onclick="toggleTodayItem(${item.id})"></div>
+        <div class="today-card-text">${escHtml(item.text)}</div>
+        <div class="today-card-meta">
+          ${m ? `<span class="today-source-tag" style="color:${m.color};border-color:${m.color}44">${m.name}</span>` : ''}
+        </div>
+        <div class="today-card-del" onclick="deleteTodayItem(${item.id})">✕</div>
+      `;
+      quickList.appendChild(card);
+    });
+  } else {
+    quickSection.style.display = todayTasks.length === 0 ? '' : '';
+  }
+
+  // Empty state
+  const hasAnything = overdueTasks.length > 0 || pinnedTasks.length > 0 || todayTasks.length > 0;
+  document.getElementById('today-empty').style.display = hasAnything ? 'none' : 'block';
+}
+
+function quickAddToday() {
+  const input = document.getElementById('quick-today-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const memberId = parseInt(document.getElementById('quick-today-member').value) || null;
+  state.todayItems.push({ id: state.nextTodayId++, text, memberId, done: false, date: today() });
+  input.value = '';
+  save(); renderAll();
+}
+
+function toggleTodayItem(id) {
+  const item = state.todayItems.find(i => i.id === id);
+  if (item) { item.done = !item.done; save(); renderAll(); }
+}
+
+function deleteTodayItem(id) {
+  state.todayItems = state.todayItems.filter(i => i.id !== id);
+  save(); renderAll();
+}
+
+function unpinTask(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (t) { t.pinnedToday = false; save(); renderAll(); }
+}
+
+// ─── TASK LIST ────────────────────────────────────────────────────────────────
+function renderTaskList() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  let tasks = [...state.tasks];
+
+  if (currentFilter === 'overdue') tasks = tasks.filter(t => !t.completed && getDueStatus(t) === 'overdue');
+  else if (currentFilter === 'due-soon') tasks = tasks.filter(t => !t.completed && getDueStatus(t) === 'due-soon');
+  else if (currentFilter === 'completed') tasks = tasks.filter(t => t.completed);
+  else if (currentFilter.startsWith('member-')) {
+    const mid = parseInt(currentFilter.split('-')[1]);
+    tasks = tasks.filter(t => t.memberId === mid);
+  }
+
+  if (!showCompleted && currentFilter !== 'completed') {
+    tasks = tasks.filter(t => !t.completed);
+  }
+
+  if (search) {
+    tasks = tasks.filter(t => {
+      const m = getMember(t.memberId);
+      return t.subject.toLowerCase().includes(search) || (m && m.name.toLowerCase().includes(search)) || (t.body||'').toLowerCase().includes(search);
+    });
+  }
+
+  tasks.sort((a,b) => {
+    if (a.completed && !b.completed) return 1;
+    if (!a.completed && b.completed) return -1;
+    const order = { overdue:0, 'due-soon':1, ok:2, done:3 };
+    const sa = getDueStatus(a), sb = getDueStatus(b);
+    if (order[sa] !== order[sb]) return order[sa] - order[sb];
+    if (a.due && b.due) return a.due.localeCompare(b.due);
+    return b.id - a.id;
+  });
+
+  const area = document.getElementById('task-list-area');
+  const empty = document.getElementById('empty-state');
+  // Clear except empty state
+  Array.from(area.children).forEach(c => { if (c !== empty) c.remove(); });
+
+  if (tasks.length === 0) { empty.classList.add('show'); return; }
+  empty.classList.remove('show');
+
+  if (groupBy === 'subject') {
+    // Group by normalized subject
+    const groups = {};
+    const groupOrder = [];
+    tasks.forEach(t => {
+      const key = normalizeSubject(t.subject);
+      if (!groups[key]) { groups[key] = { label: t.subject, tasks: [] }; groupOrder.push(key); }
+      groups[key].tasks.push(t);
+    });
+    groupOrder.forEach(key => {
+      const g = groups[key];
+      const gh = buildGroupHeader(g.label, '📧', null, g.tasks.length, key);
+      area.appendChild(gh.header);
+      area.appendChild(gh.body);
+      g.tasks.forEach(t => gh.body.appendChild(buildCard(t)));
+    });
+  } else if (groupBy === 'member') {
+    const grouped = {};
+    tasks.forEach(t => {
+      const k = t.memberId;
+      if (!grouped[k]) grouped[k] = [];
+      grouped[k].push(t);
+    });
+    state.members.forEach(m => {
+      if (!grouped[m.id] || grouped[m.id].length === 0) return;
+      const gh = buildGroupHeader(m.name, null, m.color, grouped[m.id].length, `m${m.id}`);
+      area.appendChild(gh.header);
+      area.appendChild(gh.body);
+      grouped[m.id].forEach(t => gh.body.appendChild(buildCard(t)));
+    });
+    // unassigned
+    if (grouped['undefined'] || grouped[NaN]) {
+      const unassigned = tasks.filter(t => !getMember(t.memberId));
+      if (unassigned.length > 0) {
+        const gh = buildGroupHeader('Unassigned', '👤', null, unassigned.length, 'unassigned');
+        area.appendChild(gh.header);
+        area.appendChild(gh.body);
+        unassigned.forEach(t => gh.body.appendChild(buildCard(t)));
+      }
+    }
+  } else {
+    tasks.forEach(t => area.appendChild(buildCard(t)));
+  }
+}
+
+function buildGroupHeader(label, icon, color, count, key) {
+  const collapsed = collapsedGroups[key] || false;
+  const header = document.createElement('div');
+  header.className = 'group-header';
+  header.innerHTML = `
+    ${color ? `<div class="member-dot" style="background:${color};width:8px;height:8px"></div>` : (icon ? `<span style="font-size:11px">${icon}</span>` : '')}
+    <span style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(label)}</span>
+    <span class="group-count">${count}</span>
+    <div class="group-header-line"></div>
+    <span class="group-chevron ${collapsed ? 'collapsed' : ''}">▼</span>
+  `;
+  const body = document.createElement('div');
+  body.className = 'group-body' + (collapsed ? ' collapsed' : '');
+  body.style.display = 'flex'; body.style.flexDirection = 'column'; body.style.gap = '8px'; body.style.marginBottom = '4px';
+  header.onclick = () => {
+    collapsedGroups[key] = !collapsedGroups[key];
+    body.classList.toggle('collapsed');
+    header.querySelector('.group-chevron').classList.toggle('collapsed');
+  };
+  return { header, body };
+}
+
+const collapsedGroups = {};
+
+function buildCard(task) {
+  const m = getMember(task.memberId);
+  const status = getDueStatus(task);
+  const isPinned = task.pinnedToday && !task.completed;
+  const card = document.createElement('div');
+  card.className = `task-card ${!task.completed && status !== 'ok' && status !== 'done' ? status : ''} ${task.completed ? 'completed' : ''} ${isPinned ? 'pinned-today' : ''}`;
+
+  const bgColor = m ? m.color + '16' : 'transparent';
+  const bdrColor = m ? m.color + '44' : 'transparent';
+
+  card.innerHTML = `
+    <div class="task-check ${task.completed ? 'checked' : ''}" onclick="toggleComplete(${task.id})"></div>
+    <div class="task-body">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <span class="task-type-badge ${task.type || 'email'}">${task.type === 'manual' ? '✍️ Manual' : '📧 Email'}</span>
+        ${isPinned ? '<span style="font-size:10px;color:var(--orange)">📌 Pinned Today</span>' : ''}
+      </div>
+      <div class="task-subject">${escHtml(task.subject)}</div>
+      ${task.body ? `<div class="task-preview">${escHtml(task.body)}</div>` : ''}
+      <div class="task-meta">
+        ${m ? `<div class="member-tag" style="background:${bgColor};border-color:${bdrColor};color:${m.color}"><div class="dot" style="background:${m.color}"></div>${m.name}</div>` : ''}
+        <div class="due-badge ${status}">${dueLabel(status, task.due)}</div>
+        <div class="task-date">Added ${formatDate(task.added)}</div>
+      </div>
+    </div>
+    <div class="task-actions">
+      <div class="icon-btn pin-today ${isPinned ? 'pinned' : ''}" onclick="togglePinToday(${task.id})" title="${isPinned ? 'Unpin from Today' : 'Pin to Today'}">📌</div>
+      <div class="icon-btn" onclick="openViewModal(${task.id})" title="View">👁</div>
+      <div class="icon-btn" onclick="openEditModal(${task.id})" title="Edit">✏️</div>
+      <div class="icon-btn del" onclick="deleteTask(${task.id})" title="Delete">🗑</div>
+    </div>
+  `;
+  return card;
+}
+
+// ─── GROUPBY ──────────────────────────────────────────────────────────────────
+function setGroupBy(g) {
+  groupBy = g;
+  ['member','subject','none'].forEach(k => document.getElementById(`gt-${k}`).classList.toggle('active', k === g));
+  renderTaskList();
+}
+
+// ─── FILTER ───────────────────────────────────────────────────────────────────
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = { today:'Today', all:'All Tasks', overdue:'Overdue', 'due-soon':'Due Soon', completed:'Completed' };
+  if (titles[filter]) document.getElementById('toolbar-title').textContent = titles[filter];
+  else if (filter.startsWith('member-')) {
+    const m = getMember(parseInt(filter.split('-')[1]));
+    document.getElementById('toolbar-title').textContent = m ? m.name : '';
+  }
+  renderView();
+}
+
+function toggleShowCompleted() {
+  showCompleted = !showCompleted;
+  document.getElementById('show-completed-btn').classList.toggle('active', showCompleted);
+  renderView();
+}
+
+// ─── TASK CRUD ────────────────────────────────────────────────────────────────
+function toggleComplete(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (t) { t.completed = !t.completed; if (t.completed) t.pinnedToday = false; save(); renderAll(); }
+}
+
+function togglePinToday(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (t) { t.pinnedToday = !t.pinnedToday; save(); renderAll(); }
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  save(); renderAll();
+}
+
+function setTaskType(type) {
+  currentTaskType = type;
+  document.getElementById('type-email').className = 'type-opt email' + (type === 'email' ? ' selected' : '');
+  document.getElementById('type-manual').className = 'type-opt manual' + (type === 'manual' ? ' selected' : '');
+  document.getElementById('subject-label').textContent = type === 'manual' ? 'Task Title' : 'Email Subject';
+  document.getElementById('body-field-wrap').style.display = type === 'email' ? '' : '';
+  document.getElementById('f-body').placeholder = type === 'manual' ? 'Add notes or details…' : 'Paste forwarded email content or notes…';
+}
+
+function openAddModal(prefillSubject) {
+  editingTaskId = null;
+  document.getElementById('modal-title').textContent = 'Add Task';
+  document.getElementById('f-subject').value = prefillSubject || '';
+  document.getElementById('f-body').value = '';
+  document.getElementById('f-due').value = '';
+  document.getElementById('f-pin-today').checked = currentFilter === 'today';
+  setTaskType('email');
+  populateMemberSelect('f-member');
+  const tm = new Date(); tm.setDate(tm.getDate()+1);
+  document.getElementById('f-due').value = `${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,'0')}-${String(tm.getDate()).padStart(2,'0')}`;
+  openModal('add-modal');
+}
+
+function openEditModal(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (!t) return;
+  editingTaskId = id;
+  document.getElementById('modal-title').textContent = 'Edit Task';
+  document.getElementById('f-subject').value = t.subject;
+  document.getElementById('f-body').value = t.body || '';
+  document.getElementById('f-due').value = t.due || '';
+  document.getElementById('f-pin-today').checked = !!t.pinnedToday;
+  setTaskType(t.type || 'email');
+  populateMemberSelect('f-member', t.memberId);
+  openModal('add-modal');
+}
+
+function saveTask() {
+  const subject = document.getElementById('f-subject').value.trim();
+  if (!subject) { alert('Please enter a subject / title.'); return; }
+  const memberId = parseInt(document.getElementById('f-member').value);
+  const due = document.getElementById('f-due').value;
+  const body = document.getElementById('f-body').value.trim();
+  const pinnedToday = document.getElementById('f-pin-today').checked;
+
+  if (editingTaskId) {
+    const t = state.tasks.find(t => t.id === editingTaskId);
+    if (t) { Object.assign(t, { subject, memberId, due, body, pinnedToday, type: currentTaskType }); }
+  } else {
+    state.tasks.push({ id: state.nextTaskId++, subject, memberId, due, body, pinnedToday, type: currentTaskType, completed: false, added: today() });
+  }
+  save(); closeModal('add-modal'); renderAll();
+}
+
+function openViewModal(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (!t) return;
+  const m = getMember(t.memberId);
+  const status = getDueStatus(t);
+  document.getElementById('view-type-badge').innerHTML = `<span class="task-type-badge ${t.type || 'email'}" style="display:inline-flex">${t.type === 'manual' ? '✍️ Manual Task' : '📧 Email Task'}</span>`;
+  document.getElementById('view-subject').textContent = t.subject;
+  document.getElementById('view-body').textContent = t.body || '(No body / notes)';
+  document.getElementById('view-meta').innerHTML = `
+    ${m ? `<div class="member-tag" style="background:${m.color}16;border:1px solid ${m.color}44;color:${m.color};display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px"><div style="width:7px;height:7px;border-radius:50%;background:${m.color}"></div>${m.name}</div>` : ''}
+    <div class="due-badge ${status}">${dueLabel(status, t.due)}</div>
+    <div class="task-date">Added ${formatDate(t.added)}</div>
+  `;
+  document.getElementById('view-edit-btn').onclick = () => { closeModal('view-modal'); openEditModal(id); };
+  openModal('view-modal');
+}
+
+// ─── MEMBERS ──────────────────────────────────────────────────────────────────
+function populateMemberSelect(elId, selectedId) {
+  const sel = document.getElementById(elId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  state.members.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id; opt.textContent = m.name;
+    if (m.id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function openManageMembers() { renderManageMembers(); openModal('members-modal'); }
+
+function renderManageMembers() {
+  const el = document.getElementById('manage-member-list');
+  el.innerHTML = '';
+  state.members.forEach(m => {
+    const row = document.createElement('div');
+    row.className = 'member-row';
+    row.innerHTML = `<div class="member-dot" style="background:${m.color};width:12px;height:12px"></div><span>${m.name}</span><div class="icon-btn del" onclick="removeMember(${m.id})" style="width:24px;height:24px;font-size:11px">✕</div>`;
+    el.appendChild(row);
+  });
+}
+
+function addMember() {
+  const input = document.getElementById('new-member-input');
+  const name = input.value.trim();
+  if (!name) return;
+  state.members.push({ id: state.nextMemberId++, name, color: COLORS[state.members.length % COLORS.length] });
+  input.value = '';
+  save(); renderManageMembers(); renderSidebar();
+}
+
+function removeMember(id) {
+  if (state.tasks.some(t => t.memberId === id && !t.completed)) {
+    if (!confirm('This member has pending tasks. Remove anyway?')) return;
+  }
+  state.members = state.members.filter(m => m.id !== id);
+  save(); renderManageMembers(); renderSidebar();
+}
+
+// ─── MODALS ───────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); }));
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// Clean old today items (older than 7 days)
+const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`;
+state.todayItems = state.todayItems.filter(i => i.date >= cutoffStr);
+save();
+
+renderAll();
+</script>
+
+</body>
+</html>
