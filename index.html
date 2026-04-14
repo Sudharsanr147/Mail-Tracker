@@ -11,8 +11,20 @@
   --bg:#0d0f18; --surface:#131722; --surface2:#1a1f30; --surface3:#212640;
   --border:#262d42; --text:#e4e8f5; --muted:#5c6480;
   --accent:#4f8ef7; --green:#2ecc87; --red:#e53935; --yellow:#f5c518; --orange:#ff8c42;
-  --radius:12px; --shadow:0 8px 32px rgba(0,0,0,0.5);
+  --radius:12px; --shadow:0 8px 32px rgba(0,0,0,0.5); --card-hover:#1e2438;
 }
+body.light-theme {
+  --bg:#f0f2f8; --surface:#ffffff; --surface2:#f0f2f8; --surface3:#e4e8f5;
+  --border:#d0d5e8; --text:#1a1f36; --muted:#7a84a8;
+  --accent:#2563eb; --green:#16a34a; --red:#dc2626; --yellow:#b45309; --orange:#c2410c;
+  --shadow:0 4px 20px rgba(0,0,0,0.12); --card-hover:#e8ecf8;
+}
+.theme-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;}
+.theme-toggle-label{font-size:11px;color:var(--muted);}
+.toggle-track{width:36px;height:20px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;position:relative;transition:background .2s,border-color .2s;cursor:pointer;flex-shrink:0;}
+.toggle-track.on{background:var(--accent);border-color:var(--accent);}
+.toggle-thumb{width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.toggle-track.on .toggle-thumb{left:18px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;}
 /* SCROLLBAR */
@@ -42,6 +54,8 @@ header h1 span{color:var(–accent);}
 .sb-item{display:flex;align-items:center;gap:8px;padding:7px 16px;cursor:pointer;border-left:3px solid transparent;transition:background .15s;justify-content:flex-start;}
 .sb-item:hover{background:var(–surface2);}
 .sb-item.active{background:var(–surface2);border-left-color:var(–accent);}
+body.light-theme .sb-item:hover{background:var(–surface3);}
+body.light-theme .sb-item.active{background:var(–surface3);}
 .sb-item>span.sb-name{font-size:12.5px;flex:1;text-align:left;}
 .member-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .sb-badge{font-size:10px;padding:1px 6px;border-radius:20px;background:var(–surface3);border:1px solid var(–border);color:var(–muted);}
@@ -67,9 +81,9 @@ header h1 span{color:var(–accent);}
 .gt-btn.active{background:var(–accent);color:#fff;}
 .filter-chip{padding:4px 11px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(–border);background:var(–surface2);color:var(–muted);transition:all .15s;}
 .filter-chip.active{background:rgba(79,142,247,.15);border-color:var(–accent);color:var(–accent);}
-.btn-primary{background:var(–red);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:‘DM Sans’,sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn-primary{background:#dc2626;color:#fff !important;border:none;border-radius:8px;padding:6px 14px;font-family:‘DM Sans’,sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
 .btn-primary:hover{opacity:.88;}
-.btn-green{background:var(–green)!important;}
+.btn-green{background:#16a34a !important;}
 
 /* ── CONTENT ── */
 .content-area{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:7px;}
@@ -89,7 +103,7 @@ header h1 span{color:var(–accent);}
 
 /* ── TASK CARD ── */
 .task-card{background:var(–surface);border:1px solid var(–border);border-radius:var(–radius);padding:11px 14px;display:flex;align-items:flex-start;gap:10px;transition:border-color .2s,box-shadow .2s;position:relative;cursor:pointer;}
-.task-card:hover{border-color:#323a58;box-shadow:0 2px 10px rgba(0,0,0,.3);}
+.task-card:hover{border-color:var(–accent);box-shadow:0 2px 10px rgba(0,0,0,.15);background:var(–card-hover);}
 .task-card.selected{border-color:var(–accent);background:rgba(79,142,247,.05);}
 .task-card.completed{opacity:.38;}
 .task-card.overdue{border-left:3px solid var(–red);}
@@ -266,6 +280,10 @@ header h1 span{color:var(–accent);}
     <div class="stat"><div class="stat-num red pulse" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div>
     <div class="stat"><div class="stat-num yellow" id="stat-pending">0</div><div class="stat-label">Pending</div></div>
     <div class="stat"><div class="stat-num green" id="stat-done">0</div><div class="stat-label">Done</div></div>
+  </div>
+  <div class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+    <span class="theme-toggle-label" id="theme-label">🌙 Dark</span>
+    <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
   </div>
 </header>
 
@@ -461,68 +479,145 @@ function normalizeSubject(s){return(s||'').trim().toLowerCase().replace(/^(re:|f
 function showToast(msg,type='info'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast show ${type}`;setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ═══════════════════════════════════════════════════════════
-// CLIPBOARD PASTE — OUTLOOK EMAIL PARSER
+// THEME TOGGLE
 // ═══════════════════════════════════════════════════════════
-document.getElementById('add-modal').addEventListener('paste',function(e){
-  const text=e.clipboardData.getData('text/plain');
-  if(!text||text.length<20)return;
-  const parsed=parseOutlookEmail(text);
-  if(parsed.isEmail){
+let isDark = localStorage.getItem('mdt-theme') !== 'light';
+function applyTheme() {
+  document.body.classList.toggle('light-theme', !isDark);
+  const track = document.getElementById('toggle-track');
+  const label = document.getElementById('theme-label');
+  if (track) track.classList.toggle('on', !isDark);
+  if (label) label.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+}
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem('mdt-theme', isDark ? 'dark' : 'light');
+  applyTheme();
+}
+applyTheme();
+
+// ═══════════════════════════════════════════════════════════
+// CLIPBOARD PASTE — MULTI-FORMAT OUTLOOK PARSER
+// ═══════════════════════════════════════════════════════════
+
+// Listen on the entire page, not just the modal — works with new Outlook
+document.addEventListener('paste', function(e) {
+  const modal = document.getElementById('add-modal');
+  if (!modal.classList.contains('show')) return; // only when modal is open
+
+  // Try HTML clipboard first (new Outlook copies rich HTML)
+  let htmlText = e.clipboardData.getData('text/html');
+  let plainText = e.clipboardData.getData('text/plain');
+
+  let parsed = null;
+  if (htmlText && htmlText.length > 50) {
+    parsed = parseOutlookHTML(htmlText);
+  }
+  if (!parsed || !parsed.isEmail) {
+    parsed = parseOutlookPlain(plainText);
+  }
+
+  if (parsed && parsed.isEmail) {
     e.preventDefault();
-    if(parsed.from)document.getElementById('f-from').value=parsed.from;
-    if(parsed.to)document.getElementById('f-to').value=parsed.to;
-    if(parsed.cc)document.getElementById('f-cc').value=parsed.cc;
-    if(parsed.subject)document.getElementById('f-subject').value=parsed.subject;
-    if(parsed.body)document.getElementById('f-body').value=parsed.body;
+    if (parsed.from) document.getElementById('f-from').value = parsed.from;
+    if (parsed.to) document.getElementById('f-to').value = parsed.to;
+    if (parsed.cc) document.getElementById('f-cc').value = parsed.cc;
+    if (parsed.subject) document.getElementById('f-subject').value = parsed.subject;
+    if (parsed.body) document.getElementById('f-body').value = parsed.body;
     setTaskType('email');
-    showToast('✅ Email pasted and fields filled automatically!','success');
+    showToast('✅ Email fields filled from clipboard!', 'success');
+  } else if (plainText && plainText.length > 10) {
+    // If not detected as email, just paste into body field
+    const active = document.activeElement;
+    const isInField = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+    if (!isInField) {
+      e.preventDefault();
+      document.getElementById('f-body').value = plainText;
+      showToast('📋 Text pasted into body field', 'info');
+    }
   }
 });
 
-function parseOutlookEmail(text){
-  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
-  let from='',to='',cc='',subject='',body='',isEmail=false;
-  let bodyStart=-1;
+// Parse HTML clipboard from new Outlook (copies as rich HTML table)
+function parseOutlookHTML(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  const text = div.innerText || div.textContent || '';
+  // Try plain text parser on extracted text
+  const result = parseOutlookPlain(text);
+  if (result.isEmail) return result;
 
-  // Patterns for Outlook copied email headers
-  const fromPat=/^from\s*:\s*(.+)/i;
-  const toPat=/^to\s*:\s*(.+)/i;
-  const ccPat=/^cc\s*:\s*(.+)/i;
-  const subPat=/^subject\s*:\s*(.+)/i;
-  const sentPat=/^(sent|date)\s*:\s*/i;
+  // Also look for meta tags / specific outlook HTML patterns
+  const fromMatch = html.match(/From[:\s]+([^<\n]+)/i);
+  const toMatch = html.match(/To[:\s]+([^<\n]+)/i);
+  const subjectMatch = html.match(/Subject[:\s]+([^<\n]+)/i);
+  if (fromMatch || subjectMatch) {
+    return {
+      isEmail: true,
+      from: fromMatch ? fromMatch[1].replace(/<[^>]+>/g,'').trim() : '',
+      to: toMatch ? toMatch[1].replace(/<[^>]+>/g,'').trim() : '',
+      cc: '',
+      subject: subjectMatch ? subjectMatch[1].replace(/<[^>]+>/g,'').trim() : '',
+      body: text.trim()
+    };
+  }
+  return { isEmail: false };
+}
 
-  for(let i=0;i<lines.length;i++){
-    const l=lines[i];
-    if(fromPat.test(l)){from=l.replace(fromPat,'$1').trim();isEmail=true;}
-    else if(toPat.test(l)){to=l.replace(toPat,'$1').trim();}
-    else if(ccPat.test(l)){cc=l.replace(ccPat,'$1').trim();}
-    else if(subPat.test(l)){subject=l.replace(subPat,'$1').trim();}
-    else if(sentPat.test(l)&&isEmail&&bodyStart===-1){bodyStart=i+1;}
+// Parse plain text — handles Outlook, Gmail, and generic email formats
+function parseOutlookPlain(text) {
+  if (!text || text.length < 10) return { isEmail: false };
+  const lines = text.split('\n');
+  let from='', to='', cc='', subject='', body='', isEmail=false, bodyStartIdx=-1;
+
+  // Pattern variants for different Outlook versions and locales
+  const patterns = {
+    from: /^(from|de|von)\s*:\s*(.+)/i,
+    to: /^(to|para|an|à)\s*:\s*(.+)/i,
+    cc: /^(cc|c\.c\.|kopie)\s*:\s*(.+)/i,
+    subject: /^(subject|asunto|betreff|objet|oggetto)\s*:\s*(.+)/i,
+    sent: /^(sent|date|enviado|gesendet|envoyé|data|fecha)\s*:/i,
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i].trim();
+    if (!l) continue;
+    const fm = l.match(patterns.from);
+    if (fm) { from = fm[2].trim(); isEmail = true; continue; }
+    const tm = l.match(patterns.to);
+    if (tm) { to = tm[2].trim(); continue; }
+    const cm = l.match(patterns.cc);
+    if (cm) { cc = cm[2].trim(); continue; }
+    const sm = l.match(patterns.subject);
+    if (sm) { subject = sm[2].trim(); continue; }
+    if (patterns.sent.test(l) && isEmail && bodyStartIdx === -1) { bodyStartIdx = i + 1; }
   }
 
-  // If no sent line found, body starts after last header line
-  if(isEmail&&bodyStart===-1){
-    for(let i=0;i<lines.length;i++){
-      if(fromPat.test(lines[i])||toPat.test(lines[i])||ccPat.test(lines[i])||subPat.test(lines[i])||sentPat.test(lines[i])){bodyStart=i+1;}
+  // If sent line not found, body starts after all header lines
+  if (isEmail && bodyStartIdx === -1) {
+    let lastHeaderLine = -1;
+    for (let i = 0; i < Math.min(lines.length, 15); i++) {
+      const l = lines[i].trim();
+      if (patterns.from.test(l)||patterns.to.test(l)||patterns.cc.test(l)||patterns.subject.test(l)||patterns.sent.test(l)) {
+        lastHeaderLine = i;
+      }
     }
-    if(bodyStart>-1)bodyStart++;
+    bodyStartIdx = lastHeaderLine + 1;
+    // Skip blank lines after headers
+    while (bodyStartIdx < lines.length && !lines[bodyStartIdx].trim()) bodyStartIdx++;
   }
 
-  if(bodyStart>-1&&bodyStart<lines.length){
-    body=lines.slice(bodyStart).join('\n').trim();
+  if (bodyStartIdx > 0 && bodyStartIdx < lines.length) {
+    body = lines.slice(bodyStartIdx).join('\n').trim();
   }
 
-  // Fallback: if no headers found but looks like email (has common patterns)
-  if(!isEmail&&(text.includes('@')&&(text.includes('Subject:')|| text.includes('From:')))){
-    isEmail=true;
+  // Last fallback: check if it has email-like keywords even without perfect parsing
+  if (!isEmail && text.length > 30) {
+    const hasEmailSig = /\bFrom\b.*@|\bSubject\b.*:/i.test(text);
+    if (hasEmailSig) isEmail = true;
   }
 
-  // Last resort: just use whole text as body with subject from first line
-  if(!isEmail&&text.length>30){
-    return{isEmail:false};
-  }
-
-  return{isEmail,from,to,cc,subject,body};
+  return { isEmail, from, to, cc, subject, body };
 }
 
 // ═══════════════════════════════════════════════════════════
