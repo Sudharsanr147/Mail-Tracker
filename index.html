@@ -558,50 +558,56 @@ function parseAndFill(plainText, htmlText) {
 }
 
 // ── NEW OUTLOOK READING PANE FORMAT ──
-// Verified against 3 real emails. Structure:
+// Verified structure:
 //   Line 1        : Subject
-//   Line 2        : "To me" (UI label — skip)
-//   Line 3        : "Summarize" (UI label — skip)
+//   Line 2        : "To me"    (UI noise — skip)
+//   Line 3        : "Summarize" (UI noise — skip)
 //   [blank]
-//   Next nonempty : From  (sender name or email — NO "From:" label)
+//   Next nonempty : FROM  (sender name or email — no label)
 //   [blank]
-//   Next nonempty : To    (recipients, may include ";+N others")
-//   Next nonempty : CC    (recipients, may include ";+N others")
+//   Next nonempty : TO    (recipients, may have ";+N others")
+//   Next nonempty : CC    (recipients, may have ";+N others")
 //   [blank]
-//   Rest          : Body  (stop before "-----Original" or "From:" thread block)
+//   Rest          : Body
 function parseNewOutlook(text) {
   const lines = text.split('\n');
-  const nonEmpty = lines.map(l=>l.trim()).filter(Boolean);
+  const trimmed = lines.map(l => l.trim());
+  const nonEmpty = trimmed.filter(Boolean);
   if (nonEmpty.length < 3) return null;
 
-  // Must have "To me" or "Summarize" in first 3 non-empty lines
-  const top3 = nonEmpty.slice(0,3).map(l=>l.toLowerCase());
-  if (!top3.includes('to me') && !top3.includes('summarize')) return null;
+  // Detect new Outlook: "To me" or "Summarize" must appear in first 4 non-empty lines
+  const top4 = nonEmpty.slice(0, 4).map(l => l.toLowerCase());
+  if (!top4.includes('to me') && !top4.includes('summarize')) return null;
 
   const subject = nonEmpty[0];
-  const isNoise = s => /^(to me|summarize|team|reply|forward|cc me)$/i.test(s.trim());
 
-  // Work through raw lines (preserving blanks) to find fields positionally
+  // Noise patterns to skip entirely
+  const isNoise = s => /^(to me|summarize|team|reply|forward|cc me|flag|delete)$/i.test(s);
+
+  // Walk line by line keeping blank structure intact
   let i = 0;
-  // Skip past subject line
+  // Skip past subject line (first non-empty)
   while (i < lines.length && lines[i].trim() !== subject) i++;
-  i++; // past subject
+  i++; // move past subject
 
-  // Skip noise + blanks
+  // Skip ALL noise lines and blanks until we find FROM
   while (i < lines.length && (lines[i].trim() === '' || isNoise(lines[i].trim()))) i++;
 
-  // FROM = next non-empty line
+  // FROM = next non-empty, non-noise line
   const from = lines[i] ? lines[i].trim() : '';
   i++;
 
-  // Skip blanks
+  // Skip blanks between FROM and TO
   while (i < lines.length && lines[i].trim() === '') i++;
 
-  // TO = next non-empty line
+  // TO = next non-empty line (skip if it's still noise)
+  while (i < lines.length && isNoise(lines[i].trim())) i++;
   const to = lines[i] ? lines[i].trim() : '';
   i++;
 
-  // CC = next non-empty line IF it looks like recipients
+  // CC = next non-empty line IF it looks like recipients (has ; or +N or @ or ,)
+  // Skip noise first
+  while (i < lines.length && isNoise(lines[i].trim())) i++;
   let cc = '';
   if (i < lines.length && lines[i].trim() !== '') {
     const candidate = lines[i].trim();
@@ -611,10 +617,10 @@ function parseNewOutlook(text) {
     }
   }
 
-  // Skip blanks + CAUTION disclaimers
+  // Skip blanks + CAUTION disclaimers before body
   while (i < lines.length && (lines[i].trim() === '' || /^CAUTION\s*--/i.test(lines[i].trim()))) i++;
 
-  // Body = everything until "-----Original" or "From:" thread separator
+  // Body = everything until thread separator
   const bodyLines = [];
   while (i < lines.length) {
     const l = lines[i].trim();
