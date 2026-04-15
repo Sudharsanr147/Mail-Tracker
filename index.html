@@ -10,6 +10,8 @@
 <meta name="theme-color" content="#131722"/>
 <link rel="manifest" id="pwa-manifest"/>
 <title>Work Deliverables Tracker</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -316,6 +318,26 @@ body.light .view-pane{background:#fff;}
 .task-table{min-width:500px;}
 .tgl-label{display:none;}
 }
+
+/* ── SYNC STATUS ── */
+.sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 10px;border-radius:20px;border:1.5px solid var(–border);background:var(–surface2);cursor:default;user-select:none;}
+.sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background .3s;}
+.sync-dot.synced{background:var(–green);}
+.sync-dot.syncing{background:var(–yellow);animation:pulse 1s infinite;}
+.sync-dot.offline{background:var(–red);}
+.sync-dot.local{background:var(–muted);}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── DRAG AND DROP ── */
+.dragging{opacity:.45;transform:scale(.98);cursor:grabbing!important;}
+.drag-over-above{border-top:2.5px solid var(–accent)!important;}
+.drag-over-below{border-bottom:2.5px solid var(–accent)!important;}
+.ml-row{cursor:grab;user-select:none;}
+.ml-row:active{cursor:grabbing;}
+.ml-row .drag-handle{font-size:14px;color:var(–muted);margin-right:4px;cursor:grab;touch-action:none;}
+.task-table tbody tr{cursor:grab;}
+.task-table tbody tr:active{cursor:grabbing;}
+.drag-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.85;background:var(–surface2);border:2px solid var(–accent);border-radius:8px;padding:8px 14px;font-size:12px;color:var(–text);max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(–shadow);}
 </style>
 
 </head>
@@ -329,6 +351,10 @@ body.light .view-pane{background:#fff;}
     <div class="stat"><div class="stat-num sn-red pulse" id="stat-overdue">0</div><div class="stat-label">Overdue</div></div>
     <div class="stat"><div class="stat-num sn-yellow" id="stat-pending">0</div><div class="stat-label">Pending</div></div>
     <div class="stat"><div class="stat-num sn-green" id="stat-done">0</div><div class="stat-label">Done</div></div>
+  </div>
+  <div id="sync-bar" class="sync-bar" title="Sync status">
+    <div class="sync-dot local" id="sync-dot"></div>
+    <span id="sync-label">Local only</span>
   </div>
   <div class="header-controls">
     <div class="theme-toggle" onclick="toggleTheme()">
@@ -352,6 +378,8 @@ body.light .view-pane{background:#fff;}
     <div class="sb-bottom">
       <div class="sb-btn" onclick="openManageMembers()">⚙️ <span>Manage Members</span></div>
       <div class="sb-btn" onclick="showPWAGuide()">📱 <span>Install as App</span></div>
+      <div class="sb-btn" onclick="openModal('sync-modal')" style="color:var(--accent);border-color:var(--accent)" id="cloud-sync-btn">☁️ <span>Cloud Sync</span></div>
+      <div class="sb-btn" onclick="openModal('export-modal')" style="color:var(--green);border-color:var(--green)">📦 <span>Export / Import</span></div>
     </div>
   </div>
 
@@ -504,6 +532,92 @@ body.light .view-pane{background:#fff;}
   </div>
 </div>
 
+<!-- FIREBASE SYNC MODAL -->
+
+<div class="overlay" id="sync-modal">
+  <div class="modal">
+    <h2>☁️ Cloud Sync Settings</h2>
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+```
+  <div style="background:rgba(39,201,126,.1);border:1.5px solid var(--green);border-radius:9px;padding:12px;font-size:12.5px;color:var(--text);line-height:1.6">
+    ✅ <strong>Firebase connected!</strong> Your data syncs automatically across all devices in real time.
+  </div>
+
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:14px">
+    <div style="font-weight:700;margin-bottom:8px;font-size:13px">🔐 Sync Password</div>
+    <p style="font-size:12px;color:var(--text);margin-bottom:10px;line-height:1.5">Set a password so only you can access your cloud data. All devices must use the same password.</p>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="password" id="sync-password-input" placeholder="Enter sync password…" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none"/>
+      <button class="btn-primary" onclick="setSyncPassword()">Set</button>
+    </div>
+    <div id="sync-pwd-status" style="font-size:11.5px;margin-top:6px;color:var(--muted)"></div>
+  </div>
+
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:14px">
+    <div style="font-weight:700;margin-bottom:8px;font-size:13px">🔄 Manual Sync</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-primary" onclick="pushToCloud()" style="background:var(--accent)">⬆️ Push to Cloud</button>
+      <button class="btn-primary" onclick="pullFromCloud()" style="background:var(--teal,#2ec4b6)">⬇️ Pull from Cloud</button>
+    </div>
+    <p style="font-size:11.5px;color:var(--text);margin-top:8px;line-height:1.5">Push = send your local data to cloud (overwrites cloud). Pull = get cloud data to this device (overwrites local).</p>
+  </div>
+
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:14px">
+    <div style="font-weight:700;margin-bottom:6px;font-size:13px">📱 How to use on multiple devices</div>
+    <ol style="font-size:12px;color:var(--text);padding-left:18px;line-height:1.8">
+      <li>Open the app URL on any device</li>
+      <li>Go to ☁️ Cloud Sync and enter the <strong>same password</strong></li>
+      <li>Click <strong>Pull from Cloud</strong> to get existing data</li>
+      <li>From now on, all changes sync automatically!</li>
+    </ol>
+  </div>
+
+  <div id="sync-last-updated" style="font-size:11px;color:var(--muted);text-align:center"></div>
+</div>
+<div class="modal-actions">
+  <button class="btn-primary" onclick="closeModal('sync-modal')">Done</button>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- EXPORT/IMPORT MODAL -->
+
+<div class="overlay" id="export-modal">
+  <div class="modal">
+    <h2>📦 Export / Import Data</h2>
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+```
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:16px">
+    <div style="font-weight:700;margin-bottom:6px;color:var(--green);font-size:13px">⬇️ Export — Download your data</div>
+    <p style="font-size:12px;color:var(--text);margin-bottom:10px;line-height:1.5">Downloads all your tasks, members, and today items as a JSON backup file. Save it somewhere safe.</p>
+    <button class="btn-primary btn-green" onclick="exportData()" style="background:var(--green)">⬇️ Download Backup</button>
+  </div>
+
+  <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:16px">
+    <div style="font-weight:700;margin-bottom:6px;color:var(--accent);font-size:13px">⬆️ Import — Restore from backup</div>
+    <p style="font-size:12px;color:var(--text);margin-bottom:10px;line-height:1.5">Select a previously exported JSON file. <strong>This will merge with existing data</strong> — existing tasks are kept and new ones from the file are added (no duplicates).</p>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)"/>
+    <button class="btn-primary" onclick="document.getElementById('import-file').click()" style="background:var(--accent)">⬆️ Select Backup File</button>
+  </div>
+
+  <div style="background:rgba(245,197,24,.1);border:1.5px solid var(--yellow);border-radius:9px;padding:10px;font-size:12px;color:var(--text)">
+    💡 <strong>Multi-device tip:</strong> Export on Device A → send the JSON file to Device B → Import on Device B. Your data stays in sync manually this way.
+  </div>
+
+  <div id="import-result" style="display:none;background:rgba(39,201,126,.1);border:1.5px solid var(--green);border-radius:8px;padding:10px;font-size:12.5px;color:var(--green)"></div>
+</div>
+<div class="modal-actions">
+  <button class="btn-primary" onclick="closeModal('export-modal')">Close</button>
+</div>
+```
+
+  </div>
+</div>
+
 <!-- MIC MODAL -->
 
 <div class="overlay" id="mic-modal">
@@ -589,7 +703,8 @@ let state=JSON.parse(localStorage.getItem('wdt-v5')||'null')||{
 let currentFilter='today',groupBy='member',showCompleted=false,editingTaskId=null,taskType='email',selectedTaskId=null,sortCol='added',sortDir=1;
 const collapsedGroups={};
 
-function save(){localStorage.setItem('wdt-v5',JSON.stringify(state));}
+function _saveLocal(){localStorage.setItem('wdt-v5',JSON.stringify(state));}
+function save(){_saveLocal();if(syncEnabled&&fbDb&&fbSyncPath&&!isSyncing){clearTimeout(window._fbSaveTimer);window._fbSaveTimer=setTimeout(()=>{setSyncStatus('syncing','Saving…');pushToCloud();},1500);}}
 const getMember=id=>state.members.find(m=>m.id===id);
 function today(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function daysSince(s){if(!s)return 0;return Math.floor((new Date()-new Date(s))/(86400000));}
@@ -735,11 +850,68 @@ function renderSidebar(){
     const oc=state.tasks.filter(t=>t.memberId===m.id&&!t.completed&&getDueStatus(t)==='overdue').length;
     const div=document.createElement('div');div.className='sb-item'+(currentFilter===`member-${m.id}`?' active':'');
     div.style.paddingRight='8px';
-    div.innerHTML=`<div class="member-dot" style="background:${m.color}"></div><span class="sb-name">${m.name}</span><span class="sb-badge ${oc>0?'danger':''}">${pc}</span><div class="rarrow"><span onclick="event.stopPropagation();moveMember(${idx},-1)">▲</span><span onclick="event.stopPropagation();moveMember(${idx},1)">▼</span></div>`;
-    div.onclick=()=>setFilter(`member-${m.id}`,div);
+    div.setAttribute('draggable','true');
+    div.dataset.memberIdx=idx;
+    div.innerHTML=`<span style="font-size:11px;color:var(--muted);cursor:grab;margin-right:2px" title="Drag to reorder">⠿</span><div class="member-dot" style="background:${m.color}"></div><span class="sb-name">${m.name}</span><span class="sb-badge ${oc>0?'danger':''}">${pc}</span>`;
+    div.onclick=e=>{if(e.target.style.cursor==='grab')return;setFilter(`member-${m.id}`,div);};
+    // Drag events
+    div.addEventListener('dragstart',e=>{
+      dragSrcMemberIdx=idx;
+      div.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',idx);
+    });
+    div.addEventListener('dragend',()=>{ div.classList.remove('dragging'); document.querySelectorAll('.sb-item').forEach(d=>d.classList.remove('drag-over-above','drag-over-below')); });
+    div.addEventListener('dragover',e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; const mid=div.getBoundingClientRect().top+div.getBoundingClientRect().height/2; div.classList.toggle('drag-over-above',e.clientY<mid); div.classList.toggle('drag-over-below',e.clientY>=mid); });
+    div.addEventListener('dragleave',()=>div.classList.remove('drag-over-above','drag-over-below'));
+    div.addEventListener('drop',e=>{
+      e.preventDefault(); div.classList.remove('drag-over-above','drag-over-below');
+      const toIdx=parseInt(div.dataset.memberIdx);
+      if(dragSrcMemberIdx===toIdx)return;
+      const mid=div.getBoundingClientRect().top+div.getBoundingClientRect().height/2;
+      const insertBefore=e.clientY<mid;
+      const moved=state.members.splice(dragSrcMemberIdx,1)[0];
+      let dest=toIdx; if(dragSrcMemberIdx<toIdx)dest--; if(!insertBefore)dest++;
+      state.members.splice(Math.max(0,Math.min(dest,state.members.length)),0,moved);
+      save();renderAll();
+    });
+    // Touch drag (long press) for mobile
+    let touchTimer=null,touchStartY=0,isTouchDragging=false;
+    div.addEventListener('touchstart',e=>{
+      touchStartY=e.touches[0].clientY;
+      touchTimer=setTimeout(()=>{isTouchDragging=true;div.classList.add('dragging');dragSrcMemberIdx=idx;showToast('Drag to reorder','info');},600);
+    },{passive:true});
+    div.addEventListener('touchmove',e=>{
+      if(!isTouchDragging){clearTimeout(touchTimer);return;}
+      e.preventDefault();
+      const touch=e.touches[0];
+      const els=document.elementsFromPoint(touch.clientX,touch.clientY);
+      const target=els.find(el=>el.classList.contains('sb-item')&&el!==div&&el.dataset.memberIdx!==undefined);
+      document.querySelectorAll('.sb-item').forEach(d=>d.classList.remove('drag-over-above','drag-over-below'));
+      if(target){const mid=target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;target.classList.toggle('drag-over-above',touch.clientY<mid);target.classList.toggle('drag-over-below',touch.clientY>=mid);}
+    },{passive:false});
+    div.addEventListener('touchend',e=>{
+      clearTimeout(touchTimer);
+      if(!isTouchDragging){isTouchDragging=false;return;}
+      isTouchDragging=false;div.classList.remove('dragging');
+      document.querySelectorAll('.sb-item').forEach(d=>d.classList.remove('drag-over-above','drag-over-below'));
+      const touch=e.changedTouches[0];
+      const els=document.elementsFromPoint(touch.clientX,touch.clientY);
+      const target=els.find(el=>el.classList.contains('sb-item')&&el!==div&&el.dataset.memberIdx!==undefined);
+      if(target){
+        const toIdx=parseInt(target.dataset.memberIdx);
+        if(dragSrcMemberIdx!==toIdx){
+          const moved=state.members.splice(dragSrcMemberIdx,1)[0];
+          let dest=toIdx;if(dragSrcMemberIdx<toIdx)dest--;
+          state.members.splice(Math.max(0,dest),0,moved);
+          save();renderAll();
+        }
+      }
+    });
     el.appendChild(div);
   });
 }
+let dragSrcMemberIdx=-1,dragSrcTaskId=-1;
 function moveMember(idx,dir){const ni=idx+dir;if(ni<0||ni>=state.members.length)return;[state.members[idx],state.members[ni]]=[state.members[ni],state.members[idx]];save();renderAll();}
 
 // ═══════════════════════════════ VIEW ROUTING ═══════════════════════════════
@@ -869,6 +1041,27 @@ function buildRow(task,inDrill){
   if(task.completed)tr.classList.add('completed');
   if(selectedTaskId===task.id)tr.classList.add('selected');
   tr.onclick=e=>{if(e.target.closest('.row-btn'))return;openViewPane(task.id);};
+  // Task row drag-and-drop reorder
+  tr.setAttribute('draggable','true');
+  tr.dataset.taskId=task.id;
+  tr.addEventListener('dragstart',e=>{dragSrcTaskId=task.id;tr.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',task.id);});
+  tr.addEventListener('dragend',()=>{tr.classList.remove('dragging');document.querySelectorAll('.task-table tbody tr').forEach(r=>r.classList.remove('drag-over-above','drag-over-below'));});
+  tr.addEventListener('dragover',e=>{e.preventDefault();if(tr.classList.contains('group-row'))return;const mid=tr.getBoundingClientRect().top+tr.getBoundingClientRect().height/2;tr.classList.toggle('drag-over-above',e.clientY<mid);tr.classList.toggle('drag-over-below',e.clientY>=mid);});
+  tr.addEventListener('dragleave',()=>tr.classList.remove('drag-over-above','drag-over-below'));
+  tr.addEventListener('drop',e=>{
+    e.preventDefault();tr.classList.remove('drag-over-above','drag-over-below');
+    const toId=parseInt(tr.dataset.taskId);if(!toId||dragSrcTaskId===toId)return;
+    const mid=tr.getBoundingClientRect().top+tr.getBoundingClientRect().height/2;
+    const insertBefore=e.clientY<mid;
+    const srcIdx=state.tasks.findIndex(t=>t.id===dragSrcTaskId);
+    const dstIdx=state.tasks.findIndex(t=>t.id===toId);
+    if(srcIdx<0||dstIdx<0)return;
+    const moved=state.tasks.splice(srcIdx,1)[0];
+    let dest=state.tasks.findIndex(t=>t.id===toId);
+    if(!insertBefore)dest++;
+    state.tasks.splice(Math.max(0,dest),0,moved);
+    save();renderTaskTable();
+  });
 
   let daysCls='fresh';
   if(days>=30)daysCls='ancient';else if(days>=14)daysCls='old';else if(days>=7)daysCls='mid';
@@ -1210,12 +1403,22 @@ function renderManageMembers(){
   const el=document.getElementById('ml-list');el.innerHTML='';
   state.members.forEach((m,idx)=>{
     const row=document.createElement('div');row.className='ml-row';
-    row.innerHTML=`<div class="member-dot" style="background:${m.color};width:10px;height:10px"></div><span>${m.name}</span>
-      <div style="display:flex;gap:4px;align-items:center">
-        <div onclick="moveMember(${idx},-1);renderManageMembers();" style="cursor:pointer;font-size:11px;padding:3px 7px;border-radius:4px;background:var(--surface3);border:1px solid var(--border)">▲</div>
-        <div onclick="moveMember(${idx},1);renderManageMembers();" style="cursor:pointer;font-size:11px;padding:3px 7px;border-radius:4px;background:var(--surface3);border:1px solid var(--border)">▼</div>
-        <div class="row-btn rbdel" onclick="removeMember(${m.id})" style="width:24px;height:24px;font-size:12px">✕</div>
-      </div>`;
+    row.setAttribute('draggable','true');row.dataset.memberIdx=idx;
+    row.innerHTML=`<span class="drag-handle" title="Drag to reorder">⠿</span><div class="member-dot" style="background:${m.color};width:10px;height:10px"></div><span style="flex:1">${m.name}</span><div class="row-btn rbdel" onclick="removeMember(${m.id})" style="width:24px;height:24px;font-size:12px">✕</div>`;
+    row.addEventListener('dragstart',e=>{dragSrcMemberIdx=idx;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragend',()=>{row.classList.remove('dragging');document.querySelectorAll('.ml-row').forEach(r=>r.classList.remove('drag-over-above','drag-over-below'));});
+    row.addEventListener('dragover',e=>{e.preventDefault();const mid=row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;row.classList.toggle('drag-over-above',e.clientY<mid);row.classList.toggle('drag-over-below',e.clientY>=mid);});
+    row.addEventListener('dragleave',()=>row.classList.remove('drag-over-above','drag-over-below'));
+    row.addEventListener('drop',e=>{
+      e.preventDefault();row.classList.remove('drag-over-above','drag-over-below');
+      const toIdx=parseInt(row.dataset.memberIdx);if(dragSrcMemberIdx===toIdx)return;
+      const mid=row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;
+      const insertBefore=e.clientY<mid;
+      const moved=state.members.splice(dragSrcMemberIdx,1)[0];
+      let dest=toIdx;if(dragSrcMemberIdx<toIdx)dest--;if(!insertBefore)dest++;
+      state.members.splice(Math.max(0,Math.min(dest,state.members.length)),0,moved);
+      save();renderManageMembers();renderSidebar();
+    });
     el.appendChild(row);
   });
 }
@@ -1245,12 +1448,280 @@ function setMobNav(key){
   const el=document.getElementById(`mn-${key}`);if(el)el.classList.add('active');
 }
 
+
+// ═══════════════════════════════ EXPORT / IMPORT ═══════════════════════════════
+function exportData(){
+  const exportObj={
+    version:'wdt-v5',
+    exportedAt:new Date().toISOString(),
+    state:{
+      members:state.members,
+      tasks:state.tasks,
+      todayItems:state.todayItems,
+      nextMemberId:state.nextMemberId,
+      nextTaskId:state.nextTaskId,
+      nextTodayId:state.nextTodayId
+    }
+  };
+  const blob=new Blob([JSON.stringify(exportObj,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const d=new Date();
+  a.download=`work-tracker-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ Backup downloaded!','success');
+}
+
+function importData(event){
+  const file=event.target.files[0];
+  if(!file){return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.state||!data.state.tasks){
+        showToast('❌ Invalid backup file','warn');return;
+      }
+      const imported=data.state;
+      let addedTasks=0,addedMembers=0;
+
+      // Merge members - add if name not already exists
+      imported.members.forEach(im=>{
+        if(!state.members.find(m=>m.name.toLowerCase()===im.name.toLowerCase())){
+          im.id=state.nextMemberId++;
+          state.members.push(im);
+          addedMembers++;
+        }
+      });
+
+      // Build ID map for tasks (remap member IDs)
+      const memberIdMap={};
+      imported.members.forEach(im=>{
+        const existing=state.members.find(m=>m.name.toLowerCase()===im.name.toLowerCase());
+        if(existing)memberIdMap[im.id]=existing.id;
+      });
+
+      // Merge tasks - add if subject+added date not already exists
+      imported.tasks.forEach(it=>{
+        const exists=state.tasks.find(t=>t.subject===it.subject&&t.added===it.added);
+        if(!exists){
+          it.id=state.nextTaskId++;
+          if(memberIdMap[it.memberId])it.memberId=memberIdMap[it.memberId];
+          state.tasks.push(it);
+          addedTasks++;
+        }
+      });
+
+      // Merge today items
+      (imported.todayItems||[]).forEach(ii=>{
+        const exists=state.todayItems.find(i=>i.text===ii.text&&i.date===ii.date);
+        if(!exists){ii.id=state.nextTodayId++;state.todayItems.push(ii);}
+      });
+
+      save();renderAll();
+      const resultEl=document.getElementById('import-result');
+      resultEl.style.display='block';
+      resultEl.textContent=`✅ Imported: ${addedTasks} tasks, ${addedMembers} new members added.`;
+      showToast(`✅ Imported ${addedTasks} tasks`,'success');
+    }catch(err){
+      showToast('❌ Error reading file: '+err.message,'warn');
+    }
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+
+// ═══════════════════════════════ FIREBASE SYNC ═══════════════════════════════
+const FB_URL = 'https://work-tracker-4abd2-default-rtdb.asia-southeast1.firebasedatabase.app';
+const FB_CONFIG = { databaseURL: FB_URL };
+
+let fbApp = null, fbDb = null, fbSyncPath = null, fbListener = null;
+let syncEnabled = false, isSyncing = false, lastSyncTime = null;
+
+function initFirebase() {
+  try {
+    fbApp = firebase.initializeApp(FB_CONFIG);
+    fbDb = firebase.database();
+    // Try to connect with saved password
+    const savedPwd = localStorage.getItem('wdt-sync-pwd');
+    if (savedPwd) {
+      enableSync(savedPwd, false);
+    } else {
+      setSyncStatus('local', 'Not connected');
+    }
+  } catch(e) {
+    console.warn('Firebase init error:', e);
+    setSyncStatus('offline', 'Sync unavailable');
+  }
+}
+
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if (dot) { dot.className = 'sync-dot ' + state; }
+  if (lbl) lbl.textContent = label;
+}
+
+function getSyncPath(pwd) {
+  // Hash the password to create a safe Firebase path key
+  let hash = 0;
+  for (let i = 0; i < pwd.length; i++) { hash = ((hash << 5) - hash) + pwd.charCodeAt(i); hash |= 0; }
+  return 'worktracker_' + Math.abs(hash).toString(36);
+}
+
+function setSyncPassword() {
+  const pwd = document.getElementById('sync-password-input').value.trim();
+  if (!pwd) { document.getElementById('sync-pwd-status').textContent = '⚠ Please enter a password'; return; }
+  localStorage.setItem('wdt-sync-pwd', pwd);
+  enableSync(pwd, true);
+  document.getElementById('sync-password-input').value = '';
+  document.getElementById('sync-pwd-status').textContent = '✅ Password saved. Sync enabled!';
+}
+
+function enableSync(pwd, pushNow) {
+  if (!fbDb) return;
+  // Remove old listener
+  if (fbListener && fbSyncPath) {
+    fbDb.ref(fbSyncPath).off('value', fbListener);
+    fbListener = null;
+  }
+  fbSyncPath = getSyncPath(pwd);
+  syncEnabled = true;
+
+  if (pushNow) {
+    pushToCloud();
+  }
+
+  // Listen for real-time changes from other devices
+  fbListener = fbDb.ref(fbSyncPath + '/state').on('value', snapshot => {
+    if (!snapshot.exists()) return;
+    const cloudData = snapshot.val();
+    if (!cloudData) return;
+    // Only update if cloud data is newer than last local save
+    const cloudTs = cloudData._ts || 0;
+    const localTs = parseInt(localStorage.getItem('wdt-last-ts') || '0');
+    if (cloudTs > localTs && !isSyncing) {
+      applyCloudData(cloudData);
+      setSyncStatus('synced', 'Synced ' + timeAgo(cloudTs));
+      lastSyncTime = cloudTs;
+      document.getElementById('sync-last-updated').textContent = 'Last synced: ' + new Date(cloudTs).toLocaleString('en-IN');
+    }
+  }, err => {
+    console.warn('Firebase listen error:', err);
+    setSyncStatus('offline', 'Offline');
+  });
+
+  setSyncStatus('synced', 'Connected');
+  // Monitor connection state
+  fbDb.ref('.info/connected').on('value', snap => {
+    if (snap.val() === true) {
+      setSyncStatus('synced', lastSyncTime ? 'Synced ' + timeAgo(lastSyncTime) : 'Connected');
+    } else {
+      setSyncStatus('offline', 'Offline — changes saved locally');
+    }
+  });
+}
+
+function applyCloudData(cloudData) {
+  // Merge cloud state into local — cloud wins on conflict
+  if (cloudData.members) state.members = cloudData.members;
+  if (cloudData.tasks) state.tasks = cloudData.tasks;
+  if (cloudData.todayItems) state.todayItems = cloudData.todayItems;
+  if (cloudData.nextMemberId) state.nextMemberId = cloudData.nextMemberId;
+  if (cloudData.nextTaskId) state.nextTaskId = cloudData.nextTaskId;
+  if (cloudData.nextTodayId) state.nextTodayId = cloudData.nextTodayId;
+  localStorage.setItem('wdt-v5', JSON.stringify(state));
+  localStorage.setItem('wdt-last-ts', cloudData._ts || Date.now());
+  renderAll();
+}
+
+function pushToCloud() {
+  if (!fbDb || !fbSyncPath) {
+    showToast('⚠ Set sync password first', 'warn');
+    openModal('sync-modal');
+    return;
+  }
+  isSyncing = true;
+  setSyncStatus('syncing', 'Saving…');
+  const ts = Date.now();
+  const payload = {
+    members: state.members,
+    tasks: state.tasks,
+    todayItems: state.todayItems,
+    nextMemberId: state.nextMemberId,
+    nextTaskId: state.nextTaskId,
+    nextTodayId: state.nextTodayId,
+    _ts: ts
+  };
+  fbDb.ref(fbSyncPath + '/state').set(payload)
+    .then(() => {
+      isSyncing = false;
+      lastSyncTime = ts;
+      localStorage.setItem('wdt-last-ts', ts);
+      setSyncStatus('synced', 'Synced just now');
+      showToast('✅ Synced to cloud!', 'success');
+      document.getElementById('sync-last-updated').textContent = 'Last synced: ' + new Date(ts).toLocaleString('en-IN');
+    })
+    .catch(e => {
+      isSyncing = false;
+      setSyncStatus('offline', 'Sync failed');
+      showToast('❌ Sync failed: ' + e.message, 'warn');
+    });
+}
+
+function pullFromCloud() {
+  if (!fbDb || !fbSyncPath) {
+    showToast('⚠ Set sync password first', 'warn');
+    return;
+  }
+  setSyncStatus('syncing', 'Pulling…');
+  fbDb.ref(fbSyncPath + '/state').get()
+    .then(snapshot => {
+      if (!snapshot.exists()) {
+        showToast('☁️ No cloud data found. Push first from another device.', 'info');
+        setSyncStatus('synced', 'Connected');
+        return;
+      }
+      applyCloudData(snapshot.val());
+      showToast('✅ Data pulled from cloud!', 'success');
+      setSyncStatus('synced', 'Synced just now');
+    })
+    .catch(e => {
+      setSyncStatus('offline', 'Pull failed');
+      showToast('❌ Pull failed: ' + e.message, 'warn');
+    });
+}
+
+// save() already wired to Firebase via _saveLocal pattern above
+
+function timeAgo(ts) {
+  const sec = Math.floor((Date.now() - ts) / 1000);
+  if (sec < 10) return 'just now';
+  if (sec < 60) return sec + 's ago';
+  if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+  return Math.floor(sec/3600) + 'h ago';
+}
+
+
 // ═══════════════════════════════ INIT ═══════════════════════════════
 const cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);
 const cutoffStr=`${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`;
 state.todayItems=state.todayItems.filter(i=>i.date>=cutoffStr);
-save();
+_saveLocal(); // use local save during init before Firebase is ready
 renderAll();
+// Init Firebase after DOM is ready
+if(typeof firebase !== 'undefined') {
+  initFirebase();
+} else {
+  // Firebase SDK not loaded — retry after scripts load
+  window.addEventListener('load', () => {
+    if(typeof firebase !== 'undefined') initFirebase();
+    else setSyncStatus('offline','Sync unavailable');
+  });
+}
 
 </script>
 
