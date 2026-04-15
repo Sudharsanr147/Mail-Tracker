@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Work Tracker"/>
+<link rel="manifest" id="pwa-manifest-link"/>
 <meta name="theme-color" content="#131722"/>
 <link rel="manifest" id="pwa-manifest"/>
 <title>Work Deliverables Tracker</title>
@@ -284,11 +285,7 @@ white-space:nowrap;cursor:pointer;user-select:none;background:var(–surface);
 .mic-result{background:var(–surface2);border:1.5px solid var(–accent);border-radius:8px;padding:10px;font-size:12px;text-align:left;margin-bottom:10px;display:none;color:var(–text);}
 .mic-result.show{display:block;}
 
-/* MOBILE */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(–surface);border-top:2px solid var(–border);z-index:90;padding:6px 0 env(safe-area-inset-bottom);}
-.mob-nav-items{display:flex;justify-content:space-around;}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;cursor:pointer;color:var(–text);font-size:9.5px;transition:color .15s;min-width:52px;opacity:0.7;}
-.mob-nav-item.active,.mob-nav-item:hover{color:var(–accent);}
+/* LIGHT THEME OVERRIDES */
 body.light .task-table tbody tr:hover{background:#dde4f5;}
 body.light .task-table tbody tr.selected{background:#cdd6f0;}
 body.light .dash-tbl tr:hover td{background:#dde4f5;}
@@ -302,25 +299,112 @@ body.light header{background:#fff;}
 body.light .sidebar{background:#fff;}
 body.light .toolbar{background:#fff;}
 body.light .view-pane{background:#fff;}
+
+/* MOBILE NAV BAR */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(–surface);border-top:2px solid var(–border);z-index:120;padding:4px 0 env(safe-area-inset-bottom,4px);}
+.mob-nav-items{display:flex;justify-content:space-around;}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 8px;cursor:pointer;color:var(–text);font-size:9px;transition:color .15s;min-width:48px;opacity:0.75;}
 .mob-nav-item span:first-child{font-size:20px;}
-.mob-menu-btn{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(–text);padding:4px;}
+.mob-nav-item.active{color:var(–accent);opacity:1;}
+.mob-menu-btn{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(–text);padding:4px 8px;}
+
+/* MOBILE OVERLAY for sidebar */
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:109;}
+.mob-overlay.show{display:block;}
+
+/* ── MOBILE RESPONSIVE ── */
 @media(max-width:768px){
-.sidebar{position:fixed;top:56px;left:0;bottom:0;z-index:80;transform:translateX(-100%);width:220px;}
-.sidebar.mob-open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.5);}
-.mob-menu-btn{display:flex;align-items:center;}
-.mob-nav{display:block;}
-.view-pane{display:none;}
-.view-pane.mob-show{display:flex;position:fixed;inset:0;z-index:85;width:100%!important;min-width:unset!important;}
-.app{height:calc(100vh - 56px - 60px);}
-.header-stats{gap:12px;}
-.stat-num{font-size:14px;}
+/* Header compact */
+header{padding:8px 10px;gap:8px;flex-wrap:nowrap;min-height:52px;}
+header h1{font-size:14px;flex:1;}
+.header-stats{gap:10px;}
+.stat-num{font-size:13px;}
 .stat-label{display:none;}
-.task-table{min-width:500px;}
+.sync-bar{display:none;} /* hide sync bar on mobile — too crowded */
 .tgl-label{display:none;}
+.mob-menu-btn{display:flex;align-items:center;}
+
+/* App layout — account for header + bottom nav */
+.app{height:calc(100vh - 52px - 58px);position:relative;}
+
+/* Sidebar — fixed overlay, slides in from left */
+.sidebar{
+position:fixed;
+top:52px;left:0;bottom:58px;
+z-index:110;
+width:260px;min-width:unset;
+transform:translateX(-100%);
+transition:transform .28s cubic-bezier(.4,0,.2,1);
+box-shadow:none;
+overflow-y:auto;
+}
+.sidebar.mob-open{
+transform:translateX(0);
+box-shadow:6px 0 24px rgba(0,0,0,.6);
+}
+
+/* Bottom nav visible */
+.mob-nav{display:block;}
+
+/* View pane — fullscreen on mobile */
+.view-pane{display:none;}
+.view-pane.mob-show{
+display:flex;
+position:fixed;
+top:52px;left:0;right:0;bottom:58px;
+z-index:105;
+width:100%!important;
+min-width:unset!important;
+border-left:none;
+}
+
+/* Toolbar compact */
+.toolbar{padding:7px 10px;gap:6px;flex-wrap:wrap;}
+.toolbar-title{font-size:13px;}
+.search-box{width:100%;order:10;font-size:12px;}
+.grp-toggle{order:11;width:100%;}
+.gt-btn{flex:1;text-align:center;}
+.chip{font-size:10px;padding:3px 8px;}
+
+/* Mobile task view — card-based instead of table */
+.task-table{display:none!important;}
+.mob-task-list{display:flex;flex-direction:column;gap:8px;padding:10px;background:var(–bg);min-height:100%;}
+.mob-task-card{
+background:var(–surface);border:1.5px solid var(–border);
+border-radius:10px;padding:12px 14px;
+cursor:pointer;transition:border-color .2s;
+}
+.mob-task-card:hover,.mob-task-card:active{border-color:var(–accent);}
+.mob-task-card.overdue{border-left:3px solid var(–red);}
+.mob-task-card.due-soon{border-left:3px solid var(–yellow);}
+.mob-task-card.completed{opacity:.5;}
+.mob-tc-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.mob-tc-kw{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid;white-space:nowrap;}
+.mob-tc-subject{font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mob-tc-subject.done{text-decoration:line-through;color:var(–muted);}
+.mob-tc-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;}
+.mob-tc-owner{display:flex;align-items:center;gap:4px;font-weight:500;}
+.mob-tc-due{padding:2px 7px;border-radius:8px;font-size:10.5px;font-weight:600;}
+.mob-tc-days{font-size:10px;color:var(–muted);}
+.mob-tc-actions{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(–border);}
+.mob-tc-btn{flex:1;padding:6px;border-radius:7px;border:1.5px solid var(–border);background:var(–surface2);color:var(–text);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;}
+.mob-tc-btn.done-btn{border-color:var(–green);color:var(–green);background:rgba(39,201,126,.08);}
+.mob-tc-btn.del-btn{border-color:var(–red);color:var(–red);background:rgba(232,67,67,.08);}
+
+/* Content area padding for bottom nav */
+.content-area{padding-bottom:8px;}
+.today-panel,.dash-panel{padding-bottom:8px;}
+
+/* Modals full-width on mobile */
+.modal{padding:18px;border-radius:14px 14px 0 0;position:fixed;bottom:0;left:0;right:0;width:100%!important;max-width:100%!important;max-height:88vh;margin:0;}
+.overlay{align-items:flex-end;}
+
+/* Empty state visible */
+.empty-state{padding:40px 16px;}
 }
 
 /* ── SYNC STATUS ── */
-.sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 10px;border-radius:20px;border:1.5px solid var(–border);background:var(–surface2);cursor:default;user-select:none;}
+.sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 10px;border-radius:20px;border:1.5px solid var(–border);background:var(–surface2);cursor:default;user-select:none;color:var(–text);}
 .sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background .3s;}
 .sync-dot.synced{background:var(–green);}
 .sync-dot.syncing{background:var(–yellow);animation:pulse 1s infinite;}
@@ -364,6 +448,7 @@ body.light .view-pane{background:#fff;}
   </div>
 </header>
 
+<div class="mob-overlay" id="mob-overlay" onclick="closeMobSidebar()"></div>
 <div class="app">
   <div class="sidebar" id="sidebar">
     <div class="sb-label">Views</div>
@@ -428,6 +513,7 @@ body.light .view-pane{background:#fff;}
 <!-- TASK TABLE -->
 <div class="content-area hidden" id="task-area">
   <div class="empty-state" id="empty-state"><div style="font-size:28px;margin-bottom:8px">📬</div><p>No tasks found.</p></div>
+  <div class="mob-task-list" id="mob-task-list" style="display:none"></div>
   <table class="task-table" id="task-table" style="display:none">
     <thead>
       <tr>
@@ -733,6 +819,30 @@ function applyTheme(){
 function toggleTheme(){isDark=!isDark;localStorage.setItem('wdt-theme',isDark?'dark':'light');applyTheme();}
 applyTheme();
 
+// ── PWA MANIFEST ──
+(function(){
+  try{
+    const m={
+      name:'Work Deliverables Tracker',
+      short_name:'Work Tracker',
+      description:'Track email deliverables and team tasks',
+      start_url:window.location.pathname,
+      display:'standalone',
+      orientation:'portrait-primary',
+      background_color:'#0d0f18',
+      theme_color:'#1a1f2e',
+      icons:[
+        {src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEVPju9FiDt9AAAAGklEQVR42mNkYGBgJIACAAABAAGQAAEB',sizes:'192x192',type:'image/png'},
+        {src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEVPju9FiDt9AAAAGklEQVR42mNkYGBgJIACAAABAAGQAAEB',sizes:'512x512',type:'image/png'}
+      ]
+    };
+    const blob=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});
+    const url=URL.createObjectURL(blob);
+    const link=document.getElementById('pwa-manifest-link');
+    if(link)link.href=url;
+  }catch(e){console.warn('PWA manifest error:',e);}
+})();
+
 // ═══════════════════════════════ PWA ═══════════════════════════════
 function showPWAGuide(){openModal('pwa-modal');}
 
@@ -1003,11 +1113,40 @@ function renderTaskTable(){
   const empty=document.getElementById('empty-state');
   const tbl=document.getElementById('task-table');
   const tbody=document.getElementById('task-tbody');
+  const mobList=document.getElementById('mob-task-list');
   tbody.innerHTML='';
+  if(mobList)mobList.innerHTML='';
 
-  if(tasks.length===0){empty.classList.add('show');tbl.style.display='none';return;}
-  empty.classList.remove('show');tbl.style.display='table';
+  const isMobile=window.innerWidth<=768;
 
+  if(tasks.length===0){empty.classList.add('show');tbl.style.display='none';if(mobList)mobList.style.display='none';return;}
+  empty.classList.remove('show');
+  if(isMobile){tbl.style.display='none';if(mobList)mobList.style.display='flex';}
+  else{tbl.style.display='table';if(mobList)mobList.style.display='none';}
+
+  if(isMobile){
+    // Mobile: render cards instead of table rows
+    if(groupBy==='none'){tasks.forEach(t=>mobList.appendChild(buildMobCard(t)));}
+    else{
+      const grouped={},order=[];
+      tasks.forEach(t=>{
+        let key;
+        if(groupBy==='member')key=(getMember(t.memberId)?.name||'Unassigned');
+        else if(groupBy==='subject')key=normSubj(t.subject)||t.subject;
+        else if(groupBy==='keyword')key=t.keyword||'(No Keyword)';
+        if(!grouped[key]){grouped[key]=[];order.push(key);}
+        grouped[key].push(t);
+      });
+      order.forEach(key=>{
+        const gh=document.createElement('div');
+        gh.style.cssText='font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text);font-weight:700;padding:8px 10px 4px;opacity:.7';
+        gh.textContent='▼ '+key+' ('+grouped[key].length+')';
+        mobList.appendChild(gh);
+        grouped[key].forEach(t=>mobList.appendChild(buildMobCard(t)));
+      });
+    }
+    return;
+  }
   if(groupBy==='none'){tasks.forEach(t=>tbody.appendChild(buildRow(t)));return;}
 
   const grouped={},order=[];
@@ -1132,6 +1271,41 @@ function renderViewPane(){
   fields.forEach(([lbl,val])=>{html+=`<div class="vp-field"><div class="vp-field-label">${lbl}</div><div class="vp-field-val">${val}</div></div>`;});
   body.innerHTML=html;
   content.appendChild(actions);content.appendChild(body);
+}
+
+
+function buildMobCard(task){
+  const m=getMember(task.memberId);
+  const status=getDueStatus(task);
+  const days=daysSince(task.added);
+  const kw=task.keyword||'';
+  const kwc=kwColor(kw);
+  const card=document.createElement('div');
+  card.className='mob-task-card '+(status!=='ok'&&status!=='done'&&!task.completed?status:'')+(task.completed?' completed':'');
+  card.onclick=e=>{if(e.target.closest('.mob-tc-btn'))return;openViewPane(task.id);};
+
+  let daysCls='fresh';
+  if(days>=30)daysCls='ancient';else if(days>=14)daysCls='old';else if(days>=7)daysCls='mid';
+
+  const top=document.createElement('div');top.className='mob-tc-top';
+  if(kw){const kwEl=document.createElement('span');kwEl.className='mob-tc-kw';kwEl.style.cssText=`background:${kwc.bg};border-color:${kwc.border};color:${kwc.text}`;kwEl.textContent=kw;top.appendChild(kwEl);}
+  const subj=document.createElement('span');subj.className='mob-tc-subject'+(task.completed?' done':'');subj.textContent=task.subject;top.appendChild(subj);
+  card.appendChild(top);
+
+  const meta=document.createElement('div');meta.className='mob-tc-meta';
+  if(m){const own=document.createElement('span');own.className='mob-tc-owner';own.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${m.color};display:inline-block"></span>${m.name}`;meta.appendChild(own);}
+  const dueBadge=document.createElement('span');dueBadge.className='mob-tc-due due-badge '+status;dueBadge.textContent=dueLabel(status,task.due);meta.appendChild(dueBadge);
+  const daysEl=document.createElement('span');daysEl.className='mob-tc-days';daysEl.innerHTML=`<span class="days-badge ${daysCls}">${days}d</span>`;meta.appendChild(daysEl);
+  card.appendChild(meta);
+
+  const acts=document.createElement('div');acts.className='mob-tc-actions';
+  const doneBtn=document.createElement('div');doneBtn.className='mob-tc-btn done-btn';doneBtn.textContent=task.completed?'↩ Reopen':'✓ Done';doneBtn.onclick=e=>{e.stopPropagation();toggleComplete(task.id);};
+  const editBtn=document.createElement('div');editBtn.className='mob-tc-btn';editBtn.textContent='✏️ Edit';editBtn.onclick=e=>{e.stopPropagation();openEditModal(task.id);};
+  const delBtn=document.createElement('div');delBtn.className='mob-tc-btn del-btn';delBtn.textContent='🗑 Del';delBtn.onclick=e=>{e.stopPropagation();deleteTask(task.id);};
+  const pinBtn=document.createElement('div');pinBtn.className='mob-tc-btn';pinBtn.style.borderColor=task.pinnedToday?'var(--orange)':'';pinBtn.style.color=task.pinnedToday?'var(--orange)':'';pinBtn.textContent=task.pinnedToday?'📌 Pinned':'📌 Pin';pinBtn.onclick=e=>{e.stopPropagation();togglePinToday(task.id);};
+  acts.appendChild(doneBtn);acts.appendChild(editBtn);acts.appendChild(pinBtn);acts.appendChild(delBtn);
+  card.appendChild(acts);
+  return card;
 }
 
 // ═══════════════════════════════ DASHBOARD ═══════════════════════════════
@@ -1438,11 +1612,17 @@ function closeModal(id){document.getElementById(id).classList.remove('show');}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
 
 // ═══════════════════════════════ MOBILE ═══════════════════════════════
-function toggleMobSidebar(){document.getElementById('sidebar').classList.toggle('mob-open');}
-document.addEventListener('click',e=>{
+function toggleMobSidebar(){
   const sb=document.getElementById('sidebar');
-  if(sb.classList.contains('mob-open')&&!sb.contains(e.target)&&!e.target.closest('.mob-menu-btn'))sb.classList.remove('mob-open');
-});
+  const ov=document.getElementById('mob-overlay');
+  const isOpen=sb.classList.toggle('mob-open');
+  if(ov)ov.classList.toggle('show',isOpen);
+}
+function closeMobSidebar(){
+  document.getElementById('sidebar').classList.remove('mob-open');
+  const ov=document.getElementById('mob-overlay');
+  if(ov)ov.classList.remove('show');
+}
 function setMobNav(key){
   document.querySelectorAll('.mob-nav-item').forEach(i=>i.classList.remove('active'));
   const el=document.getElementById(`mn-${key}`);if(el)el.classList.add('active');
