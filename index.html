@@ -593,7 +593,7 @@ cursor:pointer;transition:border-color .2s;
       <div class="field"><label>To</label><input type="text" id="f-to" placeholder="Recipients"/></div>
       <div class="field"><label>CC</label><input type="text" id="f-cc" placeholder="CC"/></div>
     </div>
-    <div class="m-grid" style="margin-bottom:10px" id="email-date-fields">
+    <div class="modal-grid" id="email-date-fields" style="margin-bottom:12px">
       <div class="field"><label>Mail Date (DD/MM/YYYY)</label><input type="text" id="f-maildate" placeholder="e.g. 14/04/2026" maxlength="10"/></div>
       <div class="field"><label>Mail Time (HH:MM 24hr)</label><input type="text" id="f-mailtime" placeholder="e.g. 09:30" maxlength="5"/></div>
     </div>
@@ -1520,7 +1520,8 @@ function setTaskType(type){
   document.getElementById('type-manual').className='type-opt manual'+(type==='manual'?' sel':'');
   document.getElementById('subject-lbl').textContent=type==='manual'?'Task Title':'Subject / Title';
   document.getElementById('email-fields').style.display=type==='email'?'':'none';
-  const edf=document.getElementById('email-date-fields');if(edf)edf.style.display=type==='email'?'':'none';
+  const edf=document.getElementById('email-date-fields');
+  if(edf)edf.style.display=(type==='email')?'grid':'none';
   const pbw=document.getElementById('paste-box-wrap');if(pbw)pbw.style.display=type==='email'?'':'none';
 }
 function openAddModal(){
@@ -1531,6 +1532,8 @@ function openAddModal(){
   document.getElementById('f-due').value='';
   document.getElementById('f-pin-today').checked=false;
   setTaskType('email');
+  const edf2=document.getElementById('email-date-fields');
+  if(edf2)edf2.style.display='grid';
   populateSelect('f-member');
   const tm=new Date();tm.setDate(tm.getDate()+1);
   document.getElementById('f-due').value=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,'0')}-${String(tm.getDate()).padStart(2,'0')}`;
@@ -1554,6 +1557,8 @@ function openEditModal(id){
   const pb=document.getElementById('paste-box');if(pb)pb.value='';
   const pbw=document.getElementById('paste-box-wrap');if(pbw)pbw.style.display='none';
   setTaskType(t.type||'email');
+  const edf3=document.getElementById('email-date-fields');
+  if(edf3)edf3.style.display=(t.type==='manual')?'none':'grid';
   populateSelect('f-member',t.memberId);
   openModal('add-modal');
 }
