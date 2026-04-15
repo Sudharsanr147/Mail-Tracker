@@ -1554,17 +1554,21 @@ function saveTask(){
   const cc=document.getElementById('f-cc').value.trim();
   const keyword=document.getElementById('f-keyword').value.trim();
   const pinnedToday=document.getElementById('f-pin-today').checked;
-  if(editingTaskId){
-    const t=state.tasks.find(t=>t.id===editingTaskId);
+  const editedId=editingTaskId;
+  let newId=null;
+  if(editedId){
+    const t=state.tasks.find(t=>t.id===editedId);
     if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType});
   } else {
     const maxExistingId=state.tasks.reduce((max,t)=>Math.max(max,t.id||0),0);
-    const newId=Math.max(state.nextTaskId,maxExistingId+1);
+    newId=Math.max(state.nextTaskId,maxExistingId+1);
     state.nextTaskId=newId+1;
     state.tasks.push({id:newId,subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,completed:false,added:today()});
+    selectedTaskId=newId;
   }
   save();closeModal('add-modal');renderAll();
-  if(selectedTaskId===editingTaskId)renderViewPane();
+  if(editedId){if(selectedTaskId===editedId)renderViewPane();}
+  else{const pane=document.getElementById('view-pane');pane.classList.remove('hidden');if(window.innerWidth<=768)pane.classList.add('mob-show');renderViewPane();}
   showToast('Task saved!','success');
 }
 
