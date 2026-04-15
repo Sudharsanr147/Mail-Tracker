@@ -1558,7 +1558,10 @@ function saveTask(){
     const t=state.tasks.find(t=>t.id===editingTaskId);
     if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType});
   } else {
-    state.tasks.push({id:state.nextTaskId++,subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,completed:false,added:today()});
+    const maxExistingId=state.tasks.reduce((max,t)=>Math.max(max,t.id||0),0);
+    const newId=Math.max(state.nextTaskId,maxExistingId+1);
+    state.nextTaskId=newId+1;
+    state.tasks.push({id:newId,subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,completed:false,added:today()});
   }
   save();closeModal('add-modal');renderAll();
   if(selectedTaskId===editingTaskId)renderViewPane();
@@ -1620,7 +1623,7 @@ function removeMember(id){
 
 // ═══════════════════════════════ MODALS ═══════════════════════════════
 function openModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='add-modal')editingTaskId=null;}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
 
 // ═══════════════════════════════ MOBILE ═══════════════════════════════
@@ -1832,6 +1835,9 @@ function applyCloudData(cloudData) {
   if (cloudData.nextMemberId) state.nextMemberId = cloudData.nextMemberId;
   if (cloudData.nextTaskId) state.nextTaskId = cloudData.nextTaskId;
   if (cloudData.nextTodayId) state.nextTodayId = cloudData.nextTodayId;
+  // Ensure nextTaskId is always greater than all existing task IDs to prevent collisions
+  const maxTaskId=state.tasks.reduce((max,t)=>Math.max(max,t.id||0),0);
+  if(state.nextTaskId<=maxTaskId)state.nextTaskId=maxTaskId+1;
   _saveLocal(); // persist to localStorage without triggering another push
   lastSyncTime = cloudData._ts || Date.now();
   setSyncStatus('synced', 'Synced ' + timeAgo(lastSyncTime));
