@@ -792,6 +792,11 @@ let state=JSON.parse(localStorage.getItem('wdt-v5')||'null')||{
   members:[{id:1,name:'Ravi Kumar',color:COLORS[0]},{id:2,name:'Priya Sharma',color:COLORS[1]},{id:3,name:'Arjun Singh',color:COLORS[2]}],
   tasks:[],todayItems:[],nextMemberId:4,nextTaskId:1,nextTodayId:1
 };
+// Generate a collision-proof string ID for new tasks
+function genId(){return 't_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);}
+// Normalize all task IDs to strings so === comparisons are always consistent
+// (legacy data stored numeric IDs; new tasks get string IDs from genId())
+state.tasks.forEach(t=>{if(t.id!=null)t.id=String(t.id);});
 let currentFilter='today',groupBy='member',showCompleted=false,editingTaskId=null,taskType='email',selectedTaskId=null,sortCol='added',sortDir=1;
 const collapsedGroups={};
 
@@ -1201,7 +1206,7 @@ function buildRow(task,inDrill){
   tr.addEventListener('dragleave',()=>tr.classList.remove('drag-over-above','drag-over-below'));
   tr.addEventListener('drop',e=>{
     e.preventDefault();tr.classList.remove('drag-over-above','drag-over-below');
-    const toId=parseInt(tr.dataset.taskId);if(!toId||dragSrcTaskId===toId)return;
+    const toId=tr.dataset.taskId;if(!toId||dragSrcTaskId===toId)return;
     const mid=tr.getBoundingClientRect().top+tr.getBoundingClientRect().height/2;
     const insertBefore=e.clientY<mid;
     const srcIdx=state.tasks.findIndex(t=>t.id===dragSrcTaskId);
@@ -1230,10 +1235,10 @@ function buildRow(task,inDrill){
     <td style="color:var(--muted);font-size:11px">${fmt(task.added)}</td>
     <td><span class="days-badge ${daysCls}">${days}d</span></td>
     <td class="td-act">
-      <div class="row-btn rbdone ${task.completed?'active':''}" onclick="event.stopPropagation();toggleComplete(${task.id})" title="${task.completed?'Reopen':'Complete'}">✓</div>
-      <div class="row-btn rbpin ${task.pinnedToday?'active':''}" onclick="event.stopPropagation();togglePinToday(${task.id})" title="Pin Today">📌</div>
-      <div class="row-btn rbedit" onclick="event.stopPropagation();openEditModal(${task.id})" title="Edit">✏️</div>
-      <div class="row-btn rbdel" onclick="event.stopPropagation();deleteTask(${task.id})" title="Delete">🗑️</div>
+      <div class="row-btn rbdone ${task.completed?'active':''}" onclick="event.stopPropagation();toggleComplete('${task.id}')" title="${task.completed?'Reopen':'Complete'}">✓</div>
+      <div class="row-btn rbpin ${task.pinnedToday?'active':''}" onclick="event.stopPropagation();togglePinToday('${task.id}')" title="Pin Today">📌</div>
+      <div class="row-btn rbedit" onclick="event.stopPropagation();openEditModal('${task.id}')" title="Edit">✏️</div>
+      <div class="row-btn rbdel" onclick="event.stopPropagation();deleteTask('${task.id}')" title="Delete">🗑️</div>
     </td>
   `;
   return tr;
@@ -1264,7 +1269,7 @@ function renderViewPane(){
   if(kw){const banner=document.createElement('div');banner.className='vp-kw-banner';banner.style.cssText=`background:${kwc.bg};color:${kwc.text};border-bottom-color:${kwc.border}`;banner.textContent='🏷 '+kw;content.appendChild(banner);}
 
   const actions=document.createElement('div');actions.className='vp-actions';
-  actions.innerHTML=`<div class="vp-btn edit" onclick="openEditModal(${t.id})">✏️ Edit</div><div class="vp-btn complete" onclick="toggleComplete(${t.id})">${t.completed?'↩ Reopen':'✓ Complete'}</div><div class="vp-btn del-btn" onclick="deleteTask(${t.id})">🗑 Delete</div>`;
+  actions.innerHTML=`<div class="vp-btn edit" onclick="openEditModal('${t.id}')">✏️ Edit</div><div class="vp-btn complete" onclick="toggleComplete('${t.id}')">${t.completed?'↩ Reopen':'✓ Complete'}</div><div class="vp-btn del-btn" onclick="deleteTask('${t.id}')">🗑 Delete</div>`;
   
   const body=document.createElement('div');body.className='vp-body';
   const days=daysSince(t.added);
@@ -1526,6 +1531,7 @@ function openAddModal(){
   openModal('add-modal');
 }
 function openEditModal(id){
+  if(!id)return;
   const t=state.tasks.find(t=>t.id===id);if(!t)return;
   closeDrill();editingTaskId=id;
   document.getElementById('modal-title').textContent='Edit Task';
@@ -1560,9 +1566,7 @@ function saveTask(){
     const t=state.tasks.find(t=>t.id===editedId);
     if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType});
   } else {
-    const maxExistingId=state.tasks.reduce((max,t)=>Math.max(max,t.id||0),0);
-    newId=Math.max(state.nextTaskId,maxExistingId+1);
-    state.nextTaskId=newId+1;
+    newId=genId();
     state.tasks.push({id:newId,subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,completed:false,added:today()});
     selectedTaskId=newId;
   }
@@ -1706,7 +1710,7 @@ function importData(event){
       imported.tasks.forEach(it=>{
         const exists=state.tasks.find(t=>t.subject===it.subject&&t.added===it.added);
         if(!exists){
-          it.id=state.nextTaskId++;
+          it.id=genId();
           if(memberIdMap[it.memberId])it.memberId=memberIdMap[it.memberId];
           state.tasks.push(it);
           addedTasks++;
@@ -1834,14 +1838,20 @@ function applyCloudData(cloudData) {
   if (!cloudData) return;
   // Cloud data wins — apply everything
   if (cloudData.members && Array.isArray(cloudData.members)) state.members = cloudData.members;
-  if (cloudData.tasks && Array.isArray(cloudData.tasks)) state.tasks = cloudData.tasks;
+  if (cloudData.tasks && Array.isArray(cloudData.tasks)) {
+    state.tasks = cloudData.tasks;
+    // Normalize all task IDs to strings for consistent === comparisons
+    state.tasks.forEach(t=>{if(t.id!=null)t.id=String(t.id);});
+  }
   if (cloudData.todayItems && Array.isArray(cloudData.todayItems)) state.todayItems = cloudData.todayItems;
-  if (cloudData.nextMemberId) state.nextMemberId = cloudData.nextMemberId;
-  if (cloudData.nextTaskId) state.nextTaskId = cloudData.nextTaskId;
-  if (cloudData.nextTodayId) state.nextTodayId = cloudData.nextTodayId;
-  // Ensure nextTaskId is always greater than all existing task IDs to prevent collisions
-  const maxTaskId=state.tasks.reduce((max,t)=>Math.max(max,t.id||0),0);
-  if(state.nextTaskId<=maxTaskId)state.nextTaskId=maxTaskId+1;
+  // Recalculate counters from actual data — never trust cloud counter values blindly
+  // (a stale nextTaskId from the cloud is the root cause of ID collisions)
+  const maxTaskId=state.tasks.reduce((max,t)=>{const n=parseInt(t.id)||0;return Math.max(max,n);},0);
+  state.nextTaskId=maxTaskId+1;
+  const maxMemberId=state.members.reduce((max,m)=>Math.max(max,m.id||0),0);
+  state.nextMemberId=maxMemberId+1;
+  const maxTodayId=state.todayItems.reduce((max,i)=>Math.max(max,i.id||0),0);
+  state.nextTodayId=maxTodayId+1;
   _saveLocal(); // persist to localStorage without triggering another push
   lastSyncTime = cloudData._ts || Date.now();
   setSyncStatus('synced', 'Synced ' + timeAgo(lastSyncTime));
