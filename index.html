@@ -593,6 +593,10 @@ cursor:pointer;transition:border-color .2s;
       <div class="field"><label>To</label><input type="text" id="f-to" placeholder="Recipients"/></div>
       <div class="field"><label>CC</label><input type="text" id="f-cc" placeholder="CC"/></div>
     </div>
+    <div class="m-grid" style="margin-bottom:10px" id="email-date-fields">
+      <div class="field"><label>📅 Mail Date (DD/MM/YYYY)</label><input type="text" id="f-maildate" placeholder="e.g. 14/04/2026" maxlength="10" pattern="\d{2}/\d{2}/\d{4}"/></div>
+      <div class="field"><label>🕐 Mail Time (HH:MM 24hr)</label><input type="text" id="f-mailtime" placeholder="e.g. 09:30" maxlength="5" pattern="\d{2}:\d{2}"/></div>
+    </div>
     <div class="m-grid full" style="margin-bottom:10px">
       <div class="field"><label>Body / Notes</label><textarea id="f-body" rows="3" placeholder="Email body or notes…"></textarea></div>
     </div>
@@ -1230,10 +1234,10 @@ function buildRow(task,inDrill){
     <td style="color:var(--muted);font-size:11px">${fmt(task.added)}</td>
     <td><span class="days-badge ${daysCls}">${days}d</span></td>
     <td class="td-act">
-      <div class="row-btn rbdone ${task.completed?'active':''}" onclick="event.stopPropagation();toggleComplete(${task.id})" title="${task.completed?'Reopen':'Complete'}">✓</div>
-      <div class="row-btn rbpin ${task.pinnedToday?'active':''}" onclick="event.stopPropagation();togglePinToday(${task.id})" title="Pin Today">📌</div>
-      <div class="row-btn rbedit" onclick="event.stopPropagation();openEditModal(${task.id})" title="Edit">✏️</div>
-      <div class="row-btn rbdel" onclick="event.stopPropagation();deleteTask(${task.id})" title="Delete">🗑️</div>
+      <div class="row-btn rbdone ${task.completed?'active':''}" onclick="event.stopPropagation();toggleComplete(this.closest('tr').dataset.taskId)" title="${task.completed?'Reopen':'Complete'}">✓</div>
+      <div class="row-btn rbpin ${task.pinnedToday?'active':''}" onclick="event.stopPropagation();togglePinToday(this.closest('tr').dataset.taskId)" title="Pin Today">📌</div>
+      <div class="row-btn rbedit" onclick="event.stopPropagation();openEditModal(this.closest('tr').dataset.taskId)" title="Edit">✏️</div>
+      <div class="row-btn rbdel" onclick="event.stopPropagation();deleteTask(this.closest('tr').dataset.taskId)" title="Delete">🗑️</div>
     </td>
   `;
   return tr;
@@ -1255,7 +1259,7 @@ function closeViewPane(){
   renderView();
 }
 function renderViewPane(){
-  const t=state.tasks.find(t=>t.id===selectedTaskId);if(!t){closeViewPane();return;}
+  const t=state.tasks.find(t=>String(t.id)===String(selectedTaskId));if(!t){closeViewPane();return;}
   const m=getMember(t.memberId);const status=getDueStatus(t);
   const kw=t.keyword||'';const kwc=kwColor(kw);
   const content=document.getElementById('vp-content');
@@ -1264,7 +1268,8 @@ function renderViewPane(){
   if(kw){const banner=document.createElement('div');banner.className='vp-kw-banner';banner.style.cssText=`background:${kwc.bg};color:${kwc.text};border-bottom-color:${kwc.border}`;banner.textContent='🏷 '+kw;content.appendChild(banner);}
 
   const actions=document.createElement('div');actions.className='vp-actions';
-  actions.innerHTML=`<div class="vp-btn edit" onclick="openEditModal(${t.id})">✏️ Edit</div><div class="vp-btn complete" onclick="toggleComplete(${t.id})">${t.completed?'↩ Reopen':'✓ Complete'}</div><div class="vp-btn del-btn" onclick="deleteTask(${t.id})">🗑 Delete</div>`;
+  const _vpId = String(t.id);
+  actions.innerHTML=`<div class="vp-btn edit" onclick="openEditModal('${_vpId}')">✏️ Edit</div><div class="vp-btn complete" onclick="toggleComplete('${_vpId}')">${t.completed?'↩ Reopen':'✓ Complete'}</div><div class="vp-btn del-btn" onclick="deleteTask('${_vpId}')">🗑 Delete</div>`;
   
   const body=document.createElement('div');body.className='vp-body';
   const days=daysSince(t.added);
@@ -1275,6 +1280,7 @@ function renderViewPane(){
     t.from&&['From',escHtml(t.from)],
     t.to&&['To',escHtml(t.to)],
     t.cc&&['CC',escHtml(t.cc)],
+    (t.maildate||t.mailtime)&&['📅 Mail Date / Time',`${escHtml(t.maildate||'')}${t.maildate&&t.mailtime?' — ':''}${escHtml(t.mailtime||'')}`],
     m&&['Assigned To',`<span style="color:${m.color};display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${m.color};display:inline-block"></span>${m.name}</span>`],
     ['Due Date',`<span class="due-cell ${status}">${dueLabel(status,t.due)}</span>`],
     ['Added',`${fmt(t.added)} <span class="days-badge ${daysCls}" style="margin-left:6px">${days}d ago</span>`],
@@ -1494,13 +1500,13 @@ function processMicResult(){
 
 // ═══════════════════════════════ TASK CRUD ═══════════════════════════════
 function toggleComplete(id){
-  const t=state.tasks.find(t=>t.id===id);
+  const t=state.tasks.find(t=>String(t.id)===String(id));
   if(t){t.completed=!t.completed;if(t.completed)t.pinnedToday=false;save();renderAll();if(selectedTaskId===id)renderViewPane();}
 }
-function togglePinToday(id){const t=state.tasks.find(t=>t.id===id);if(t){t.pinnedToday=!t.pinnedToday;save();renderAll();}}
+function togglePinToday(id){const t=state.tasks.find(t=>String(t.id)===String(id));if(t){t.pinnedToday=!t.pinnedToday;save();renderAll();}}
 function deleteTask(id){
   if(!confirm('Delete this task?'))return;
-  state.tasks=state.tasks.filter(t=>t.id!==id);
+  state.tasks=state.tasks.filter(t=>String(t.id)!==String(id));
   if(selectedTaskId===id)closeViewPane();
   save();renderAll();closeDrill();
 }
@@ -1509,13 +1515,14 @@ function setTaskType(type){
   document.getElementById('type-email').className='type-opt email'+(type==='email'?' sel':'');
   document.getElementById('type-manual').className='type-opt manual'+(type==='manual'?' sel':'');
   document.getElementById('subject-lbl').textContent=type==='manual'?'Task Title':'Subject / Title';
-  document.getElementById('email-fields').style.display=type==='email'?'':'none';
+  document.getElementById('email-fields').style.display=type==='email'?'grid':'none';
+  document.getElementById('email-date-fields').style.display=type==='email'?'grid':'none';
   const pbw=document.getElementById('paste-box-wrap');if(pbw)pbw.style.display=type==='email'?'':'none';
 }
 function openAddModal(){
   editingTaskId=null;
   document.getElementById('modal-title').textContent='Add Task';
-  ['f-subject','f-keyword','f-body','f-from','f-to','f-cc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-subject','f-keyword','f-body','f-from','f-to','f-cc','f-maildate','f-mailtime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})
   const pb=document.getElementById('paste-box');if(pb)pb.value='';
   document.getElementById('f-due').value='';
   document.getElementById('f-pin-today').checked=false;
@@ -1526,7 +1533,10 @@ function openAddModal(){
   openModal('add-modal');
 }
 function openEditModal(id){
-  const t=state.tasks.find(t=>t.id===id);if(!t)return;
+  if(id===undefined||id===null||id==='')return;
+  // Support both numeric and string IDs (== not ===)
+  const t=state.tasks.find(t=>String(t.id)===String(id));
+  if(!t){console.warn('Task not found for id:',id);return;}
   closeDrill();editingTaskId=id;
   document.getElementById('modal-title').textContent='Edit Task';
   document.getElementById('f-subject').value=t.subject;
@@ -1535,6 +1545,8 @@ function openEditModal(id){
   document.getElementById('f-from').value=t.from||'';
   document.getElementById('f-to').value=t.to||'';
   document.getElementById('f-cc').value=t.cc||'';
+  document.getElementById('f-maildate').value=t.maildate||'';
+  document.getElementById('f-mailtime').value=t.mailtime||'';
   document.getElementById('f-due').value=t.due||'';
   document.getElementById('f-pin-today').checked=!!t.pinnedToday;
   const pb=document.getElementById('paste-box');if(pb)pb.value='';
@@ -1552,16 +1564,15 @@ function saveTask(){
   const from=document.getElementById('f-from').value.trim();
   const to=document.getElementById('f-to').value.trim();
   const cc=document.getElementById('f-cc').value.trim();
+  const maildate=document.getElementById('f-maildate').value.trim();
+  const mailtime=document.getElementById('f-mailtime').value.trim();
   const keyword=document.getElementById('f-keyword').value.trim();
   const pinnedToday=document.getElementById('f-pin-today').checked;
   if(editingTaskId){
-    const t=state.tasks.find(t=>t.id===editingTaskId);
-    if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType});
+    const t=state.tasks.find(t=>String(t.id)===String(editingTaskId));
+    if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,maildate,mailtime,keyword,pinnedToday,type:taskType});
   } else {
-    const maxExistingId=state.tasks.reduce((max,t)=>Math.max(max,t.id||0),0);
-    const newId=Math.max(state.nextTaskId,maxExistingId+1);
-    state.nextTaskId=newId+1;
-    state.tasks.push({id:newId,subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,completed:false,added:today()});
+    state.tasks.push({id:`t_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,subject,memberId,due,body,from,to,cc,maildate,mailtime,keyword,pinnedToday,type:taskType,completed:false,added:today()});
   }
   save();closeModal('add-modal');renderAll();
   if(selectedTaskId===editingTaskId)renderViewPane();
@@ -1623,7 +1634,7 @@ function removeMember(id){
 
 // ═══════════════════════════════ MODALS ═══════════════════════════════
 function openModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='add-modal')editingTaskId=null;}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
 
 // ═══════════════════════════════ MOBILE ═══════════════════════════════
@@ -1832,12 +1843,12 @@ function applyCloudData(cloudData) {
   if (cloudData.members && Array.isArray(cloudData.members)) state.members = cloudData.members;
   if (cloudData.tasks && Array.isArray(cloudData.tasks)) state.tasks = cloudData.tasks;
   if (cloudData.todayItems && Array.isArray(cloudData.todayItems)) state.todayItems = cloudData.todayItems;
-  if (cloudData.nextMemberId) state.nextMemberId = cloudData.nextMemberId;
-  if (cloudData.nextTaskId) state.nextTaskId = cloudData.nextTaskId;
-  if (cloudData.nextTodayId) state.nextTodayId = cloudData.nextTodayId;
-  // Ensure nextTaskId is always greater than all existing task IDs to prevent collisions
-  const maxTaskId=state.tasks.reduce((max,t)=>Math.max(max,t.id||0),0);
-  if(state.nextTaskId<=maxTaskId)state.nextTaskId=maxTaskId+1;
+  // Recalculate counters from actual data to prevent ID collisions
+  // (don't trust cloud counters — they may be from a different device session)
+  const numericTaskIds = state.tasks.map(t => typeof t.id === 'number' ? t.id : 0);
+  state.nextTaskId = Math.max(0, ...numericTaskIds) + 1;
+  state.nextMemberId = Math.max(0, ...state.members.map(m => m.id || 0)) + 1;
+  state.nextTodayId = Math.max(0, ...state.todayItems.map(i => i.id || 0)) + 1;
   _saveLocal(); // persist to localStorage without triggering another push
   lastSyncTime = cloudData._ts || Date.now();
   setSyncStatus('synced', 'Synced ' + timeAgo(lastSyncTime));
