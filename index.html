@@ -796,7 +796,13 @@ let currentFilter='today',groupBy='member',showCompleted=false,editingTaskId=nul
 const collapsedGroups={};
 
 function _saveLocal(){localStorage.setItem('wdt-v5',JSON.stringify(state));}
-function save(){_saveLocal();if(syncEnabled&&fbDb&&fbSyncPath&&!isSyncing){clearTimeout(window._fbSaveTimer);window._fbSaveTimer=setTimeout(()=>{setSyncStatus('syncing','Saving…');pushToCloud();},1500);}}
+function save(){
+  _saveLocal();
+  if(syncEnabled && fbDb && fbSyncPath && !isSyncing){
+    clearTimeout(window._fbSaveTimer);
+    window._fbSaveTimer = setTimeout(() => { pushToCloud(); }, 1500);
+  }
+}
 const getMember=id=>state.members.find(m=>m.id===id);
 function today(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function daysSince(s){if(!s)return 0;return Math.floor((new Date()-new Date(s))/(86400000));}
@@ -1770,57 +1776,68 @@ function setSyncPassword() {
 function enableSync(pwd, pushNow) {
   if (!fbDb) return;
   // Remove old listener
+  // Remove old listener if switching passwords
   if (fbListener && fbSyncPath) {
-    fbDb.ref(fbSyncPath).off('value', fbListener);
+    fbDb.ref(fbSyncPath + '/state').off('value', fbListener);
     fbListener = null;
   }
   fbSyncPath = getSyncPath(pwd);
   syncEnabled = true;
 
-  if (pushNow) {
-    pushToCloud();
-  }
+  // Set up real-time listener FIRST, then push if needed
+  // justPushed flag: skip listener echo for 3s after we push
+  let justPushed = false;
 
-  // Listen for real-time changes from other devices
   fbListener = fbDb.ref(fbSyncPath + '/state').on('value', snapshot => {
-    if (!snapshot.exists()) return;
+    if (justPushed) return; // ignore our own echo
+    if (!snapshot.exists()) {
+      // No data in cloud yet — push our local data up
+      if (pushNow) pushToCloud();
+      return;
+    }
     const cloudData = snapshot.val();
     if (!cloudData) return;
-    // Only update if cloud data is newer than last local save
-    const cloudTs = cloudData._ts || 0;
-    const localTs = parseInt(localStorage.getItem('wdt-last-ts') || '0');
-    if (cloudTs > localTs && !isSyncing) {
-      applyCloudData(cloudData);
-      setSyncStatus('synced', 'Synced ' + timeAgo(cloudTs));
-      lastSyncTime = cloudTs;
-      document.getElementById('sync-last-updated').textContent = 'Last synced: ' + new Date(cloudTs).toLocaleString('en-IN');
-    }
+    applyCloudData(cloudData);
   }, err => {
     console.warn('Firebase listen error:', err);
     setSyncStatus('offline', 'Offline');
   });
 
-  setSyncStatus('synced', 'Connected');
   // Monitor connection state
   fbDb.ref('.info/connected').on('value', snap => {
     if (snap.val() === true) {
-      setSyncStatus('synced', lastSyncTime ? 'Synced ' + timeAgo(lastSyncTime) : 'Connected');
+      setSyncStatus('synced', lastSyncTime ? 'Synced ' + timeAgo(lastSyncTime) : 'Connected ✓');
     } else {
-      setSyncStatus('offline', 'Offline — changes saved locally');
+      setSyncStatus('offline', 'Offline — saving locally');
     }
   });
+
+  // Store justPushed setter so pushToCloud can use it
+  window._fbSetJustPushed = (val) => {
+    justPushed = val;
+    if (val) setTimeout(() => { justPushed = false; }, 3000);
+  };
+
+  if (pushNow) {
+    setTimeout(() => pushToCloud(), 500); // small delay so listener is set up first
+  }
 }
 
 function applyCloudData(cloudData) {
-  // Merge cloud state into local — cloud wins on conflict
-  if (cloudData.members) state.members = cloudData.members;
-  if (cloudData.tasks) state.tasks = cloudData.tasks;
-  if (cloudData.todayItems) state.todayItems = cloudData.todayItems;
+  if (!cloudData) return;
+  // Cloud data wins — apply everything
+  if (cloudData.members && Array.isArray(cloudData.members)) state.members = cloudData.members;
+  if (cloudData.tasks && Array.isArray(cloudData.tasks)) state.tasks = cloudData.tasks;
+  if (cloudData.todayItems && Array.isArray(cloudData.todayItems)) state.todayItems = cloudData.todayItems;
   if (cloudData.nextMemberId) state.nextMemberId = cloudData.nextMemberId;
   if (cloudData.nextTaskId) state.nextTaskId = cloudData.nextTaskId;
   if (cloudData.nextTodayId) state.nextTodayId = cloudData.nextTodayId;
-  localStorage.setItem('wdt-v5', JSON.stringify(state));
-  localStorage.setItem('wdt-last-ts', cloudData._ts || Date.now());
+  _saveLocal(); // persist to localStorage without triggering another push
+  lastSyncTime = cloudData._ts || Date.now();
+  setSyncStatus('synced', 'Synced ' + timeAgo(lastSyncTime));
+  // Update sync modal timestamp if open
+  const lbl = document.getElementById('sync-last-updated');
+  if (lbl) lbl.textContent = 'Last synced: ' + new Date(lastSyncTime).toLocaleString('en-IN');
   renderAll();
 }
 
@@ -1831,6 +1848,8 @@ function pushToCloud() {
     return;
   }
   isSyncing = true;
+  // Tell listener to ignore the echo of our own push
+  if (window._fbSetJustPushed) window._fbSetJustPushed(true);
   setSyncStatus('syncing', 'Saving…');
   const ts = Date.now();
   const payload = {
@@ -1840,19 +1859,21 @@ function pushToCloud() {
     nextMemberId: state.nextMemberId,
     nextTaskId: state.nextTaskId,
     nextTodayId: state.nextTodayId,
-    _ts: ts
+    _ts: ts,
+    _device: navigator.userAgent.substring(0, 40)
   };
   fbDb.ref(fbSyncPath + '/state').set(payload)
     .then(() => {
       isSyncing = false;
       lastSyncTime = ts;
-      localStorage.setItem('wdt-last-ts', ts);
-      setSyncStatus('synced', 'Synced just now');
+      setSyncStatus('synced', 'Synced just now ✓');
       showToast('✅ Synced to cloud!', 'success');
-      document.getElementById('sync-last-updated').textContent = 'Last synced: ' + new Date(ts).toLocaleString('en-IN');
+      const lbl = document.getElementById('sync-last-updated');
+      if (lbl) lbl.textContent = 'Last synced: ' + new Date(ts).toLocaleString('en-IN');
     })
     .catch(e => {
       isSyncing = false;
+      if (window._fbSetJustPushed) window._fbSetJustPushed(false);
       setSyncStatus('offline', 'Sync failed');
       showToast('❌ Sync failed: ' + e.message, 'warn');
     });
@@ -1867,13 +1888,12 @@ function pullFromCloud() {
   fbDb.ref(fbSyncPath + '/state').get()
     .then(snapshot => {
       if (!snapshot.exists()) {
-        showToast('☁️ No cloud data found. Push first from another device.', 'info');
-        setSyncStatus('synced', 'Connected');
+        showToast('☁️ No cloud data yet — push from another device first.', 'info');
+        setSyncStatus('synced', 'Connected ✓');
         return;
       }
       applyCloudData(snapshot.val());
       showToast('✅ Data pulled from cloud!', 'success');
-      setSyncStatus('synced', 'Synced just now');
     })
     .catch(e => {
       setSyncStatus('offline', 'Pull failed');
@@ -1915,27 +1935,14 @@ if(typeof firebase !== 'undefined') {
 // Register Service Worker for PWA install
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    // Create SW as blob since we can't write files
-    const swCode = `
-      const CACHE = 'wdt-v1';
-      self.addEventListener('install', e => {
-        e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
-        self.skipWaiting();
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        console.log('SW registered:', reg.scope);
+      })
+      .catch(e => {
+        // sw.js may not exist if not deployed to root — silently ignore
+        console.log('SW not available:', e.message);
       });
-      self.addEventListener('activate', e => {
-        e.waitUntil(clients.claim());
-      });
-      self.addEventListener('fetch', e => {
-        e.respondWith(
-          caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/')))
-        );
-      });
-    `;
-    const blob = new Blob([swCode], {type:'application/javascript'});
-    const swUrl = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(swUrl)
-      .then(reg => console.log('SW registered'))
-      .catch(e => console.log('SW reg failed (normal for blob):', e.message));
   });
 }
 
