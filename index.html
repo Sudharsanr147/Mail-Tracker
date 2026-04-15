@@ -9,7 +9,6 @@
 <meta name="apple-mobile-web-app-title" content="Work Tracker"/>
 <link rel="manifest" id="pwa-manifest-link"/>
 <meta name="theme-color" content="#131722"/>
-<link rel="manifest" id="pwa-manifest"/>
 <title>Work Deliverables Tracker</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -301,46 +300,51 @@ body.light .toolbar{background:#fff;}
 body.light .view-pane{background:#fff;}
 
 /* MOBILE NAV BAR */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(–surface);border-top:2px solid var(–border);z-index:120;padding:4px 0 env(safe-area-inset-bottom,4px);}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(–surface);border-top:2px solid var(–border);z-index:112;padding:4px 0 env(safe-area-inset-bottom,4px);}
 .mob-nav-items{display:flex;justify-content:space-around;}
 .mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 8px;cursor:pointer;color:var(–text);font-size:9px;transition:color .15s;min-width:48px;opacity:0.75;}
 .mob-nav-item span:first-child{font-size:20px;}
 .mob-nav-item.active{color:var(–accent);opacity:1;}
-.mob-menu-btn{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(–text);padding:4px 8px;}
+.mob-menu-btn{display:none;background:var(–accent);border:none;font-size:18px;cursor:pointer;color:#fff;padding:6px 10px;border-radius:8px;line-height:1;font-weight:700;flex-shrink:0;}
 
 /* MOBILE OVERLAY for sidebar */
-.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:109;}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:114;}
 .mob-overlay.show{display:block;}
 
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:768px){
-/* Header compact */
-header{padding:8px 10px;gap:8px;flex-wrap:nowrap;min-height:52px;}
-header h1{font-size:14px;flex:1;}
-.header-stats{gap:10px;}
-.stat-num{font-size:13px;}
+/* Header compact - strict no-wrap */
+header{padding:6px 8px;gap:6px;flex-wrap:nowrap;min-height:50px;overflow:hidden;height:50px;}
+header h1{font-size:12px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header-stats{gap:8px;flex-shrink:0;}
+.stat-num{font-size:12px;}
 .stat-label{display:none;}
-.sync-bar{display:none;} /* hide sync bar on mobile — too crowded */
+.sync-bar{display:none;}
 .tgl-label{display:none;}
-.mob-menu-btn{display:flex;align-items:center;}
+.tgl-track{width:28px;height:16px;}
+.tgl-thumb{width:10px;height:10px;}
+.tgl-track.on .tgl-thumb{left:14px;}
+.mob-menu-btn{display:flex;align-items:center;justify-content:center;}
 
-/* App layout — account for header + bottom nav */
-.app{height:calc(100vh - 52px - 58px);position:relative;}
+/* App layout — account for header(50px) + bottom nav(58px) */
+.app{height:calc(100vh - 50px - 58px);position:relative;overflow:hidden;}
 
 /* Sidebar — fixed overlay, slides in from left */
 .sidebar{
 position:fixed;
-top:52px;left:0;bottom:58px;
-z-index:110;
-width:260px;min-width:unset;
-transform:translateX(-100%);
+top:50px;left:0;bottom:0;
+z-index:115;
+width:75vw;max-width:280px;min-width:unset;
+transform:translateX(-110%);
 transition:transform .28s cubic-bezier(.4,0,.2,1);
 box-shadow:none;
 overflow-y:auto;
+background:var(–surface)!important;
+border-right:2px solid var(–border);
 }
 .sidebar.mob-open{
 transform:translateX(0);
-box-shadow:6px 0 24px rgba(0,0,0,.6);
+box-shadow:8px 0 30px rgba(0,0,0,.7);
 }
 
 /* Bottom nav visible */
@@ -351,7 +355,7 @@ box-shadow:6px 0 24px rgba(0,0,0,.6);
 .view-pane.mob-show{
 display:flex;
 position:fixed;
-top:52px;left:0;right:0;bottom:58px;
+top:50px;left:0;right:0;bottom:58px;
 z-index:105;
 width:100%!important;
 min-width:unset!important;
@@ -359,12 +363,14 @@ border-left:none;
 }
 
 /* Toolbar compact */
-.toolbar{padding:7px 10px;gap:6px;flex-wrap:wrap;}
-.toolbar-title{font-size:13px;}
-.search-box{width:100%;order:10;font-size:12px;}
+.toolbar{padding:6px 8px;gap:5px;flex-wrap:wrap;}
+.toolbar-title{font-size:12px;min-width:60px;}
+.search-box{width:100%;order:10;font-size:12px;margin-top:2px;}
 .grp-toggle{order:11;width:100%;}
-.gt-btn{flex:1;text-align:center;}
+.gt-btn{flex:1;text-align:center;font-size:10px;}
 .chip{font-size:10px;padding:3px 8px;}
+.btn-primary{font-size:11.5px;padding:5px 10px;}
+.mic-btn{width:32px;height:32px;font-size:14px;}
 
 /* Mobile task view — card-based instead of table */
 .task-table{display:none!important;}
@@ -388,16 +394,16 @@ cursor:pointer;transition:border-color .2s;
 .mob-tc-days{font-size:10px;color:var(–muted);}
 .mob-tc-actions{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(–border);}
 .mob-tc-btn{flex:1;padding:6px;border-radius:7px;border:1.5px solid var(–border);background:var(–surface2);color:var(–text);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;}
-.mob-tc-btn.done-btn{border-color:var(–green);color:var(–green);background:rgba(39,201,126,.08);}
-.mob-tc-btn.del-btn{border-color:var(–red);color:var(–red);background:rgba(232,67,67,.08);}
+.mob-tc-btn.done-btn{border-color:var(–green);color:#fff;background:var(–green);}
+.mob-tc-btn.del-btn{border-color:var(–red);color:#fff;background:var(–red);}
 
 /* Content area padding for bottom nav */
 .content-area{padding-bottom:8px;}
 .today-panel,.dash-panel{padding-bottom:8px;}
 
 /* Modals full-width on mobile */
-.modal{padding:18px;border-radius:14px 14px 0 0;position:fixed;bottom:0;left:0;right:0;width:100%!important;max-width:100%!important;max-height:88vh;margin:0;}
-.overlay{align-items:flex-end;}
+.modal{padding:16px;border-radius:16px 16px 0 0;position:fixed;bottom:0;left:0;right:0;width:100%!important;max-width:100%!important;max-height:88vh;margin:0;overflow-y:auto;}
+.overlay{align-items:flex-end;padding:0;}
 
 /* Empty state visible */
 .empty-state{padding:40px 16px;}
@@ -1903,6 +1909,60 @@ if(typeof firebase !== 'undefined') {
   });
 }
 
+</script>
+
+<script>
+// Register Service Worker for PWA install
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    // Create SW as blob since we can't write files
+    const swCode = `
+      const CACHE = 'wdt-v1';
+      self.addEventListener('install', e => {
+        e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
+        self.skipWaiting();
+      });
+      self.addEventListener('activate', e => {
+        e.waitUntil(clients.claim());
+      });
+      self.addEventListener('fetch', e => {
+        e.respondWith(
+          caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/')))
+        );
+      });
+    `;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl)
+      .then(reg => console.log('SW registered'))
+      .catch(e => console.log('SW reg failed (normal for blob):', e.message));
+  });
+}
+
+// Listen for beforeinstallprompt to show custom install button
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button in PWA guide
+  const installBtn = document.getElementById('pwa-install-btn');
+  if(installBtn) installBtn.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  showToast('✅ App installed successfully!', 'success');
+  deferredPrompt = null;
+});
+function triggerPWAInstall(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted') showToast('✅ App installed!','success');
+      deferredPrompt = null;
+    });
+  } else {
+    openModal('pwa-modal');
+  }
+}
 </script>
 
 </body>
