@@ -585,6 +585,10 @@ cursor:pointer;transition:border-color .2s;
     <div class="m-grid full" style="margin-bottom:10px">
       <div class="field"><label id="subject-lbl">Subject / Title</label><input type="text" id="f-subject" placeholder="Email subject or task title…"/></div>
     </div>
+    <div class="modal-grid" id="email-date-fields" style="margin-bottom:12px">
+      <div class="field"><label>Mail Date (DD/MM/YYYY)</label><input type="text" id="f-maildate" placeholder="e.g. 14/04/2026" maxlength="10"/></div>
+      <div class="field"><label>Mail Time (HH:MM 24hr)</label><input type="text" id="f-mailtime" placeholder="e.g. 09:30" maxlength="5"/></div>
+    </div>
     <div class="m-grid full" style="margin-bottom:10px">
       <div class="field"><label>🏷 Keyword / Category</label><input type="text" id="f-keyword" placeholder="e.g. Insurance, Finance, HR, SAP…"/></div>
     </div>
@@ -592,10 +596,6 @@ cursor:pointer;transition:border-color .2s;
       <div class="field"><label>From</label><input type="text" id="f-from" placeholder="Sender name"/></div>
       <div class="field"><label>To</label><input type="text" id="f-to" placeholder="Recipients"/></div>
       <div class="field"><label>CC</label><input type="text" id="f-cc" placeholder="CC"/></div>
-    </div>
-    <div class="modal-grid" id="email-date-fields" style="margin-bottom:12px">
-      <div class="field"><label>Mail Date (DD/MM/YYYY)</label><input type="text" id="f-maildate" placeholder="e.g. 14/04/2026" maxlength="10"/></div>
-      <div class="field"><label>Mail Time (HH:MM 24hr)</label><input type="text" id="f-mailtime" placeholder="e.g. 09:30" maxlength="5"/></div>
     </div>
     <div class="m-grid full" style="margin-bottom:10px">
       <div class="field"><label>Body / Notes</label><textarea id="f-body" rows="3" placeholder="Email body or notes…"></textarea></div>
