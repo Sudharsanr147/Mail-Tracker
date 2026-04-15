@@ -593,6 +593,10 @@ cursor:pointer;transition:border-color .2s;
       <div class="field"><label>To</label><input type="text" id="f-to" placeholder="Recipients"/></div>
       <div class="field"><label>CC</label><input type="text" id="f-cc" placeholder="CC"/></div>
     </div>
+    <div class="m-grid" style="margin-bottom:10px" id="email-date-fields">
+      <div class="field"><label>Mail Date (DD/MM/YYYY)</label><input type="text" id="f-maildate" placeholder="e.g. 14/04/2026" maxlength="10"/></div>
+      <div class="field"><label>Mail Time (HH:MM 24hr)</label><input type="text" id="f-mailtime" placeholder="e.g. 09:30" maxlength="5"/></div>
+    </div>
     <div class="m-grid full" style="margin-bottom:10px">
       <div class="field"><label>Body / Notes</label><textarea id="f-body" rows="3" placeholder="Email body or notes…"></textarea></div>
     </div>
@@ -1280,6 +1284,7 @@ function renderViewPane(){
     t.from&&['From',escHtml(t.from)],
     t.to&&['To',escHtml(t.to)],
     t.cc&&['CC',escHtml(t.cc)],
+    (t.maildate||t.mailtime)&&['Mail Date/Time',`${t.maildate||''}${t.maildate&&t.mailtime?' ':''}${t.mailtime||''}`.trim()],
     m&&['Assigned To',`<span style="color:${m.color};display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${m.color};display:inline-block"></span>${m.name}</span>`],
     ['Due Date',`<span class="due-cell ${status}">${dueLabel(status,t.due)}</span>`],
     ['Added',`${fmt(t.added)} <span class="days-badge ${daysCls}" style="margin-left:6px">${days}d ago</span>`],
@@ -1515,12 +1520,13 @@ function setTaskType(type){
   document.getElementById('type-manual').className='type-opt manual'+(type==='manual'?' sel':'');
   document.getElementById('subject-lbl').textContent=type==='manual'?'Task Title':'Subject / Title';
   document.getElementById('email-fields').style.display=type==='email'?'':'none';
+  const edf=document.getElementById('email-date-fields');if(edf)edf.style.display=type==='email'?'':'none';
   const pbw=document.getElementById('paste-box-wrap');if(pbw)pbw.style.display=type==='email'?'':'none';
 }
 function openAddModal(){
   editingTaskId=null;
   document.getElementById('modal-title').textContent='Add Task';
-  ['f-subject','f-keyword','f-body','f-from','f-to','f-cc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-subject','f-keyword','f-body','f-from','f-to','f-cc','f-maildate','f-mailtime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const pb=document.getElementById('paste-box');if(pb)pb.value='';
   document.getElementById('f-due').value='';
   document.getElementById('f-pin-today').checked=false;
@@ -1541,6 +1547,8 @@ function openEditModal(id){
   document.getElementById('f-from').value=t.from||'';
   document.getElementById('f-to').value=t.to||'';
   document.getElementById('f-cc').value=t.cc||'';
+  document.getElementById('f-maildate').value=t.maildate||'';
+  document.getElementById('f-mailtime').value=t.mailtime||'';
   document.getElementById('f-due').value=t.due||'';
   document.getElementById('f-pin-today').checked=!!t.pinnedToday;
   const pb=document.getElementById('paste-box');if(pb)pb.value='';
@@ -1558,16 +1566,18 @@ function saveTask(){
   const from=document.getElementById('f-from').value.trim();
   const to=document.getElementById('f-to').value.trim();
   const cc=document.getElementById('f-cc').value.trim();
+  const maildate=document.getElementById('f-maildate').value.trim();
+  const mailtime=document.getElementById('f-mailtime').value.trim();
   const keyword=document.getElementById('f-keyword').value.trim();
   const pinnedToday=document.getElementById('f-pin-today').checked;
   const editedId=editingTaskId;
   let newId=null;
   if(editedId){
     const t=state.tasks.find(t=>t.id===editedId);
-    if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType});
+    if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,maildate,mailtime});
   } else {
     newId=genId();
-    state.tasks.push({id:newId,subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,completed:false,added:today()});
+    state.tasks.push({id:newId,subject,memberId,due,body,from,to,cc,keyword,pinnedToday,type:taskType,maildate,mailtime,completed:false,added:today()});
     selectedTaskId=newId;
   }
   save();closeModal('add-modal');renderAll();
