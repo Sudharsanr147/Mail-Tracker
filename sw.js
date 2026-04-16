@@ -1,26 +1,35 @@
-const CACHE = 'wdt-cache-v1';
-const OFFLINE_URL = '/';
+// Work Deliverables Tracker - Service Worker
+// Works with GitHub Pages subdirectory deployment (/Mail-Tracker/)
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(['/']))
-  );
-  self.skipWaiting();
+const CACHE_NAME = ‘wdt-cache-v2’;
+
+self.addEventListener(‘install’, event => {
+event.waitUntil(
+caches.open(CACHE_NAME).then(cache => {
+return cache.addAll([
+self.registration.scope,
+self.registration.scope + ‘index.html’
+]).catch(() => {});
+})
+);
+self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
-  );
-  return self.clients.claim();
+self.addEventListener(‘activate’, event => {
+event.waitUntil(
+caches.keys().then(keys =>
+Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+)
+);
+return self.clients.claim();
 });
 
-self.addEventListener('fetch', e => {
-  if (e.request.mode === 'navigate') {
-    e.respondWith(
-      fetch(e.request).catch(() => caches.match(OFFLINE_URL))
-    );
-  }
+self.addEventListener(‘fetch’, event => {
+if (event.request.mode === ‘navigate’) {
+event.respondWith(
+fetch(event.request).catch(() =>
+caches.match(self.registration.scope + ‘index.html’)
+)
+);
+}
 });
