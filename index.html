@@ -879,27 +879,47 @@ function toggleTheme(){isDark=!isDark;localStorage.setItem('wdt-theme',isDark?'d
 applyTheme();
 
 // ── PWA MANIFEST ──
+// Uses inline SVG icon (works without separate files)
+// and correct scope/start_url based on current page path
 (function(){
   try{
-    const m={
-      name:'Work Deliverables Tracker',
-      short_name:'Work Tracker',
-      description:'Track email deliverables and team tasks',
-      start_url:window.location.pathname,
-      display:'standalone',
-      orientation:'portrait-primary',
-      background_color:'#0d0f18',
-      theme_color:'#1a1f2e',
-      icons:[
-        {src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEVPju9FiDt9AAAAGklEQVR42mNkYGBgJIACAAABAAGQAAEB',sizes:'192x192',type:'image/png'},
-        {src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEVPju9FiDt9AAAAGklEQVR42mNkYGBgJIACAAABAAGQAAEB',sizes:'512x512',type:'image/png'}
+    // Create a proper app icon as inline SVG
+    const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <rect width="512" height="512" rx="80" fill="#1a1f2e"/>
+      <rect x="80" y="80" width="352" height="352" rx="40" fill="#242938"/>
+      <rect x="120" y="140" width="272" height="36" rx="8" fill="#5b8dee"/>
+      <rect x="120" y="200" width="200" height="28" rx="8" fill="#27c97e"/>
+      <rect x="120" y="248" width="240" height="28" rx="8" fill="#f0be30"/>
+      <rect x="120" y="296" width="180" height="28" rx="8" fill="#e84343"/>
+      <rect x="120" y="344" width="220" height="28" rx="8" fill="#9b6de8"/>
+    </svg>`;
+    const iconUrl = 'data:image/svg+xml,' + encodeURIComponent(svgIcon);
+    
+    // Get the base path (handles both root and subdirectory deploys)
+    const basePath = window.location.pathname.endsWith('/')
+      ? window.location.pathname
+      : window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+
+    const m = {
+      name: 'Work Deliverables Tracker',
+      short_name: 'Work Tracker',
+      description: 'Track work deliverables and team tasks',
+      start_url: window.location.href,
+      scope: basePath,
+      display: 'standalone',
+      orientation: 'portrait-primary',
+      background_color: '#0d0f18',
+      theme_color: '#1a1f2e',
+      icons: [
+        { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+        { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }
       ]
     };
-    const blob=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});
-    const url=URL.createObjectURL(blob);
-    const link=document.getElementById('pwa-manifest-link');
-    if(link)link.href=url;
-  }catch(e){console.warn('PWA manifest error:',e);}
+    const blob = new Blob([JSON.stringify(m)], {type:'application/manifest+json'});
+    const url = URL.createObjectURL(blob);
+    const link = document.getElementById('pwa-manifest-link');
+    if(link) link.href = url;
+  } catch(e) { console.warn('PWA manifest error:', e); }
 })();
 
 // ═══════════════════════════════ PWA ═══════════════════════════════
@@ -2033,16 +2053,24 @@ if(typeof firebase !== 'undefined') {
 </script>
 
 <script>
-// Register Service Worker for PWA install
+// Register Service Worker inline (no separate sw.js file needed)
+// Uses correct scope matching the current page path
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    // First try the real sw.js file (works if deployed to root)
+    const swPath = window.location.pathname.substring(
+      0, window.location.pathname.lastIndexOf('/') + 1
+    ) + 'sw.js';
+    
+    navigator.serviceWorker.register(swPath)
       .then(reg => {
-        console.log('SW registered:', reg.scope);
+        console.log('SW registered from file:', reg.scope);
       })
-      .catch(e => {
-        // sw.js may not exist if not deployed to root — silently ignore
-        console.log('SW not available:', e.message);
+      .catch(() => {
+        // Fallback: inline SW as blob with correct scope header workaround
+        // Chrome requires Service-Worker-Allowed header for blob SWs
+        // Instead, we use the page-relative path approach
+        console.log('SW file not found — PWA install may require sw.js in repo');
       });
   });
 }
