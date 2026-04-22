@@ -88,7 +88,7 @@ header h1 span{color:var(–accent);}
 .search-box:focus{border-color:var(–accent);}
 .grp-toggle{display:flex;background:var(–surface2);border:1.5px solid var(–border);border-radius:7px;overflow:hidden;}
 .gt-btn{padding:4px 9px;font-size:10.5px;cursor:pointer;color:var(–text);border:none;background:transparent;font-family:‘DM Sans’,sans-serif;transition:all .15s;font-weight:500;}
-.gt-btn.active{background:var(–accent);color:#fff;}
+.gt-btn.active{background:transparent;color:var(–accent);font-weight:700;border-bottom:2px solid var(–accent);}
 .chip{padding:4px 10px;border-radius:20px;font-size:10.5px;cursor:pointer;border:1.5px solid var(–border);background:var(–surface2);color:var(–text);transition:all .15s;font-weight:500;}
 .chip.active{background:rgba(91,141,238,.15);border-color:var(–accent);color:var(–accent);}
 .btn-primary{background:#dc2626;color:#fff!important;border:none;border-radius:7px;padding:6px 14px;font-family:‘DM Sans’,sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
@@ -100,7 +100,7 @@ header h1 span{color:var(–accent);}
 .mic-btn.listening{background:var(–red);border-color:var(–red);animation:mic-pulse 1.2s infinite;}
 
 /* TABLE VIEW */
-.content-area{flex:1;overflow:auto;display:flex;flex-direction:column;}
+.content-area{flex:1;overflow:auto;display:flex;flex-direction:column;overflow-x:hidden;}
 .content-area.hidden{display:none;}
 .task-table{width:100%;border-collapse:collapse;min-width:700px;}
 .task-table thead th{
@@ -441,13 +441,18 @@ cursor:pointer;transition:border-color .2s;
 .sync-dot.local{background:var(–muted);}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── RECURRING TASKS ── */
+.recur-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;padding:1px 6px;border-radius:8px;background:rgba(155,109,232,.15);border:1px solid rgba(155,109,232,.4);color:var(–purple);font-weight:600;margin-left:4px;vertical-align:middle;}
+.stop-recur-btn{background:rgba(232,67,67,.1);border:1.5px solid var(–red);color:var(–red);border-radius:7px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
+.stop-recur-btn:hover{background:var(–red);color:#fff;}
+
 /* ── DRAG AND DROP ── */
 .dragging{opacity:.45;transform:scale(.98);cursor:grabbing!important;}
 .drag-over-above{border-top:2.5px solid var(–accent)!important;}
 .drag-over-below{border-bottom:2.5px solid var(–accent)!important;}
 .ml-row{cursor:grab;user-select:none;}
 .ml-row:active{cursor:grabbing;}
-.ml-row .drag-handle{font-size:14px;color:var(–muted);margin-right:4px;cursor:grab;touch-action:none;}
+.ml-row .drag-handle{display:none;}
 .task-table tbody tr{cursor:grab;}
 .task-table tbody tr:active{cursor:grabbing;}
 .drag-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.85;background:var(–surface2);border:2px solid var(–accent);border-radius:8px;padding:8px 14px;font-size:12px;color:var(–text);max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(–shadow);}
@@ -522,10 +527,10 @@ background:#f4f6fc!important;
       <div class="toolbar-title" id="toolbar-title">Today</div>
       <input class="search-box" type="text" id="search-input" placeholder="Search…" oninput="renderView()"/>
       <div class="grp-toggle" id="grp-toggle" style="display:none">
-        <button class="gt-btn active" id="gt-member" onclick="setGroupBy('member')">Member</button>
+        <button class="gt-btn" id="gt-member" onclick="setGroupBy('member')">Member</button>
         <button class="gt-btn" id="gt-subject" onclick="setGroupBy('subject')">Subject</button>
         <button class="gt-btn" id="gt-kw" onclick="setGroupBy('keyword')">Keyword</button>
-        <button class="gt-btn" id="gt-none" onclick="setGroupBy('none')">Flat</button>
+        <button class="gt-btn active" id="gt-none" onclick="setGroupBy('none')">Flat</button>
       </div>
       <button class="chip" id="show-done-btn" onclick="toggleShowCompleted()">Show Done</button>
       <div class="mic-btn" id="mic-btn" onclick="openMicModal()" title="Voice Add Task">🎙️</div>
@@ -547,12 +552,16 @@ background:#f4f6fc!important;
     <div class="add-today-row">
       <input class="add-today-input" id="qt-input" placeholder="Add item for today… (Enter)" onkeydown="if(event.key==='Enter')quickAddToday()"/>
       <select class="add-today-select" id="qt-member"></select>
-      <button class="btn-add-today" onclick="quickAddToday()">Add</button>
+      <button class="btn-add-today" onclick="quickAddToday()" style="background:var(--red);color:#fff!important">Add</button>
     </div>
   </div>
-  <div id="t-ov-sec"><div class="sec-title"><span>🔴 Overdue</span></div><div id="t-ov-list"></div></div>
-  <div id="t-pin-sec"><div class="sec-title"><span>📌 Pinned Tasks</span></div><div id="t-pin-list"></div></div>
+```
+
+<!-- Overdue section removed from Today view as per requirement -->
+
+```
   <div id="t-q-sec"><div class="sec-title"><span>☀️ Today's Items</span></div><div id="t-q-list"></div></div>
+  <div id="t-pin-sec"><div class="sec-title"><span>📌 Pinned Tasks</span></div><div id="t-pin-list"></div></div>
   <div id="today-empty" style="display:none;text-align:center;color:var(--muted);padding:30px 0"><div style="font-size:28px;margin-bottom:7px">🌅</div><p>Nothing scheduled. Add items above.</p></div>
 </div>
 
@@ -622,8 +631,8 @@ background:#f4f6fc!important;
       <textarea class="paste-box" id="paste-box" rows="3" placeholder="Click here and press Ctrl+V — Subject, From, To, CC, Body fill automatically…" oninput="onPasteBoxChange()"></textarea>
     </div>
     <div class="type-toggle">
-      <div class="type-opt email sel" id="type-email" onclick="setTaskType('email')">📧 Email Task</div>
-      <div class="type-opt manual" id="type-manual" onclick="setTaskType('manual')">✍️ Manual Task</div>
+      <div class="type-opt manual sel" id="type-manual" onclick="setTaskType('manual')">✍️ Manual Task</div>
+      <div class="type-opt email" id="type-email" onclick="setTaskType('email')">📧 Email Task</div>
     </div>
     <div class="m-grid full" style="margin-bottom:10px">
       <div class="field"><label id="subject-lbl">Subject / Title</label><input type="text" id="f-subject" placeholder="Email subject or task title…"/></div>
@@ -645,7 +654,19 @@ background:#f4f6fc!important;
     </div>
     <div class="m-grid">
       <div class="field"><label>Assign To</label><select id="f-member"></select></div>
-      <div class="field"><label>Due Date</label><input type="date" id="f-due"/></div>
+      <div class="field"><label>📅 Original Due Date</label><input type="date" id="f-due"/></div>
+    </div>
+    <div class="m-grid" style="margin-top:10px">
+      <div class="field"><label>📅 Revised Due Date <span style="font-size:10px;color:var(--muted)">(overrides original)</span></label><input type="date" id="f-revised-due"/></div>
+      <div class="field"><label>🔁 Recurring</label>
+        <select id="f-recur">
+          <option value="">None</option>
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly (every 3 months)</option>
+          <option value="halfyearly">Half-Yearly (every 6 months)</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
     </div>
     <div style="margin-top:10px">
       <div class="field"><label style="display:flex;align-items:center;gap:7px;cursor:pointer;border-radius:6px;padding:6px 10px;"><input type="checkbox" id="f-pin-today" style="width:auto;padding:0;border:none;background:none;accent-color:var(--accent)"/> Pin to Today's Dashboard</label></div>
@@ -839,7 +860,7 @@ let state=JSON.parse(localStorage.getItem('wdt-v5')||'null')||{
   members:[{id:1,name:'Ravi Kumar',color:COLORS[0]},{id:2,name:'Priya Sharma',color:COLORS[1]},{id:3,name:'Arjun Singh',color:COLORS[2]}],
   tasks:[],todayItems:[],nextMemberId:4,nextTaskId:1,nextTodayId:1
 };
-let currentFilter='today',groupBy='member',showCompleted=false,editingTaskId=null,taskType='email',selectedTaskId=null,sortCol='added',sortDir=1;
+let currentFilter='today',groupBy='none',showCompleted=false,editingTaskId=null,taskType='manual',selectedTaskId=null,sortCol='added',sortDir=1;
 const collapsedGroups={};
 
 function _saveLocal(){localStorage.setItem('wdt-v5',JSON.stringify(state));}
@@ -854,12 +875,15 @@ const getMember=id=>state.members.find(m=>m.id===id);
 function today(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function daysSince(s){if(!s)return 0;return Math.floor((new Date()-new Date(s))/(86400000));}
 function getDueStatus(t){
-  if(t.completed)return'done';if(!t.due)return'ok';
-  const now=today();if(t.due<now)return'overdue';
+  if(t.completed)return'done';
+  const effDue=t.revisedDue||t.due; // revised due overrides original
+  if(!effDue)return'ok';
+  const now=today();if(effDue<now)return'overdue';
   const tm=new Date();tm.setDate(tm.getDate()+1);
   const ts=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,'0')}-${String(tm.getDate()).padStart(2,'0')}`;
-  return t.due<=ts?'due-soon':'ok';
+  return effDue<=ts?'due-soon':'ok';
 }
+function getEffDue(t){return t.revisedDue||t.due||'';}
 function fmt(s){if(!s)return'—';const[y,m,d]=s.split('-');const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${d} ${mo[parseInt(m)-1]}`;}
 function dueLabel(st,due){if(st==='done')return'Done';if(!due)return'No date';if(st==='overdue')return`⚠ ${fmt(due)}`;if(st==='due-soon')return`Soon ${fmt(due)}`;return fmt(due);}
 function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -1018,7 +1042,7 @@ function parseClassicOutlook(text){
 function renderAll(){renderSidebar();renderStats();renderView();}
 
 function renderStats(){
-  const pending=state.tasks.filter(t=>!t.completed);
+  const pending=state.tasks.filter(t=>!t.completed&&isTaskVisible(t));
   const ov=pending.filter(t=>getDueStatus(t)==='overdue').length;
   const td=state.todayItems.filter(i=>i.date===today()&&!i.done).length+state.tasks.filter(t=>!t.completed&&t.pinnedToday).length;
   document.getElementById('stat-overdue').textContent=ov;
@@ -1041,7 +1065,7 @@ function renderSidebar(){
     div.style.paddingRight='8px';
     div.setAttribute('draggable','true');
     div.dataset.memberIdx=idx;
-    div.innerHTML=`<span style="font-size:11px;color:var(--muted);cursor:grab;margin-right:2px" title="Drag to reorder">⠿</span><div class="member-dot" style="background:${m.color}"></div><span class="sb-name">${m.name}</span><span class="sb-badge ${oc>0?'danger':''}">${pc}</span>`;
+    div.innerHTML=`<span style="font-size:9px;color:var(--border);cursor:grab;margin-right:2px;letter-spacing:-2px" title="Drag to reorder">⋮⋮</span><div class="member-dot" style="background:${m.color}"></div><span class="sb-name">${m.name}</span><span class="sb-badge ${oc>0?'danger':''}">${pc}</span>`;
     div.onclick=e=>{if(e.target.style.cursor==='grab')return;setFilter(`member-${m.id}`,div);};
     // Drag events
     div.addEventListener('dragstart',e=>{
@@ -1121,8 +1145,8 @@ function renderToday(){
   document.getElementById('today-date').textContent=d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('today-year').textContent=d.getFullYear();
   const todayItems=state.todayItems.filter(i=>i.date===today());
-  const pinned=state.tasks.filter(t=>t.pinnedToday&&!t.completed);
-  const overdue=state.tasks.filter(t=>!t.completed&&getDueStatus(t)==='overdue');
+  const pinned=state.tasks.filter(t=>t.pinnedToday&&!t.completed&&isTaskVisible(t));
+  const overdue=state.tasks.filter(t=>!t.completed&&isTaskVisible(t)&&getDueStatus(t)==='overdue');
   const total=todayItems.length+pinned.length,done=todayItems.filter(i=>i.done).length;
   const pct=total>0?Math.round(done/total*100):0;
   document.getElementById('prog-fill').style.width=pct+'%';
@@ -1130,10 +1154,10 @@ function renderToday(){
   populateSelect('qt-member');
   const ovSec=document.getElementById('t-ov-sec'),ovList=document.getElementById('t-ov-list');
   ovList.innerHTML='';ovSec.style.display=overdue.length?'':'none';
-  overdue.forEach(t=>ovList.appendChild(makeTodayCard(t.subject,t.completed,()=>toggleComplete(t.id),null,getMember(t.memberId),`Overdue ${fmt(t.due)}`,true,()=>openViewPane(t.id))));
+  overdue.forEach(t=>ovList.appendChild(makeTodayCard(t.subject,t.completed,()=>toggleComplete(t.id),null,getMember(t.memberId),`Overdue ${fmt(getEffDue(t))}`,true,()=>openViewPane(t.id))));
   const pinSec=document.getElementById('t-pin-sec'),pinList=document.getElementById('t-pin-list');
   pinList.innerHTML='';pinSec.style.display=pinned.length?'':'none';
-  pinned.forEach(t=>pinList.appendChild(makeTodayCard(t.subject,t.completed,()=>toggleComplete(t.id),()=>unpinTask(t.id),getMember(t.memberId),t.due?`Due ${fmt(t.due)}`:'',false,()=>openViewPane(t.id),'📌')));
+  pinned.forEach(t=>pinList.appendChild(makeTodayCard(t.subject,t.completed,()=>toggleComplete(t.id),()=>unpinTask(t.id),getMember(t.memberId),getEffDue(t)?`Due ${fmt(getEffDue(t))}`:'',false,()=>openViewPane(t.id),'📌')));
   const qSec=document.getElementById('t-q-sec'),qList=document.getElementById('t-q-list');
   qList.innerHTML='';qSec.style.display=todayItems.length?'':'none';
   todayItems.sort((a,b)=>a.done-b.done).forEach(item=>qList.appendChild(makeTodayCard(item.text,item.done,()=>toggleTodayItem(item.id),()=>deleteTodayItem(item.id),getMember(item.memberId),'',false,null)));
@@ -1181,7 +1205,7 @@ function renderTaskTable(){
     if(sortCol==='keyword'){va=(a.keyword||'').toLowerCase();vb=(b.keyword||'').toLowerCase();}
     else if(sortCol==='subject'){va=(a.subject||'').toLowerCase();vb=(b.subject||'').toLowerCase();}
     else if(sortCol==='member'){va=(getMember(a.memberId)?.name||'').toLowerCase();vb=(getMember(b.memberId)?.name||'').toLowerCase();}
-    else if(sortCol==='due'){va=a.due||'9999';vb=b.due||'9999';}
+    else if(sortCol==='due'){va=getEffDue(a)||'9999';vb=getEffDue(b)||'9999';}
     else if(sortCol==='added'){va=a.added||'';vb=b.added||'';}
     else if(sortCol==='days'){va=daysSince(a.added);vb=daysSince(b.added);}
     else{const o={overdue:0,'due-soon':1,ok:2,done:3};va=o[getDueStatus(a)];vb=o[getDueStatus(b)];}
@@ -1293,7 +1317,7 @@ function buildRow(task,inDrill){
       ${task.pinnedToday&&!task.completed?'<span style="font-size:10px;margin-left:4px">📌</span>':''}
     </td>
     <td>${m?`<span style="display:inline-flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:${m.color};display:inline-block"></span>${m.name}</span>`:'—'}</td>
-    <td class="due-cell ${dueClass}">${dueLabel(status,task.due)}</td>
+    <td class="due-cell ${dueClass}">${dueLabel(status,getEffDue(task))}${task.revisedDue&&task.due&&task.revisedDue!==task.due?`<br><span style="font-size:9px;color:var(--muted);text-decoration:line-through">${fmt(task.due)}</span>`:''}</td>
     <td style="color:var(--muted);font-size:11px">${fmt(task.added)}</td>
     <td><span class="days-badge ${daysCls}">${days}d</span></td>
     <td class="td-act">
@@ -1332,7 +1356,8 @@ function renderViewPane(){
 
   const actions=document.createElement('div');actions.className='vp-actions';
   const _vpId = String(t.id);
-  actions.innerHTML=`<div class="vp-btn edit" onclick="openEditModal('${_vpId}')">✏️ Edit</div><div class="vp-btn complete" onclick="toggleComplete('${_vpId}')">${t.completed?'↩ Reopen':'✓ Complete'}</div><div class="vp-btn del-btn" onclick="deleteTask('${_vpId}')">🗑 Delete</div>`;
+  const stopBtn=t.recur?`<div class="stop-recur-btn" onclick="stopRecurrence('${_vpId}')">⏹ Stop Recurrence</div>`:'';
+  actions.innerHTML=`<div class="vp-btn edit" onclick="openEditModal('${_vpId}')">✏️ Edit</div><div class="vp-btn complete" onclick="toggleComplete('${_vpId}')">${t.completed?'↩ Reopen':'✓ Complete'}</div><div class="vp-btn del-btn" onclick="deleteTask('${_vpId}')">🗑 Delete</div>${stopBtn}`;
   
   const body=document.createElement('div');body.className='vp-body';
   const days=daysSince(t.added);
@@ -1345,8 +1370,9 @@ function renderViewPane(){
     t.cc&&['CC',escHtml(t.cc)],
     (t.maildate||t.mailtime)&&['📅 Mail Date / Time',`${escHtml(t.maildate||'')}${t.maildate&&t.mailtime?' — ':''}${escHtml(t.mailtime||'')}`],
     m&&['Assigned To',`<span style="color:${m.color};display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${m.color};display:inline-block"></span>${m.name}</span>`],
-    ['Due Date',`<span class="due-cell ${status}">${dueLabel(status,t.due)}</span>`],
+    ['Due Date',`<span class="due-cell ${status}">${dueLabel(status,getEffDue(t))}</span>${t.revisedDue&&t.due&&t.revisedDue!==t.due?` <span style="font-size:10px;color:var(--muted)">(Original: ${fmt(t.due)})</span>`:''}`],
     ['Added',`${fmt(t.added)} <span class="days-badge ${daysCls}" style="margin-left:6px">${days}d ago</span>`],
+    t.recur&&['🔁 Recurring',`<span class="recur-badge">🔁 ${t.recur.charAt(0).toUpperCase()+t.recur.slice(1)}</span>`],
     t.body&&['Body / Notes',`<div class="vp-email-body">${escHtml(t.body)}</div>`]
   ].filter(Boolean);
   fields.forEach(([lbl,val])=>{html+=`<div class="vp-field"><div class="vp-field-label">${lbl}</div><div class="vp-field-val">${val}</div></div>`;});
@@ -1384,12 +1410,13 @@ function buildMobCard(task){
   const top=document.createElement('div');top.className='mob-tc-top';
   if(kw){const kwEl=document.createElement('span');kwEl.className='mob-tc-kw';kwEl.style.cssText=`background:${kwc.bg};border-color:${kwc.border};color:${kwc.text};flex-shrink:0`;kwEl.textContent=kw;top.appendChild(kwEl);}
   const subj=document.createElement('span');subj.className='mob-tc-subject'+(task.completed?' done':'');subj.textContent=task.subject;top.appendChild(subj);
+  if(task.recur){const rb=document.createElement('span');rb.className='recur-badge';rb.textContent='🔁';rb.title='Recurring: '+task.recur;top.appendChild(rb);}
   card.appendChild(top);
 
   // Meta row
   const meta=document.createElement('div');meta.className='mob-tc-meta';
   if(m){const own=document.createElement('span');own.className='mob-tc-owner';own.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${m.color};display:inline-block;flex-shrink:0"></span>${m.name}`;meta.appendChild(own);}
-  const dueBadge=document.createElement('span');dueBadge.className='mob-tc-due due-badge '+status;dueBadge.textContent=dueLabel(status,task.due);meta.appendChild(dueBadge);
+  const dueBadge=document.createElement('span');dueBadge.className='mob-tc-due due-badge '+status;dueBadge.textContent=dueLabel(status,getEffDue(task));meta.appendChild(dueBadge);
   const daysEl=document.createElement('span');daysEl.innerHTML=`<span class="days-badge ${daysCls}">${days}d</span>`;meta.appendChild(daysEl);
   // Tap hint
   const hint=document.createElement('span');hint.style.cssText='font-size:9px;color:var(--muted);margin-left:auto';hint.textContent='tap for actions';hint.className='mob-tap-hint';
@@ -1431,7 +1458,7 @@ function buildMobCard(task){
 // ═══════════════════════════════ DASHBOARD ═══════════════════════════════
 function renderDashboard(){
   const panel=document.getElementById('dash-panel');panel.innerHTML='';
-  const pending=state.tasks.filter(t=>!t.completed);
+  const pending=state.tasks.filter(t=>!t.completed&&isTaskVisible(t));
   const total=state.tasks.length,done=state.tasks.filter(t=>t.completed).length;
   const overdue=pending.filter(t=>getDueStatus(t)==='overdue');
   const dueSoon=pending.filter(t=>getDueStatus(t)==='due-soon');
@@ -1474,7 +1501,7 @@ function renderDashboard(){
   ddTbl.innerHTML='<thead><tr><th>Due Date</th><th>Count</th><th>Members</th></tr></thead>';
   const ddBody=document.createElement('tbody');
   const byDate={};
-  pending.forEach(t=>{const k=t.due||'No Date';if(!byDate[k])byDate[k]=[];byDate[k].push(t);});
+  pending.forEach(t=>{const k=getEffDue(t)||'No Date';if(!byDate[k])byDate[k]=[];byDate[k].push(t);});
   Object.keys(byDate).sort((a,b)=>a==='No Date'?1:b==='No Date'?-1:a.localeCompare(b)).forEach(dt=>{
     const tasks=byDate[dt];const isOv=dt!=='No Date'&&dt<today();
     const mems=[...new Set(tasks.map(t=>(getMember(t.memberId)||{name:'?'}).name))].join(', ');
@@ -1601,9 +1628,100 @@ function processMicResult(){
 }
 
 // ═══════════════════════════════ TASK CRUD ═══════════════════════════════
+
+// ═══════════════════════════════ RECURRING TASKS ═══════════════════════════════
+
+function addMonths(dateStr, months) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setMonth(d.getMonth() + months);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function nextRecurDate(dueDate, recur) {
+  const map = { monthly: 1, quarterly: 3, halfyearly: 6, yearly: 12 };
+  return addMonths(dueDate, map[recur] || 1);
+}
+
+function nextRecurAppearDate(dueDate) {
+  // Next instance appears the day after the current due date
+  if (!dueDate) return today();
+  const d = new Date(dueDate + 'T00:00:00');
+  d.setDate(d.getDate() + 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function scheduleNextRecurrence(parentId, task) {
+  // Create next instance as a hidden future task
+  const nextDue = nextRecurDate(getEffDue(task), task.recur);
+  const nextAppear = nextRecurAppearDate(getEffDue(task));
+  const nextId = `t_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+  state.tasks.push({
+    id: nextId,
+    subject: task.subject,
+    memberId: task.memberId,
+    due: nextDue,
+    revisedDue: '',
+    recur: task.recur,
+    recurParentId: parentId,
+    recurAppearDate: nextAppear,  // task is hidden until this date
+    body: task.body || '',
+    from: task.from || '',
+    to: task.to || '',
+    cc: task.cc || '',
+    maildate: '',
+    mailtime: '',
+    keyword: task.keyword || '',
+    pinnedToday: false,
+    type: task.type || 'manual',
+    completed: false,
+    added: nextAppear
+  });
+}
+
+function stopRecurrence(id) {
+  if (!confirm('Stop recurrence for this task? All future instances will be removed.')) return;
+  const t = state.tasks.find(t => String(t.id) === String(id));
+  if (!t) return;
+  // Remove all future (not-yet-appeared or not-completed) instances with same subject+member
+  const todayStr = today();
+  state.tasks = state.tasks.filter(task => {
+    if (String(task.id) === String(id)) { task.recur = ''; task.recurParentId = null; return true; }
+    // Remove future instances: same subject, same member, has recurAppearDate in future
+    if (task.subject === t.subject && task.memberId === t.memberId && task.recur && !task.completed) {
+      if (task.recurAppearDate && task.recurAppearDate > todayStr) return false;
+    }
+    return true;
+  });
+  save(); renderAll();
+  showToast('🔁 Recurrence stopped', 'info');
+}
+
+function isTaskVisible(task) {
+  // A task with recurAppearDate is hidden until that date
+  if (task.recurAppearDate && task.recurAppearDate > today()) return false;
+  return true;
+}
+
 function toggleComplete(id){
   const t=state.tasks.find(t=>String(t.id)===String(id));
-  if(t){t.completed=!t.completed;if(t.completed)t.pinnedToday=false;save();renderAll();if(selectedTaskId===id)renderViewPane();}
+  if(!t) return;
+  t.completed=!t.completed;
+  if(t.completed){
+    t.pinnedToday=false;
+    // If recurring: check if next instance already exists, if not create it
+    if(t.recur){
+      const nextDue=nextRecurDate(getEffDue(t),t.recur);
+      const alreadyExists=state.tasks.some(x=>
+        x.subject===t.subject&&x.memberId===t.memberId&&
+        (x.due===nextDue||x.recurAppearDate===nextRecurAppearDate(getEffDue(t)))&&
+        !x.completed
+      );
+      if(!alreadyExists) scheduleNextRecurrence(t.id,t);
+    }
+  }
+  save();renderAll();
+  if(selectedTaskId===id)renderViewPane();
 }
 function togglePinToday(id){const t=state.tasks.find(t=>String(t.id)===String(id));if(t){t.pinnedToday=!t.pinnedToday;save();renderAll();}}
 function deleteTask(id){
@@ -1627,11 +1745,14 @@ function openAddModal(){
   ['f-subject','f-keyword','f-body','f-from','f-to','f-cc','f-maildate','f-mailtime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})
   const pb=document.getElementById('paste-box');if(pb)pb.value='';
   document.getElementById('f-due').value='';
+  document.getElementById('f-revised-due').value='';
+  document.getElementById('f-recur').value='';
   document.getElementById('f-pin-today').checked=false;
-  setTaskType('email');
+  setTaskType('manual');
   populateSelect('f-member');
   const tm=new Date();tm.setDate(tm.getDate()+1);
   document.getElementById('f-due').value=`${tm.getFullYear()}-${String(tm.getMonth()+1).padStart(2,'0')}-${String(tm.getDate()).padStart(2,'0')}`;
+  document.getElementById('f-revised-due').value='';
   openModal('add-modal');
 }
 function openEditModal(id){
@@ -1650,6 +1771,8 @@ function openEditModal(id){
   document.getElementById('f-maildate').value=t.maildate||'';
   document.getElementById('f-mailtime').value=t.mailtime||'';
   document.getElementById('f-due').value=t.due||'';
+  document.getElementById('f-revised-due').value=t.revisedDue||'';
+  document.getElementById('f-recur').value=t.recur||'';
   document.getElementById('f-pin-today').checked=!!t.pinnedToday;
   const pb=document.getElementById('paste-box');if(pb)pb.value='';
   const pbw=document.getElementById('paste-box-wrap');if(pbw)pbw.style.display='none';
@@ -1662,6 +1785,8 @@ function saveTask(){
   if(!subject){alert('Please enter a subject / title.');return;}
   const memberId=parseInt(document.getElementById('f-member').value);
   const due=document.getElementById('f-due').value;
+  const revisedDue=document.getElementById('f-revised-due').value;
+  const recur=document.getElementById('f-recur').value;
   const body=document.getElementById('f-body').value.trim();
   const from=document.getElementById('f-from').value.trim();
   const to=document.getElementById('f-to').value.trim();
@@ -1672,9 +1797,11 @@ function saveTask(){
   const pinnedToday=document.getElementById('f-pin-today').checked;
   if(editingTaskId){
     const t=state.tasks.find(t=>String(t.id)===String(editingTaskId));
-    if(t)Object.assign(t,{subject,memberId,due,body,from,to,cc,maildate,mailtime,keyword,pinnedToday,type:taskType});
+    if(t)Object.assign(t,{subject,memberId,due,revisedDue,recur,body,from,to,cc,maildate,mailtime,keyword,pinnedToday,type:taskType});
   } else {
-    state.tasks.push({id:`t_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,subject,memberId,due,body,from,to,cc,maildate,mailtime,keyword,pinnedToday,type:taskType,completed:false,added:today()});
+    const newTaskId=`t_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+    state.tasks.push({id:newTaskId,subject,memberId,due,revisedDue,recur,body,from,to,cc,maildate,mailtime,keyword,pinnedToday,type:taskType,completed:false,added:today(),recurParentId:null});
+    if(recur) scheduleNextRecurrence(newTaskId,state.tasks[state.tasks.length-1]);
   }
   save();closeModal('add-modal');renderAll();
   if(selectedTaskId===editingTaskId)renderViewPane();
@@ -2032,6 +2159,17 @@ function timeAgo(ts) {
   return Math.floor(sec/3600) + 'h ago';
 }
 
+
+
+  // On load: ensure all completed recurring tasks have a next instance
+  state.tasks.filter(t=>t.completed&&t.recur&&isTaskVisible(t)).forEach(t=>{
+    const nextDue=nextRecurDate(getEffDue(t),t.recur);
+    const alreadyExists=state.tasks.some(x=>
+      x.subject===t.subject&&x.memberId===t.memberId&&
+      x.due===nextDue&&!x.completed
+    );
+    if(!alreadyExists) scheduleNextRecurrence(t.id,t);
+  });
 
 // ═══════════════════════════════ INIT ═══════════════════════════════
 const cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);
