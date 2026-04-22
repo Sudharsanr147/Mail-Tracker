@@ -1146,22 +1146,19 @@ function renderToday(){
   document.getElementById('today-year').textContent=d.getFullYear();
   const todayItems=state.todayItems.filter(i=>i.date===today());
   const pinned=state.tasks.filter(t=>t.pinnedToday&&!t.completed&&isTaskVisible(t));
-  const overdue=state.tasks.filter(t=>!t.completed&&isTaskVisible(t)&&getDueStatus(t)==='overdue');
   const total=todayItems.length+pinned.length,done=todayItems.filter(i=>i.done).length;
   const pct=total>0?Math.round(done/total*100):0;
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('prog-lbl').textContent=`${done}/${total}`;
   populateSelect('qt-member');
-  const ovSec=document.getElementById('t-ov-sec'),ovList=document.getElementById('t-ov-list');
-  ovList.innerHTML='';ovSec.style.display=overdue.length?'':'none';
-  overdue.forEach(t=>ovList.appendChild(makeTodayCard(t.subject,t.completed,()=>toggleComplete(t.id),null,getMember(t.memberId),`Overdue ${fmt(getEffDue(t))}`,true,()=>openViewPane(t.id))));
+  // Overdue section removed from Today view — skipped intentionally
   const pinSec=document.getElementById('t-pin-sec'),pinList=document.getElementById('t-pin-list');
   pinList.innerHTML='';pinSec.style.display=pinned.length?'':'none';
   pinned.forEach(t=>pinList.appendChild(makeTodayCard(t.subject,t.completed,()=>toggleComplete(t.id),()=>unpinTask(t.id),getMember(t.memberId),getEffDue(t)?`Due ${fmt(getEffDue(t))}`:'',false,()=>openViewPane(t.id),'📌')));
   const qSec=document.getElementById('t-q-sec'),qList=document.getElementById('t-q-list');
   qList.innerHTML='';qSec.style.display=todayItems.length?'':'none';
   todayItems.sort((a,b)=>a.done-b.done).forEach(item=>qList.appendChild(makeTodayCard(item.text,item.done,()=>toggleTodayItem(item.id),()=>deleteTodayItem(item.id),getMember(item.memberId),'',false,null)));
-  document.getElementById('today-empty').style.display=(overdue.length||pinned.length||todayItems.length)?'none':'block';
+  document.getElementById('today-empty').style.display=(pinned.length||todayItems.length)?'none':'block';
 }
 function makeTodayCard(text,done,onCheck,onDel,member,tag,isOv,onClick,icon){
   const card=document.createElement('div');
