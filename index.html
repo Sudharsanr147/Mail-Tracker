@@ -211,53 +211,101 @@ header h1 span{color:var(--accent);}
 
 /* ═══════════════════════════════ NOTES MODULE ═══════════════════════════════ */
 .notes-module{flex:1;display:flex;height:calc(100vh - 54px);}
-.notes-sidebar{width:240px;min-width:240px;background:var(--surface);border-right:2px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-.notes-sb-header{padding:12px 14px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;}
-.notes-sb-header h3{font-family:'DM Serif Display',serif;font-size:14px;flex:1;}
-.notes-search{padding:8px 12px;border-bottom:2px solid var(--border);}
-.notes-search input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
-.notes-search input:focus{border-color:var(--accent);}
-.notes-list{flex:1;overflow-y:auto;padding:6px;}
-.note-list-item{padding:10px 12px;border-radius:8px;cursor:pointer;border:1.5px solid transparent;transition:all .15s;margin-bottom:4px;}
-.note-list-item:hover{background:var(--surface2);}
-.note-list-item.active{background:var(--surface2);border-color:var(--accent);}
-.note-list-title{font-size:12.5px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.note-list-meta{font-size:10px;color:var(--muted);display:flex;gap:8px;align-items:center;}
-.note-list-preview{font-size:10.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.notes-empty-list{text-align:center;color:var(--muted);padding:40px 16px;font-size:12px;}
+
+/* Notes Category Sidebar */
+.notes-sidebar{width:200px;min-width:200px;background:var(--surface);border-right:2px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.notes-sb-header{padding:10px 12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px;}
+.notes-sb-header h3{font-family:'DM Serif Display',serif;font-size:13px;flex:1;}
+.notes-cat-list{flex:1;overflow-y:auto;padding:6px 0;}
+.notes-cat-item{display:flex;align-items:center;gap:7px;padding:6px 12px;cursor:pointer;border-left:3px solid transparent;transition:background .15s;font-size:12px;}
+.notes-cat-item:hover{background:var(--surface2);}
+.notes-cat-item.active{background:var(--surface2);border-left-color:var(--accent);color:var(--accent);font-weight:600;}
+.notes-cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.notes-cat-count{margin-left:auto;font-size:10px;padding:1px 5px;border-radius:8px;background:var(--surface3);border:1px solid var(--border);}
+
+/* Notes Main Area */
 .notes-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
-.notes-welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:10px;}
-.notes-welcome-icon{font-size:40px;}
-.notes-welcome h3{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);}
-.notes-welcome p{font-size:13px;}
+
+/* Notes Dashboard */
+.notes-dashboard{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.note-popup-overlay{z-index:260;}
+.notes-dash-toolbar{padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--border);background:var(--surface);flex-wrap:wrap;}
+.notes-dash-title{font-family:'DM Serif Display',serif;font-size:14px;flex:1;}
+.notes-search-box{background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;width:180px;outline:none;}
+.notes-search-box:focus{border-color:var(--accent);}
+
+/* Month Buckets */
+.notes-month-strip{padding:10px 14px;border-bottom:2px solid var(--border);background:var(--surface);display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.month-bucket{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px;}
+.month-bucket:hover{border-color:var(--accent);color:var(--accent);}
+.month-bucket.active{background:rgba(91,141,238,.15);border-color:var(--accent);color:var(--accent);}
+.month-bucket.all-btn{border-color:var(--green);color:var(--green);background:rgba(39,201,126,.08);}
+.month-bucket.all-btn.active{background:rgba(39,201,126,.2);}
+.month-bucket-count{font-size:10px;background:var(--surface3);border-radius:8px;padding:0 5px;color:var(--muted);}
+.month-bucket.active .month-bucket-count{background:rgba(91,141,238,.2);color:var(--accent);}
+
+/* Notes Table */
+.notes-table-wrap{flex:1;overflow:auto;}
+.notes-table{width:100%;border-collapse:collapse;min-width:900px;}
+.notes-table thead th{position:sticky;top:0;z-index:10;padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;border-bottom:2px solid var(--border);border-right:1.5px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;background:var(--surface);color:var(--muted);}
+.notes-table thead th:hover{background:var(--surface2);}
+.notes-table thead th:last-child{border-right:none;}
+.notes-table tbody tr{border-bottom:1.5px solid var(--border);cursor:pointer;transition:background .15s;}
+.notes-table tbody tr:hover{background:var(--card-hover);}
+.notes-table td{padding:8px 12px;border-right:1.5px solid var(--border);vertical-align:top;font-size:12px;}
+.notes-table td:last-child{border-right:none;}
+.note-body-cell{max-width:320px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;white-space:normal;line-height:1.5;color:var(--muted);font-size:11.5px;}
+.note-title-cell{font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+.note-cat-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;border:1px solid;white-space:nowrap;}
+.notes-table-empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:13px;}
+
+/* Note View Popup */
+.note-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:250;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.note-popup-overlay.show{opacity:1;pointer-events:all;}
+.note-popup{background:var(--surface);border:2px solid var(--border);border-radius:14px;width:700px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow);transform:translateY(10px);transition:transform .2s;}
+.note-popup-overlay.show .note-popup{transform:translateY(0);}
+.note-popup-header{padding:14px 18px;border-bottom:2px solid var(--border);display:flex;align-items:flex-start;gap:10px;background:var(--surface2);border-radius:12px 12px 0 0;}
+.note-popup-title{font-family:'DM Serif Display',serif;font-size:18px;flex:1;line-height:1.3;}
+.note-popup-actions{display:flex;gap:6px;flex-shrink:0;}
+.note-popup-meta{padding:8px 18px;border-bottom:2px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;background:var(--surface2);}
+.note-popup-meta-item{display:flex;align-items:center;gap:5px;color:var(--muted);}
+.note-popup-meta-item strong{color:var(--text);}
+.note-popup-body{flex:1;overflow-y:auto;padding:18px 20px;font-size:13.5px;line-height:1.8;color:var(--text);}
+.note-popup-body ul{padding-left:20px;list-style:disc;}
+.note-popup-body ol{padding-left:20px;list-style:decimal;}
+.note-popup-body blockquote{border-left:3px solid var(--accent);padding-left:12px;color:var(--muted);margin:8px 0;}
+.note-popup-body h1{font-family:'DM Serif Display',serif;font-size:20px;margin:8px 0 4px;}
+.note-popup-body h2{font-family:'DM Serif Display',serif;font-size:16px;margin:6px 0 3px;}
+.note-popup-body h3{font-size:14px;font-weight:700;margin:6px 0 3px;}
+
+/* Note Editor */
 .note-editor{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .note-editor-header{padding:10px 16px;border-bottom:2px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:8px;}
 .note-title-input{flex:1;background:transparent;border:none;color:var(--text);font-family:'DM Serif Display',serif;font-size:18px;outline:none;min-width:0;}
 .note-title-input::placeholder{color:var(--muted);}
-.note-editor-actions{display:flex;gap:6px;}
-.ne-btn{padding:5px 12px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;gap:4px;}
+.note-editor-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.ne-btn{padding:5px 12px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;gap:4px;white-space:nowrap;}
 .ne-btn:hover{border-color:var(--accent);color:var(--accent);}
 .ne-btn.save-btn{border-color:var(--green);color:var(--green);background:rgba(39,201,126,.1);}
-.ne-btn.save-btn:hover{background:rgba(39,201,126,.2);}
+.ne-btn.back-btn{border-color:var(--purple);color:var(--purple);}
 .ne-btn.del-btn{border-color:var(--red);color:var(--red);}
 .note-meta-bar{padding:8px 16px;border-bottom:2px solid var(--border);background:var(--surface);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.note-meta-field{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);}
-.note-meta-field label{white-space:nowrap;font-weight:600;}
-.note-meta-field input{background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11.5px;outline:none;min-width:0;}
-.note-meta-field input:focus{border-color:var(--accent);}
-.note-meta-field input[type="date"]{width:140px;}
-.note-meta-field input[type="text"]{width:200px;}
+.note-meta-field{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted);}
+.note-meta-field label{white-space:nowrap;font-weight:600;font-size:10.5px;}
+.note-meta-field input,.note-meta-field select{background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11.5px;outline:none;min-width:0;}
+.note-meta-field input:focus,.note-meta-field select:focus{border-color:var(--accent);}
+.note-meta-field input[type="date"]{width:135px;}
+.note-meta-field input[type="time"]{width:90px;}
+.note-meta-field input[type="text"]{width:160px;}
 
 /* Rich Text Toolbar */
 .rte-toolbar{padding:6px 12px;border-bottom:2px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
 .rte-btn{width:28px;height:28px;border-radius:5px;border:1.5px solid transparent;background:transparent;color:var(--text);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif;font-weight:600;}
 .rte-btn:hover{background:var(--surface2);border-color:var(--border);}
-.rte-btn.active{background:rgba(91,141,238,.15);border-color:var(--accent);color:var(--accent);}
 .rte-sep{width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0;}
 .rte-select{background:var(--surface2);border:1.5px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11.5px;outline:none;height:28px;cursor:pointer;}
-.rte-select:focus{border-color:var(--accent);}
 
-/* Editor Area */
+/* Editor Body */
 .note-editor-body{flex:1;overflow-y:auto;padding:20px 24px;background:var(--bg);}
 .note-content-editor{min-height:300px;outline:none;font-size:13.5px;line-height:1.8;color:var(--text);font-family:'DM Sans',sans-serif;}
 .note-content-editor:empty::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none;}
@@ -270,7 +318,7 @@ header h1 span{color:var(--accent);}
 .note-content-editor h2{font-family:'DM Serif Display',serif;font-size:18px;margin:8px 0 4px;}
 .note-content-editor h3{font-size:15px;font-weight:700;margin:8px 0 4px;}
 
-/* Notes status bar */
+/* Status bar */
 .note-status-bar{padding:5px 16px;border-top:1px solid var(--border);background:var(--surface);font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
 .note-saved-indicator{display:flex;align-items:center;gap:4px;}
 .note-saved-dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
@@ -332,6 +380,9 @@ body.light .group-row td{background:#dde1f2!important;}
 body.light header,body.light .sidebar,body.light .toolbar,body.light .view-pane,body.light .notes-sidebar{background:#fff!important;}
 body.light .note-editor-header,body.light .note-meta-bar,body.light .rte-toolbar,body.light .note-status-bar{background:#fff!important;}
 body.light .note-editor-body{background:#f8f9ff!important;}
+body.light .notes-dash-toolbar,body.light .notes-month-strip{background:#fff!important;}
+body.light .note-popup{background:#fff!important;}
+body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!important;}
 
 /* ═══════════════════════════════ MOBILE ═══════════════════════════════ */
 .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface)!important;border-top:2px solid var(--border);z-index:200;padding:4px 0 env(safe-area-inset-bottom,4px);box-shadow:0 -4px 20px rgba(0,0,0,.5);}
@@ -507,81 +558,88 @@ body.light .note-editor-body{background:#f8f9ff!important;}
 <!-- ═══════════════════════════════ NOTES MODULE ═══════════════════════════════ -->
 <div class="module" id="module-notes">
   <div class="notes-module">
+    <!-- Category Sidebar -->
     <div class="notes-sidebar" id="notes-sidebar">
       <div class="notes-sb-header">
         <h3>📝 Notes</h3>
-        <button class="btn-primary" style="padding:5px 10px;font-size:11px" onclick="createNewNote()">＋ New</button>
+        <button class="btn-primary" style="padding:4px 9px;font-size:11px" onclick="createNewNote()">＋ New</button>
       </div>
-      <div class="notes-search">
-        <input type="text" id="notes-search-input" placeholder="Search notes…" oninput="renderNotesList()"/>
-      </div>
-      <div class="notes-list" id="notes-list">
-        <div class="notes-empty-list" id="notes-empty-list" style="display:none">
-          <div style="font-size:28px;margin-bottom:8px">📄</div>
-          <p>No notes yet.<br>Click + New to start.</p>
+      <div class="notes-cat-list" id="notes-cat-list"></div>
+    </div>
+    <!-- Main area -->
+    <div class="notes-main" id="notes-main">
+      <!-- DASHBOARD -->
+      <div class="notes-dashboard" id="notes-dashboard">
+        <div class="notes-dash-toolbar">
+          <div class="notes-dash-title" id="notes-dash-title">All Notes</div>
+          <input class="notes-search-box" type="text" id="notes-search-input" placeholder="Search notes…" oninput="renderNotesDashboard()"/>
+          <button class="btn-primary" onclick="createNewNote()">＋ New Note</button>
+        </div>
+        <div class="notes-month-strip" id="notes-month-strip"></div>
+        <div class="notes-table-wrap">
+          <div class="notes-table-empty" id="notes-table-empty" style="display:none">
+            <div style="font-size:32px;margin-bottom:8px">📄</div>
+            <p>No notes found. Click <strong>+ New Note</strong> to get started.</p>
+          </div>
+          <table class="notes-table" id="notes-table">
+            <thead><tr>
+              <th onclick="sortNotes('title')" style="color:var(--col-subject)">📄 Title ▾</th>
+              <th onclick="sortNotes('category')" style="color:var(--col-keyword)">🏷 Category ▾</th>
+              <th onclick="sortNotes('meetingDate')" style="color:var(--col-due)">📅 Meeting Date ▾</th>
+              <th onclick="sortNotes('mailDate')" style="color:var(--col-added)">📧 Mail Date/Time ▾</th>
+              <th style="color:var(--col-owner)">👥 Participants</th>
+              <th style="color:var(--teal,#2ec4b6)">🔗 Source</th>
+              <th onclick="sortNotes('updatedAt')" style="color:var(--muted)">🕐 Updated ▾</th>
+              <th style="color:var(--muted);min-width:220px">📝 Body</th>
+            </tr></thead>
+            <tbody id="notes-tbody"></tbody>
+          </table>
         </div>
       </div>
-    </div>
-    <div class="notes-main" id="notes-main">
-      <div class="notes-welcome" id="notes-welcome">
-        <div class="notes-welcome-icon">📝</div>
-        <h3>Your Notes</h3>
-        <p>Select a note or create a new one</p>
-        <button class="btn-primary" style="margin-top:8px" onclick="createNewNote()">＋ Create First Note</button>
-      </div>
+      <!-- EDITOR -->
       <div class="note-editor" id="note-editor" style="display:none">
         <div class="note-editor-header">
           <input type="text" class="note-title-input" id="note-title-input" placeholder="Note title…" oninput="markNoteUnsaved()"/>
           <div class="note-editor-actions">
+            <button class="ne-btn back-btn" onclick="exitNoteEditor()">← Dashboard</button>
             <button class="ne-btn save-btn" onclick="saveCurrentNote()">💾 Save</button>
             <button class="ne-btn del-btn" onclick="deleteCurrentNote()">🗑 Delete</button>
-            <button class="ne-btn" onclick="closeMobNotesSidebar()" style="display:none" id="notes-back-btn">← Back</button>
           </div>
         </div>
         <div class="note-meta-bar">
-          <div class="note-meta-field">
-            <label>📅 Meeting Date:</label>
-            <input type="date" id="note-meeting-date" oninput="markNoteUnsaved()"/>
-          </div>
-          <div class="note-meta-field">
-            <label>👥 Participants:</label>
-            <input type="text" id="note-participants" placeholder="e.g. Ravi, Priya, CFO…" oninput="markNoteUnsaved()"/>
-          </div>
+          <div class="note-meta-field"><label>🏷 Category:</label><input type="text" id="note-category" placeholder="e.g. Finance…" oninput="markNoteUnsaved()"/></div>
+          <div class="note-meta-field"><label>📅 Meeting Date:</label><input type="date" id="note-meeting-date" oninput="markNoteUnsaved()"/></div>
+          <div class="note-meta-field"><label>📧 Mail Date:</label><input type="date" id="note-mail-date" oninput="markNoteUnsaved()"/></div>
+          <div class="note-meta-field"><label>🕐 Mail Time:</label><input type="time" id="note-mail-time" oninput="markNoteUnsaved()"/></div>
+          <div class="note-meta-field"><label>👥 Participants:</label><input type="text" id="note-participants" placeholder="Names…" oninput="markNoteUnsaved()"/></div>
+          <div class="note-meta-field"><label>🔗 Source:</label><input type="text" id="note-source" placeholder="URL or reference…" oninput="markNoteUnsaved()"/></div>
         </div>
         <div class="rte-toolbar">
-          <select class="rte-select" id="rte-font-size" onchange="rteExec('fontSize',this.value)" title="Font Size">
-            <option value="2">Small</option>
-            <option value="3" selected>Normal</option>
-            <option value="4">Large</option>
-            <option value="5">X-Large</option>
+          <select class="rte-select" onchange="rteExec('fontSize',this.value)">
+            <option value="2">Small</option><option value="3" selected>Normal</option><option value="4">Large</option><option value="5">X-Large</option>
           </select>
-          <select class="rte-select" id="rte-format" onchange="rteFormat(this.value)" title="Format">
-            <option value="p">Paragraph</option>
-            <option value="h1">Heading 1</option>
-            <option value="h2">Heading 2</option>
-            <option value="h3">Heading 3</option>
+          <select class="rte-select" onchange="rteFormat(this.value)">
+            <option value="p">Paragraph</option><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option>
           </select>
           <div class="rte-sep"></div>
-          <button class="rte-btn" onclick="rteExec('bold')" title="Bold"><b>B</b></button>
-          <button class="rte-btn" onclick="rteExec('italic')" title="Italic"><i>I</i></button>
-          <button class="rte-btn" onclick="rteExec('underline')" title="Underline"><u>U</u></button>
-          <button class="rte-btn" onclick="rteExec('strikeThrough')" title="Strikethrough"><s>S</s></button>
+          <button class="rte-btn" onclick="rteExec('bold')"><b>B</b></button>
+          <button class="rte-btn" onclick="rteExec('italic')"><i>I</i></button>
+          <button class="rte-btn" onclick="rteExec('underline')"><u>U</u></button>
+          <button class="rte-btn" onclick="rteExec('strikeThrough')"><s>S</s></button>
           <div class="rte-sep"></div>
-          <button class="rte-btn" onclick="rteExec('insertUnorderedList')" title="Bullet List">• ≡</button>
-          <button class="rte-btn" onclick="rteExec('insertOrderedList')" title="Numbered List">1 ≡</button>
+          <button class="rte-btn" onclick="rteExec('insertUnorderedList')" title="Bullets">• ≡</button>
+          <button class="rte-btn" onclick="rteExec('insertOrderedList')" title="Numbered">1 ≡</button>
           <button class="rte-btn" onclick="insertCheckbox()" title="Checkbox">☑</button>
-          <button class="rte-btn" onclick="rteExec('formatBlock','blockquote')" title="Quote">❝</button>
+          <button class="rte-btn" onclick="rteExec('formatBlock','blockquote')">❝</button>
           <div class="rte-sep"></div>
-          <button class="rte-btn" onclick="rteExec('justifyLeft')" title="Align Left">⬅</button>
-          <button class="rte-btn" onclick="rteExec('justifyCenter')" title="Centre">↔</button>
-          <button class="rte-btn" onclick="rteExec('justifyRight')" title="Align Right">➡</button>
+          <button class="rte-btn" onclick="rteExec('justifyLeft')">⬅</button>
+          <button class="rte-btn" onclick="rteExec('justifyCenter')">↔</button>
+          <button class="rte-btn" onclick="rteExec('justifyRight')">➡</button>
           <div class="rte-sep"></div>
-          <button class="rte-btn" onclick="rteExec('removeFormat')" title="Clear Formatting">✕</button>
+          <button class="rte-btn" onclick="rteExec('removeFormat')">✕</button>
         </div>
         <div class="note-editor-body">
-          <div class="note-content-editor" id="note-content-editor" contenteditable="true"
-               data-placeholder="Start typing your note…"
-               oninput="markNoteUnsaved()"></div>
+          <div class="note-content-editor" id="note-content-editor" contenteditable="true" data-placeholder="Start typing your note…" oninput="markNoteUnsaved()"></div>
         </div>
         <div class="note-status-bar">
           <div class="note-saved-indicator">
@@ -592,6 +650,22 @@ body.light .note-editor-body{background:#f8f9ff!important;}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- NOTE VIEW POPUP -->
+<div class="note-popup-overlay" id="note-popup-overlay" onclick="handlePopupBgClick(event)">
+  <div class="note-popup">
+    <div class="note-popup-header">
+      <div class="note-popup-title" id="note-popup-title"></div>
+      <div class="note-popup-actions">
+        <button class="ne-btn save-btn" onclick="editNoteFromPopup()">✏️ Edit</button>
+        <button class="ne-btn del-btn" onclick="deleteNoteFromPopup()">🗑 Delete</button>
+        <button class="ne-btn" onclick="closeNotePopup()">✕ Close</button>
+      </div>
+    </div>
+    <div class="note-popup-meta" id="note-popup-meta"></div>
+    <div class="note-popup-body" id="note-popup-body"></div>
   </div>
 </div>
 
@@ -860,9 +934,14 @@ function switchModule(mod){
   document.getElementById('tracker-stats').style.display = mod==='tracker'?'flex':'none';
   document.getElementById('notes-stats').style.display = mod==='notes'?'flex':'none';
   document.getElementById('app-title').innerHTML = mod==='tracker'?'Work <span>Deliverables</span> Tracker':'<span>Notes</span>';
-  // Update mob menu button target
   document.getElementById('mob-menu-btn').onclick = mod==='tracker'?toggleMobSidebar:toggleMobNotesSidebar;
-  if(mod==='notes') renderNotesList();
+  if(mod==='notes'){
+    // Always show dashboard when switching to notes
+    document.getElementById('notes-dashboard').style.display='flex';
+    document.getElementById('note-editor').style.display='none';
+    renderNotesCategorySidebar();
+    renderNotesDashboard();
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1262,61 +1341,201 @@ function exportData(){const data=JSON.stringify({...state,notes:notesState,expor
 function importData(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const imported=JSON.parse(ev.target.result);if(!imported.tasks||!imported.members)throw new Error('Invalid');let added=0;imported.tasks.forEach(t=>{if(!state.tasks.find(x=>x.id===t.id)){state.tasks.push(t);added++;}});imported.members.forEach(m=>{if(!state.members.find(x=>x.id===m.id))state.members.push(m);});if(imported.nextTaskId>state.nextTaskId)state.nextTaskId=imported.nextTaskId;if(imported.nextMemberId>state.nextMemberId)state.nextMemberId=imported.nextMemberId;if(imported.notes&&imported.notes.notes){imported.notes.notes.forEach(n=>{if(!notesState.notes.find(x=>x.id===n.id))notesState.notes.push(n);});}save();renderAll();const res=document.getElementById('import-result');res.textContent=`✅ Imported ${added} new tasks!`;res.style.display='block';showToast(`${added} tasks imported`,'success');}catch(err){showToast('Import failed: invalid file','warn');}};reader.readAsText(file);e.target.value='';}
 
 // ══════════════════════════════════════════════════════════════
-// NOTES MODULE
+// NOTES MODULE — Dashboard, Category Sidebar, Editor, Popup
 // ══════════════════════════════════════════════════════════════
-function renderNotesList(){
-  const search=(document.getElementById('notes-search-input').value||'').toLowerCase();
-  const list=document.getElementById('notes-list');
-  // Remove all items except the empty-list div
-  Array.from(list.children).forEach(c=>{if(c.id!=='notes-empty-list')c.remove();});
-  let notes=[...notesState.notes].sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
-  if(search)notes=notes.filter(n=>(n.title||'').toLowerCase().includes(search)||(n.bodyText||'').toLowerCase().includes(search)||(n.participants||'').toLowerCase().includes(search));
-  document.getElementById('notes-empty-list').style.display=notes.length===0?'block':'none';
-  notes.forEach(n=>{
-    const item=document.createElement('div');item.className='note-list-item'+(currentNoteId===n.id?' active':'');
-    const preview=n.bodyText?n.bodyText.substring(0,80):'No content';
-    const dateStr=n.meetingDate?`📅 ${fmt(n.meetingDate)} · `:'';
-    item.innerHTML=`<div class="note-list-title">${escHtml(n.title||'Untitled')}</div><div class="note-list-meta"><span>${dateStr}${n.updatedAt?new Date(n.updatedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'New'}</span>${n.participants?`<span>👥 ${escHtml(n.participants.substring(0,20))}</span>`:''}</div><div class="note-list-preview">${escHtml(preview)}</div>`;
-    item.onclick=()=>openNote(n.id);
-    list.insertBefore(item,document.getElementById('notes-empty-list'));
+const NOTE_CAT_COLORS=['#5b8dee','#27c97e','#9b6de8','#f0be30','#f07830','#2ec4b6','#e84343','#f472b6'];
+let notesMonthFilter=null, notesCatFilter=null, notesSortCol='updatedAt', notesSortDir=-1, popupNoteId=null;
+
+function noteCatColor(cat){
+  if(!cat)return{bg:'rgba(107,117,145,.15)',border:'rgba(107,117,145,.4)',text:'var(--muted)'};
+  const h=cat.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const c=NOTE_CAT_COLORS[h%NOTE_CAT_COLORS.length];
+  return{bg:c+'22',border:c+'66',text:c};
+}
+
+function renderNotesCategorySidebar(){
+  const el=document.getElementById('notes-cat-list');el.innerHTML='';
+  // All item
+  const allItem=document.createElement('div');
+  allItem.className='notes-cat-item'+(notesCatFilter===null?' active':'');
+  allItem.innerHTML=`<span>📋</span><span style="flex:1">All Notes</span><span class="notes-cat-count">${notesState.notes.length}</span>`;
+  allItem.onclick=()=>{notesCatFilter=null;renderNotesDashboard();renderNotesCategorySidebar();};
+  el.appendChild(allItem);
+  // By category
+  const cats={};
+  notesState.notes.forEach(n=>{const k=n.category||'(No Category)';if(!cats[k])cats[k]=0;cats[k]++;});
+  Object.keys(cats).sort().forEach(cat=>{
+    const c=noteCatColor(cat==='(No Category)'?'':cat);
+    const item=document.createElement('div');
+    item.className='notes-cat-item'+(notesCatFilter===cat?' active':'');
+    item.innerHTML=`<span class="notes-cat-dot" style="background:${c.text}"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(cat)}</span><span class="notes-cat-count">${cats[cat]}</span>`;
+    item.onclick=()=>{notesCatFilter=cat;renderNotesDashboard();renderNotesCategorySidebar();};
+    el.appendChild(item);
   });
   document.getElementById('stat-notes-total').textContent=notesState.notes.length;
 }
 
+function renderNotesDashboard(){
+  // Apply filters
+  const search=(document.getElementById('notes-search-input').value||'').toLowerCase();
+  let notes=[...notesState.notes];
+  if(notesCatFilter!==null)notes=notes.filter(n=>(n.category||'(No Category)')===notesCatFilter);
+  if(notesMonthFilter)notes=notes.filter(n=>{
+    const d=n.meetingDate||n.mailDate||(n.updatedAt?n.updatedAt.substring(0,10):'');
+    return d.startsWith(notesMonthFilter);
+  });
+  if(search)notes=notes.filter(n=>(n.title||'').toLowerCase().includes(search)||(n.bodyText||'').toLowerCase().includes(search)||(n.participants||'').toLowerCase().includes(search)||(n.category||'').toLowerCase().includes(search)||(n.source||'').toLowerCase().includes(search));
+  // Sort
+  notes.sort((a,b)=>{
+    let va,vb;
+    if(notesSortCol==='title'){va=(a.title||'').toLowerCase();vb=(b.title||'').toLowerCase();}
+    else if(notesSortCol==='category'){va=(a.category||'').toLowerCase();vb=(b.category||'').toLowerCase();}
+    else if(notesSortCol==='meetingDate'){va=a.meetingDate||'';vb=b.meetingDate||'';}
+    else if(notesSortCol==='mailDate'){va=a.mailDate||'';vb=b.mailDate||'';}
+    else{va=a.updatedAt||'';vb=b.updatedAt||'';}
+    if(va<vb)return notesSortDir;if(va>vb)return-notesSortDir;return 0;
+  });
+  // Month buckets — built from ALL notes (not filtered) for the strip
+  buildMonthStrip();
+  // Update dashboard title
+  let titleStr='All Notes';
+  if(notesCatFilter)titleStr=notesCatFilter;
+  if(notesMonthFilter){const[y,m]=notesMonthFilter.split('-');const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];titleStr+=(notesCatFilter?' · ':'')+mo[parseInt(m)-1]+' '+y;}
+  document.getElementById('notes-dash-title').textContent=titleStr;
+  // Render table
+  const tbody=document.getElementById('notes-tbody');tbody.innerHTML='';
+  const empty=document.getElementById('notes-table-empty');
+  const tbl=document.getElementById('notes-table');
+  if(notes.length===0){empty.style.display='block';tbl.style.display='none';return;}
+  empty.style.display='none';tbl.style.display='table';
+  notes.forEach(n=>{
+    const cat=n.category||'';const c=noteCatColor(cat);
+    const updStr=n.updatedAt?new Date(n.updatedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}):'—';
+    const mailStr=n.mailDate?fmt(n.mailDate)+(n.mailTime?' '+n.mailTime:''):'—';
+    const bodyPreview=n.bodyText?escHtml(n.bodyText.substring(0,300)):'';
+    const sourceHtml=n.source?`<a href="${n.source.startsWith('http')?escHtml(n.source):'#'}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent);word-break:break-all;font-size:11px">${escHtml(n.source.length>30?n.source.substring(0,30)+'…':n.source)}</a>`:'<span style="color:var(--muted)">—</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="note-title-cell">${escHtml(n.title||'Untitled')}</div></td>
+      <td>${cat?`<span class="note-cat-tag" style="background:${c.bg};border-color:${c.border};color:${c.text}">${escHtml(cat)}</span>`:'<span style="color:var(--muted);font-size:10px">—</span>'}</td>
+      <td style="white-space:nowrap;font-size:11.5px;color:var(--text)">${n.meetingDate?fmt(n.meetingDate):'<span style="color:var(--muted)">—</span>'}</td>
+      <td style="white-space:nowrap;font-size:11.5px;color:var(--text)">${n.mailDate?mailStr:'<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-size:11.5px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.participants?escHtml(n.participants):'<span style="color:var(--muted)">—</span>'}</td>
+      <td>${sourceHtml}</td>
+      <td style="white-space:nowrap;font-size:11px;color:var(--muted)">${updStr}</td>
+      <td><div class="note-body-cell">${bodyPreview}</div></td>`;
+    tr.onclick=()=>openNotePopup(n.id);
+    tbody.appendChild(tr);
+  });
+}
+
+function buildMonthStrip(){
+  const strip=document.getElementById('notes-month-strip');strip.innerHTML='';
+  // "All" button
+  const allBtn=document.createElement('div');
+  allBtn.className='month-bucket all-btn'+(notesMonthFilter===null?' active':'');
+  allBtn.innerHTML=`All <span class="month-bucket-count">${notesState.notes.length}</span>`;
+  allBtn.onclick=()=>{notesMonthFilter=null;renderNotesDashboard();};
+  strip.appendChild(allBtn);
+  // Collect months from all notes
+  const monthMap={};
+  notesState.notes.forEach(n=>{
+    const d=n.meetingDate||n.mailDate||(n.updatedAt?n.updatedAt.substring(0,10):'');
+    if(!d)return;
+    const ym=d.substring(0,7);
+    if(!monthMap[ym])monthMap[ym]=0;monthMap[ym]++;
+  });
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  Object.keys(monthMap).sort().reverse().forEach(ym=>{
+    const[y,m]=ym.split('-');
+    const btn=document.createElement('div');
+    btn.className='month-bucket'+(notesMonthFilter===ym?' active':'');
+    btn.innerHTML=`${mo[parseInt(m)-1]} ${y.substring(2)} <span class="month-bucket-count">${monthMap[ym]}</span>`;
+    btn.onclick=()=>{notesMonthFilter=notesMonthFilter===ym?null:ym;renderNotesDashboard();};
+    strip.appendChild(btn);
+  });
+}
+
+function sortNotes(col){
+  if(notesSortCol===col)notesSortDir*=-1;else{notesSortCol=col;notesSortDir=-1;}
+  renderNotesDashboard();
+}
+
+// ── Note Popup ──────────────────────────────────────────────
+function openNotePopup(id){
+  const n=notesState.notes.find(x=>x.id===id);if(!n)return;
+  popupNoteId=id;
+  document.getElementById('note-popup-title').textContent=n.title||'Untitled';
+  // Meta bar
+  const meta=document.getElementById('note-popup-meta');meta.innerHTML='';
+  const addMeta=(icon,label,val)=>{if(!val)return;const d=document.createElement('div');d.className='note-popup-meta-item';d.innerHTML=`${icon} <strong>${label}:</strong> ${escHtml(val)}`;meta.appendChild(d);};
+  if(n.category){const c=noteCatColor(n.category);const d=document.createElement('div');d.className='note-popup-meta-item';d.innerHTML=`🏷 <span class="note-cat-tag" style="background:${c.bg};border-color:${c.border};color:${c.text}">${escHtml(n.category)}</span>`;meta.appendChild(d);}
+  addMeta('📅','Meeting',n.meetingDate?fmt(n.meetingDate):'');
+  addMeta('📧','Mail',n.mailDate?(fmt(n.mailDate)+(n.mailTime?' '+n.mailTime:'')):'');
+  addMeta('👥','Participants',n.participants);
+  if(n.source){const d=document.createElement('div');d.className='note-popup-meta-item';d.innerHTML=`🔗 <strong>Source:</strong> <a href="${n.source.startsWith('http')?escHtml(n.source):'#'}" target="_blank" style="color:var(--accent)">${escHtml(n.source)}</a>`;meta.appendChild(d);}
+  addMeta('🕐','Updated',n.updatedAt?new Date(n.updatedAt).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'');
+  document.getElementById('note-popup-body').innerHTML=n.body||'<em style="color:var(--muted)">No content</em>';
+  document.getElementById('note-popup-overlay').classList.add('show');
+}
+function closeNotePopup(){document.getElementById('note-popup-overlay').classList.remove('show');popupNoteId=null;}
+function handlePopupBgClick(e){if(e.target===document.getElementById('note-popup-overlay'))closeNotePopup();}
+function editNoteFromPopup(){const id=popupNoteId;closeNotePopup();openNoteEditor(id);}
+function deleteNoteFromPopup(){
+  if(!popupNoteId)return;
+  const n=notesState.notes.find(x=>x.id===popupNoteId);
+  if(!confirm(`Delete "${n?.title||'this note'}"?`))return;
+  notesState.notes=notesState.notes.filter(x=>x.id!==popupNoteId);
+  closeNotePopup();save();renderNotesCategorySidebar();renderNotesDashboard();showToast('Note deleted','info');
+}
+
+// ── Note Editor ──────────────────────────────────────────────
 function createNewNote(){
-  const note={id:notesState.nextNoteId++,title:'',body:'',bodyText:'',meetingDate:'',participants:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  const note={id:notesState.nextNoteId++,title:'',body:'',bodyText:'',category:'',meetingDate:'',mailDate:'',mailTime:'',participants:'',source:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
   notesState.notes.unshift(note);
-  save();renderNotesList();openNote(note.id);
+  save();openNoteEditor(note.id);
   setTimeout(()=>document.getElementById('note-title-input').focus(),100);
 }
 
-function openNote(id){
-  // Warn if unsaved
+function openNoteEditor(id){
   if(noteUnsaved&&currentNoteId&&currentNoteId!==id){if(!confirm('You have unsaved changes. Discard?'))return;}
   currentNoteId=id;
   const note=notesState.notes.find(n=>n.id===id);if(!note)return;
-  document.getElementById('notes-welcome').style.display='none';
+  document.getElementById('notes-dashboard').style.display='none';
   document.getElementById('note-editor').style.display='flex';
   document.getElementById('note-title-input').value=note.title||'';
+  document.getElementById('note-category').value=note.category||'';
   document.getElementById('note-meeting-date').value=note.meetingDate||'';
+  document.getElementById('note-mail-date').value=note.mailDate||'';
+  document.getElementById('note-mail-time').value=note.mailTime||'';
   document.getElementById('note-participants').value=note.participants||'';
+  document.getElementById('note-source').value=note.source||'';
   document.getElementById('note-content-editor').innerHTML=note.body||'';
   markNoteSaved();
-  renderNotesList();
-  // Show back btn on mobile
-  if(window.innerWidth<=768){document.getElementById('notes-back-btn').style.display='flex';closeMobNotesSidebar();}
+}
+
+function exitNoteEditor(){
+  if(noteUnsaved){if(!confirm('You have unsaved changes. Discard?'))return;}
+  currentNoteId=null;noteUnsaved=false;
+  document.getElementById('note-editor').style.display='none';
+  document.getElementById('notes-dashboard').style.display='flex';
+  renderNotesCategorySidebar();renderNotesDashboard();
 }
 
 function saveCurrentNote(){
   if(!currentNoteId)return;
   const note=notesState.notes.find(n=>n.id===currentNoteId);if(!note)return;
   note.title=document.getElementById('note-title-input').value.trim()||'Untitled';
+  note.category=document.getElementById('note-category').value.trim();
   note.body=document.getElementById('note-content-editor').innerHTML;
   note.bodyText=document.getElementById('note-content-editor').innerText||'';
   note.meetingDate=document.getElementById('note-meeting-date').value||'';
+  note.mailDate=document.getElementById('note-mail-date').value||'';
+  note.mailTime=document.getElementById('note-mail-time').value||'';
   note.participants=document.getElementById('note-participants').value.trim();
+  note.source=document.getElementById('note-source').value.trim();
   note.updatedAt=new Date().toISOString();
-  save();markNoteSaved();renderNotesList();showToast('Note saved','success');
+  save();markNoteSaved();showToast('Note saved','success');
 }
 
 function deleteCurrentNote(){
@@ -1325,43 +1544,34 @@ function deleteCurrentNote(){
   if(!confirm(`Delete "${note?.title||'this note'}"?`))return;
   notesState.notes=notesState.notes.filter(n=>n.id!==currentNoteId);
   currentNoteId=null;noteUnsaved=false;
-  document.getElementById('notes-welcome').style.display='flex';
   document.getElementById('note-editor').style.display='none';
-  save();renderNotesList();showToast('Note deleted','info');
+  document.getElementById('notes-dashboard').style.display='flex';
+  save();renderNotesCategorySidebar();renderNotesDashboard();showToast('Note deleted','info');
 }
 
 function markNoteUnsaved(){
   noteUnsaved=true;
-  document.getElementById('note-saved-dot').className='note-saved-dot unsaved';
-  document.getElementById('note-saved-label').textContent='Unsaved changes';
+  const dot=document.getElementById('note-saved-dot');const lbl=document.getElementById('note-saved-label');
+  if(dot)dot.className='note-saved-dot unsaved';if(lbl)lbl.textContent='Unsaved changes';
 }
 function markNoteSaved(){
   noteUnsaved=false;
-  document.getElementById('note-saved-dot').className='note-saved-dot';
-  document.getElementById('note-saved-label').textContent='Saved';
-  document.getElementById('note-last-saved').textContent='Last saved: '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const dot=document.getElementById('note-saved-dot');const lbl=document.getElementById('note-saved-label');const ts=document.getElementById('note-last-saved');
+  if(dot)dot.className='note-saved-dot';if(lbl)lbl.textContent='Saved';
+  if(ts)ts.textContent='Last saved: '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
 }
 
-// Auto-save notes every 30 seconds if unsaved
+// Auto-save every 30s
 setInterval(()=>{if(noteUnsaved&&currentNoteId)saveCurrentNote();},30000);
 
-// Keyboard shortcut: Ctrl+S to save note
+// Ctrl+S
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key==='s'&&currentModule==='notes'){e.preventDefault();saveCurrentNote();}
 });
 
-// ══════════════════════════════════════════════════════════════
-// RICH TEXT EDITOR
-// ══════════════════════════════════════════════════════════════
-function rteExec(cmd, val=null){
-  document.getElementById('note-content-editor').focus();
-  document.execCommand(cmd, false, val);
-  markNoteUnsaved();
-}
-function rteFormat(tag){
-  if(tag==='p')rteExec('formatBlock','<p>');
-  else rteExec('formatBlock','<'+tag+'>');
-}
+// ── Rich Text Editor ──────────────────────────────────────────
+function rteExec(cmd,val=null){document.getElementById('note-content-editor').focus();document.execCommand(cmd,false,val);markNoteUnsaved();}
+function rteFormat(tag){if(tag==='p')rteExec('formatBlock','<p>');else rteExec('formatBlock','<'+tag+'>');}
 function insertCheckbox(){
   const editor=document.getElementById('note-content-editor');editor.focus();
   const sel=window.getSelection();
@@ -1373,11 +1583,8 @@ function insertCheckbox(){
     const span=document.createElement('span');span.contentEditable='true';span.textContent='Task item';span.style.outline='none';
     span.addEventListener('input',()=>markNoteUnsaved());
     label.appendChild(cb);label.appendChild(span);
-    range.insertNode(document.createElement('br'));
-    range.insertNode(label);
-    range.insertNode(document.createElement('br'));
-    // Place cursor in span
-    const newRange=document.createRange();newRange.selectNodeContents(span);newRange.collapse(false);sel.removeAllRanges();sel.addRange(newRange);
+    range.insertNode(document.createElement('br'));range.insertNode(label);range.insertNode(document.createElement('br'));
+    const nr=document.createRange();nr.selectNodeContents(span);nr.collapse(false);sel.removeAllRanges();sel.addRange(nr);
     markNoteUnsaved();
   }
 }
@@ -1493,7 +1700,7 @@ function attachFirebaseListener(){
         if(cloud.notes.nextNoteId!==undefined)notesState.nextNoteId=cloud.notes.nextNoteId;
       }
       _saveLocal();renderAll();
-      if(currentModule==='notes')renderNotesList();
+      if(currentModule==='notes'){renderNotesCategorySidebar();renderNotesDashboard();}
       setSyncStatus('synced','Synced');syncEnabled=true;
     }finally{isSyncing=false;appReady=true;}
     const lu=document.getElementById('sync-last-updated');
@@ -1528,7 +1735,7 @@ function pullFromCloud(){
     if(cloud.nextMemberId!==undefined)state.nextMemberId=cloud.nextMemberId;
     if(cloud.nextTodayId!==undefined)state.nextTodayId=cloud.nextTodayId;
     if(cloud.notes){if(cloud.notes.notes!==undefined)notesState.notes=cloud.notes.notes;if(cloud.notes.nextNoteId!==undefined)notesState.nextNoteId=cloud.notes.nextNoteId;}
-    _saveLocal();renderAll();if(currentModule==='notes')renderNotesList();
+    _saveLocal();renderAll();if(currentModule==='notes'){renderNotesCategorySidebar();renderNotesDashboard();}
     setSyncStatus('synced','Synced');showToast('✅ Pulled from cloud','success');
   }).catch(err=>{setSyncStatus('offline','Pull failed');showToast('Pull failed: '+err.message,'warn');});
 }
