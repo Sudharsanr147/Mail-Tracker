@@ -1060,7 +1060,7 @@ function renderToday(){
   const d=new Date();
   document.getElementById('today-date').textContent=d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
   document.getElementById('today-year').textContent=d.getFullYear();
-  const todayItems=state.todayItems.filter(i=>i.date===today());
+  const todayItems=state.todayItems;
   const pinned=state.tasks.filter(t=>t.pinnedToday&&!t.completed);
   const total=todayItems.length+pinned.length,done=todayItems.filter(i=>i.done).length;
   document.getElementById('prog-fill').style.width=(total>0?Math.round(done/total*100):0)+'%';
@@ -1090,7 +1090,7 @@ function makeTodayCard(text,done,onCheck,onDel,member,tag,isOv,onClick,icon){
 function quickAddToday(){
   const inp=document.getElementById('qt-input'),text=inp.value.trim();if(!text)return;
   const memberId=parseInt(document.getElementById('qt-member').value)||null;
-  state.todayItems.push({id:state.nextTodayId++,text,memberId,done:false,date:today()});
+  state.todayItems.push({id:state.nextTodayId++,text,memberId,done:false});
   inp.value='';save();renderAll();
 }
 function toggleTodayItem(id){const i=state.todayItems.find(i=>i.id===id);if(i){i.done=!i.done;save();renderAll();}}
@@ -1907,10 +1907,6 @@ function pullFromCloud(){
 // INIT
 // ══════════════════════════════════════════════════════════════
 function init(){
-  // Prune old today items (>7 days)
-  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);
-  const cutoffStr=`${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`;
-  state.todayItems=state.todayItems.filter(i=>i.date>=cutoffStr);
   renderAll();
   initFirebase();
   // PWA manifest
