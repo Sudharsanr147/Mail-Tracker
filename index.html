@@ -11,6 +11,7 @@
 <title>Work Deliverables Tracker</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
 <style>
 /* ═══════════════════════════════ CSS VARIABLES ═══════════════════════════════ */
@@ -1410,15 +1411,25 @@ function initFirebase(){
   try{
     if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
     fbDb=firebase.database();
-    setSyncStatus('offline','Connecting…');
-    const savedPwd=localStorage.getItem('wdt-syncpwd');
-    if(savedPwd){
-      fbSyncPath='wdt/'+btoa(savedPwd).replace(/[^a-zA-Z0-9]/g,'');
-      attachFirebaseListener();
-    }else{
-      setSyncStatus('local','Set password to sync');
-      appReady=true; // no sync configured — app is ready immediately
-    }
+    setSyncStatus('offline','Authenticating...');
+    firebase.auth().signInAnonymously()
+      .then(()=>{
+        setSyncStatus('offline','Authenticated');
+        const savedPwd=localStorage.getItem('wdt-syncpwd');
+        if(savedPwd){
+          fbSyncPath='wdt/'+btoa(savedPwd).replace(/[^a-zA-Z0-9]/g,'');
+          attachFirebaseListener();
+        }else{
+          setSyncStatus('local','Set password to sync');
+          appReady=true;
+        }
+      })
+      .catch(err=>{
+        console.warn('Firebase anonymous auth failed:',err);
+        setSyncStatus('offline','Auth failed');
+        appReady=true;
+        showToast('Firebase auth failed - enable Anonymous Auth in console','warn');
+      });
   }catch(e){
     console.warn('Firebase init failed:',e);
     setSyncStatus('offline','Firebase unavailable');
