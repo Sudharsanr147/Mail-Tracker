@@ -381,7 +381,121 @@ header h1 span{color:var(--accent);}
 .mic-result{background:var(--surface2);border:1.5px solid var(--accent);border-radius:8px;padding:10px;font-size:12px;text-align:left;margin-bottom:10px;display:none;}
 .mic-result.show{display:block;}
 
-/* ═══════════════════════════════ LIGHT THEME OVERRIDES ═══════════════════════════════ */
+/* ═══════════════════════════════ PERFORMANCE MODULE ═══════════════════════════════ */
+.perf-module{flex:1;display:flex;overflow:hidden;min-height:0;}
+.perf-sidebar{width:210px;min-width:210px;background:var(--surface);border-right:2px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.perf-sb-header{padding:10px 12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:6px;}
+.perf-sb-header h3{font-family:'DM Serif Display',serif;font-size:13px;flex:1;}
+.perf-member-list{flex:1;overflow-y:auto;padding:4px 0;}
+.perf-member-item{display:flex;align-items:center;gap:6px;padding:7px 12px;cursor:pointer;border-left:3px solid transparent;transition:background .15s;font-size:12px;}
+.perf-member-item:hover{background:var(--surface2);}
+.perf-member-item.active{background:var(--surface2);border-left-color:var(--purple);font-weight:600;}
+.perf-member-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.perf-member-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.perf-pos-badge{font-size:9px;padding:1px 5px;border-radius:8px;background:rgba(39,201,126,.15);border:1px solid rgba(39,201,126,.4);color:var(--green);font-weight:700;}
+.perf-neg-badge{font-size:9px;padding:1px 5px;border-radius:8px;background:rgba(232,67,67,.15);border:1px solid rgba(232,67,67,.4);color:var(--red);font-weight:700;margin-left:2px;}
+.perf-drag-handle{font-size:9px;color:var(--border);letter-spacing:-2px;cursor:grab;flex-shrink:0;}
+.perf-sb-bottom{padding:8px 10px;border-top:2px solid var(--border);}
+
+.perf-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;min-width:0;background:var(--bg);}
+
+/* Dashboard */
+.perf-dashboard{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+.perf-dash-toolbar{padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--border);background:var(--surface);flex-shrink:0;flex-wrap:wrap;}
+.perf-dash-title{font-family:'DM Serif Display',serif;font-size:14px;flex:1;}
+.perf-dash-scroll{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;min-height:0;}
+.perf-member-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;}
+.perf-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;cursor:pointer;transition:all .2s;}
+.perf-card:hover{border-color:var(--purple);transform:translateY(-1px);}
+.perf-card-name{font-size:12.5px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.perf-card-counts{display:flex;gap:10px;align-items:center;}
+.perf-card-cnt{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.perf-card-num-pos{font-size:22px;font-weight:700;color:var(--green);}
+.perf-card-num-neg{font-size:22px;font-weight:700;color:var(--red);}
+.perf-card-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.perf-card-div{width:1px;height:30px;background:var(--border);}
+.perf-card-link{margin-top:8px;font-size:10px;color:var(--accent);cursor:pointer;}
+
+/* Detail View */
+.perf-detail{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+.perf-detail-toolbar{padding:8px 14px;border-bottom:2px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.perf-detail-title{font-family:'DM Serif Display',serif;font-size:14px;flex:1;min-width:0;}
+.perf-member-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.perf-chip{padding:3px 9px;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .15s;white-space:nowrap;}
+.perf-chip.active{background:rgba(155,109,232,.15);border-color:var(--purple);color:var(--purple);}
+.perf-detail-scroll{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:20px;min-height:0;}
+
+/* Performance Table */
+.perf-section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+.perf-section-hdr h4{font-family:'DM Serif Display',serif;font-size:14px;}
+.perf-pos-hdr{color:var(--green);}
+.perf-neg-hdr{color:var(--red);}
+.perf-sel-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-left:auto;}
+.perf-export-btn{padding:4px 10px;border-radius:6px;border:1.5px solid var(--green);color:var(--green);background:transparent;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.perf-export-btn:hover{background:rgba(39,201,126,.1);}
+.perf-tbl-wrap{overflow-x:auto;}
+.perf-tbl{width:100%;border-collapse:collapse;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;min-width:960px;}
+.perf-tbl th{padding:7px 10px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;background:var(--surface3);border-bottom:1.5px solid var(--border);border-right:1px solid var(--border);text-align:left;white-space:nowrap;cursor:pointer;user-select:none;color:var(--muted);}
+.perf-tbl th:last-child{border-right:none;}
+.perf-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);font-size:11.5px;vertical-align:top;}
+.perf-tbl td:last-child{border-right:none;}
+.perf-tbl tr:last-child td{border-bottom:none;}
+.perf-tbl tr:hover td{background:var(--surface2);}
+.perf-tbl .pos-ind{color:var(--green);font-weight:700;white-space:nowrap;}
+.perf-tbl .neg-ind{color:var(--red);font-weight:700;white-space:nowrap;}
+.perf-core-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;border:1px solid;background:rgba(155,109,232,.12);border-color:rgba(155,109,232,.4);color:var(--purple);white-space:nowrap;}
+.perf-status-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;white-space:nowrap;}
+.perf-status-pill.resolved{background:rgba(39,201,126,.12);border:1px solid rgba(39,201,126,.35);color:var(--green);}
+.perf-status-pill.continued{background:rgba(232,67,67,.12);border:1px solid rgba(232,67,67,.35);color:var(--red);}
+.perf-status-pill.pending{background:rgba(240,190,48,.12);border:1px solid rgba(240,190,48,.35);color:var(--yellow);}
+.ex-pill{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600;background:rgba(91,141,238,.12);border:1px solid rgba(91,141,238,.35);color:var(--accent);cursor:pointer;margin:1px;white-space:nowrap;}
+.ex-pill:hover{background:rgba(91,141,238,.25);}
+.perf-row-actions{display:flex;gap:3px;flex-shrink:0;}
+.perf-row-btn{width:26px;height:26px;border-radius:5px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:12px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;}
+.perf-row-btn.edit:hover{border-color:var(--accent);color:var(--accent);}
+.perf-row-btn.del:hover{border-color:var(--red);color:var(--red);background:rgba(232,67,67,.1);}
+.perf-empty{text-align:center;color:var(--muted);padding:30px;font-size:12.5px;}
+
+/* Add/Edit Perf Modal */
+.perf-modal{background:var(--surface);border:2px solid var(--border);border-radius:14px;width:820px;max-width:97vw;max-height:92vh;overflow-y:auto;padding:22px;box-shadow:var(--shadow);transform:translateY(12px);transition:transform .22s;}
+.overlay.show .perf-modal{transform:translateY(0);}
+.perf-modal h2{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--border);}
+.perf-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.perf-form-grid.two{grid-template-columns:1fr 1fr;}
+.perf-form-grid.full{grid-template-columns:1fr;}
+.perf-examples-section{background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:12px;margin-bottom:12px;}
+.perf-examples-section h4{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);font-weight:700;margin-bottom:10px;}
+.perf-example-row{display:grid;grid-template-columns:130px 90px 170px 1fr 110px 1fr 30px;gap:7px;align-items:end;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.perf-example-row:last-of-type{border-bottom:none;padding-bottom:0;margin-bottom:0;}
+.perf-ex-num{font-size:10px;font-weight:700;color:var(--accent);grid-column:1/-1;margin-bottom:2px;}
+.perf-add-ex-btn{width:100%;padding:7px;border-radius:7px;border:1.5px dashed var(--accent);color:var(--accent);background:transparent;font-size:11.5px;font-weight:600;cursor:pointer;text-align:center;margin-top:8px;}
+.perf-add-ex-btn:hover{background:rgba(91,141,238,.08);}
+.perf-del-ex-btn{padding:4px 6px;border-radius:5px;border:1.5px solid var(--red);color:var(--red);background:transparent;cursor:pointer;font-size:13px;align-self:flex-end;}
+
+/* Examples popup */
+.perf-ex-popup{background:var(--surface);border:2px solid var(--border);border-radius:14px;width:700px;max-width:97vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow);}
+.perf-ex-popup-hdr{padding:13px 18px;border-bottom:2px solid var(--border);background:var(--surface2);border-radius:12px 12px 0 0;display:flex;align-items:center;gap:8px;}
+.perf-ex-popup-hdr h3{font-family:'DM Serif Display',serif;font-size:14px;flex:1;}
+.perf-ex-popup-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;}
+.perf-ex-block{background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:12px 14px;}
+.perf-ex-block-title{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);font-weight:700;margin-bottom:10px;}
+.perf-ex-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.perf-ex-field .lbl{font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:3px;font-weight:700;}
+.perf-ex-field .val{font-size:12.5px;color:var(--text);line-height:1.4;}
+.perf-ex-popup-footer{padding:10px 18px;border-top:2px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+
+/* Manage Perf Members modal */
+.perf-mm-row{display:flex;align-items:center;gap:8px;background:var(--surface2);padding:8px 10px;border-radius:7px;border:1.5px solid var(--border);margin-bottom:6px;cursor:grab;}
+.perf-mm-row:active{cursor:grabbing;}
+.perf-mm-row input[type="text"]{flex:1;background:var(--surface3);border:1.5px solid var(--accent);border-radius:5px;padding:4px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12.5px;outline:none;}
+
+body.light .perf-sidebar,body.light .perf-dash-toolbar,body.light .perf-detail-toolbar{background:#fff!important;}
+body.light .perf-tbl thead th{background:#f4f6fc!important;}
+body.light .perf-tbl tr:hover td{background:#ebeff9!important;}
+body.light .perf-examples-section{background:#f4f6fc!important;}
+body.light .perf-ex-block{background:#f4f6fc!important;}
+body.light .perf-ex-popup{background:#fff!important;}
+body.light .perf-ex-popup-hdr{background:#f4f6fc!important;}
 body.light .task-table tbody tr:hover{background:#dde4f5;}
 body.light .task-table tbody tr.selected{background:#cdd6f0;}
 body.light .group-row td{background:#dde1f2!important;}
@@ -457,6 +571,7 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
   <div class="app-switcher">
     <button class="app-tab active" id="tab-tracker" onclick="switchModule('tracker')">📋 Tracker</button>
     <button class="app-tab" id="tab-notes" onclick="switchModule('notes')">📝 Notes</button>
+    <button class="app-tab" id="tab-perf" onclick="switchModule('perf')">🏆 Performance</button>
   </div>
   <h1 id="app-title">Work <span>Deliverables</span> Tracker</h1>
   <div class="header-stats" id="tracker-stats">
@@ -467,6 +582,10 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
   </div>
   <div class="header-stats" id="notes-stats" style="display:none">
     <div class="stat"><div class="stat-num sn-blue" id="stat-notes-total">0</div><div class="stat-label">Notes</div></div>
+  </div>
+  <div class="header-stats" id="perf-stats" style="display:none">
+    <div class="stat"><div class="stat-num sn-green" id="stat-perf-pos">0</div><div class="stat-label">Positives</div></div>
+    <div class="stat"><div class="stat-num sn-red" id="stat-perf-neg">0</div><div class="stat-label">Negatives</div></div>
   </div>
   <div id="sync-bar" class="sync-bar" title="Sync status">
     <div class="sync-dot local" id="sync-dot"></div>
@@ -683,6 +802,116 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
     </div>
     <div class="note-popup-meta" id="note-popup-meta"></div>
     <div class="note-popup-body" id="note-popup-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PERFORMANCE MODULE ═══════════════════════════════ -->
+<div class="module" id="module-perf">
+  <div class="perf-module">
+    <!-- Left Sidebar -->
+    <div class="perf-sidebar" id="perf-sidebar">
+      <div class="perf-sb-header">
+        <h3>🏆 Members</h3>
+        <button class="btn-primary" style="padding:4px 9px;font-size:11px" onclick="openPerfManageMembers()">⚙️</button>
+      </div>
+      <div class="perf-member-list" id="perf-member-list"></div>
+      <div class="perf-sb-bottom">
+        <div class="sb-btn" onclick="openPerfManageMembers()" style="color:var(--purple);border-color:var(--purple)">⚙️ <span>Manage Members</span></div>
+      </div>
+    </div>
+    <!-- Main -->
+    <div class="perf-main" id="perf-main">
+      <!-- Dashboard -->
+      <div class="perf-dashboard" id="perf-dashboard">
+        <div class="perf-dash-toolbar">
+          <div class="perf-dash-title">Performance Dashboard</div>
+          <button class="btn-primary" onclick="openPerfAddModal(null)">＋ Add Entry</button>
+        </div>
+        <div class="perf-dash-scroll" id="perf-dash-scroll"></div>
+      </div>
+      <!-- Detail View -->
+      <div class="perf-detail" id="perf-detail" style="display:none">
+        <div class="perf-detail-toolbar">
+          <div class="perf-detail-title" id="perf-detail-title">Performance Entries</div>
+          <div class="perf-member-chips" id="perf-member-chips"></div>
+          <button class="btn-primary" style="font-size:11.5px;padding:5px 11px" onclick="openPerfAddModal(null)">＋ Add Entry</button>
+          <button class="ne-btn back-btn" onclick="showPerfDashboard()" style="white-space:nowrap">← Dashboard</button>
+        </div>
+        <div class="perf-detail-scroll" id="perf-detail-scroll"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PERFORMANCE ADD/EDIT MODAL -->
+<div class="overlay" id="perf-modal">
+  <div class="perf-modal">
+    <h2 id="perf-modal-title">＋ Add Performance Entry</h2>
+    <div class="perf-form-grid">
+      <div class="field"><label>👤 Member</label><select id="pf-member"></select></div>
+      <div class="field"><label>🏷 Core Area</label><input type="text" id="pf-core" placeholder="e.g. Reporting, SAP, Deadlines…"/></div>
+      <div class="field"><label>+/− Indicator</label>
+        <select id="pf-indicator">
+          <option value="positive">✚ Positive</option>
+          <option value="negative">✖ Negative</option>
+        </select>
+      </div>
+    </div>
+    <div class="perf-form-grid full">
+      <div class="field"><label>📝 Performance Activity</label><textarea id="pf-activity" rows="2" placeholder="Describe the performance observation…"></textarea></div>
+    </div>
+    <div class="perf-form-grid">
+      <div class="field"><label>📅 Flagged On</label><input type="date" id="pf-flagged"/></div>
+      <div class="field"><label>Status</label>
+        <select id="pf-status">
+          <option value="pending">Pending</option>
+          <option value="resolved">Resolved</option>
+          <option value="continued">Continued</option>
+        </select>
+      </div>
+      <div class="field"><label>📅 Resolved / Addressed On</label><input type="date" id="pf-resolved-on"/></div>
+    </div>
+    <div class="perf-form-grid full">
+      <div class="field"><label>How Rectified / Continued</label><textarea id="pf-how" rows="2" placeholder="Action taken or reason for continuation…"></textarea></div>
+    </div>
+    <div class="perf-examples-section">
+      <h4>📎 Examples (supporting instances)</h4>
+      <div id="pf-examples-container"></div>
+      <button class="perf-add-ex-btn" onclick="addPerfExample()">＋ Add Example</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('perf-modal')">Cancel</button>
+      <button class="btn-primary" onclick="savePerfEntry()">💾 Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- PERFORMANCE EXAMPLES POPUP -->
+<div class="overlay" id="perf-ex-overlay" onclick="handlePerfExBgClick(event)">
+  <div class="perf-ex-popup">
+    <div class="perf-ex-popup-hdr">
+      <h3 id="perf-ex-popup-title">Examples</h3>
+      <button class="ne-btn" onclick="closeModal('perf-ex-overlay')">✕ Close</button>
+    </div>
+    <div class="perf-ex-popup-body" id="perf-ex-popup-body"></div>
+    <div class="perf-ex-popup-footer">
+      <button class="ne-btn" onclick="closeModal('perf-ex-overlay')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE PERF MEMBERS MODAL -->
+<div class="overlay" id="perf-members-modal">
+  <div class="modal" style="max-width:480px">
+    <h2>👥 Manage Performance Members</h2>
+    <div id="perf-mm-list" style="max-height:300px;overflow-y:auto;margin-bottom:12px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:4px">
+      <input type="text" id="perf-new-member-input" placeholder="New member name…"
+        style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12.5px;outline:none"
+        onkeydown="if(event.key==='Enter')addPerfMember()"/>
+      <button class="btn-primary" onclick="addPerfMember()">Add</button>
+    </div>
+    <div class="modal-actions"><button class="btn-primary" onclick="closeModal('perf-members-modal')">Done</button></div>
   </div>
 </div>
 
@@ -905,8 +1134,11 @@ let state = JSON.parse(localStorage.getItem('wdt-v5')||'null') || {
 let notesState = JSON.parse(localStorage.getItem('wdt-notes-v1')||'null') || {
   notes:[], nextNoteId:1, categories:[]
 };
-// Migrate old notesState that may not have categories
 if(!notesState.categories) notesState.categories=[];
+
+let perfState = JSON.parse(localStorage.getItem('wdt-perf-v1')||'null') || {
+  members:[], entries:[], nextMemberId:1, nextEntryId:1
+};
 
 let currentFilter='today', groupBy='none', showCompleted=false, editingTaskId=null;
 let taskType='manual', selectedTaskId=null, sortCol='added', sortDir=1;
@@ -927,6 +1159,7 @@ let fbDb=null, fbSyncPath=null, syncEnabled=false, isSyncing=false, justPushed=f
 function _saveLocal(){
   localStorage.setItem('wdt-v5', JSON.stringify(state));
   localStorage.setItem('wdt-notes-v1', JSON.stringify(notesState));
+  localStorage.setItem('wdt-perf-v1', JSON.stringify(perfState));
 }
 function save(){
   _saveLocal();
@@ -974,21 +1207,24 @@ applyTheme();
 // ══════════════════════════════════════════════════════════════
 function switchModule(mod){
   currentModule=mod;
-  document.getElementById('module-tracker').classList.toggle('active', mod==='tracker');
-  document.getElementById('module-notes').classList.toggle('active', mod==='notes');
-  document.getElementById('tab-tracker').classList.toggle('active', mod==='tracker');
-  document.getElementById('tab-notes').classList.toggle('active', mod==='notes');
-  document.getElementById('tracker-stats').style.display = mod==='tracker'?'flex':'none';
-  document.getElementById('notes-stats').style.display = mod==='notes'?'flex':'none';
-  document.getElementById('app-title').innerHTML = mod==='tracker'?'Work <span>Deliverables</span> Tracker':'<span>Notes</span>';
-  document.getElementById('mob-menu-btn').onclick = mod==='tracker'?toggleMobSidebar:toggleMobNotesSidebar;
+  ['tracker','notes','perf'].forEach(m=>{
+    const mel=document.getElementById('module-'+m);
+    const tel=document.getElementById('tab-'+m);
+    if(mel)mel.classList.toggle('active',m===mod);
+    if(tel)tel.classList.toggle('active',m===mod);
+  });
+  document.getElementById('tracker-stats').style.display=mod==='tracker'?'flex':'none';
+  document.getElementById('notes-stats').style.display=mod==='notes'?'flex':'none';
+  document.getElementById('perf-stats').style.display=mod==='perf'?'flex':'none';
+  const titles={tracker:'Work <span>Deliverables</span> Tracker',notes:'<span>Notes</span>',perf:'Team <span>Performance</span> Assessment'};
+  document.getElementById('app-title').innerHTML=titles[mod]||'';
+  document.getElementById('mob-menu-btn').onclick=mod==='tracker'?toggleMobSidebar:(mod==='notes'?toggleMobNotesSidebar:()=>{});
   if(mod==='notes'){
-    // Always show dashboard when switching to notes
     document.getElementById('notes-dashboard').style.display='flex';
     document.getElementById('note-editor').style.display='none';
-    renderNotesCategorySidebar();
-    renderNotesDashboard();
+    renderNotesCategorySidebar();renderNotesDashboard();
   }
+  if(mod==='perf'){renderPerfSidebar();showPerfDashboard();}
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1861,9 +2097,17 @@ function attachFirebaseListener(){
       if(cloud.notes){
         if(cloud.notes.notes!==undefined)notesState.notes=cloud.notes.notes;
         if(cloud.notes.nextNoteId!==undefined)notesState.nextNoteId=cloud.notes.nextNoteId;
+        if(cloud.notes.categories!==undefined)notesState.categories=cloud.notes.categories;
+      }
+      if(cloud.perf){
+        if(cloud.perf.members!==undefined)perfState.members=cloud.perf.members;
+        if(cloud.perf.entries!==undefined)perfState.entries=cloud.perf.entries;
+        if(cloud.perf.nextMemberId!==undefined)perfState.nextMemberId=cloud.perf.nextMemberId;
+        if(cloud.perf.nextEntryId!==undefined)perfState.nextEntryId=cloud.perf.nextEntryId;
       }
       _saveLocal();renderAll();
       if(currentModule==='notes'){renderNotesCategorySidebar();renderNotesDashboard();}
+      if(currentModule==='perf'){renderPerfSidebar();showPerfDashboard();}
       setSyncStatus('synced','Synced');syncEnabled=true;
     }finally{isSyncing=false;appReady=true;}
     const lu=document.getElementById('sync-last-updated');
@@ -1877,11 +2121,11 @@ function attachFirebaseListener(){
 
 function pushToCloud(){
   // FIX: never push blank/default state
-  const isDefault=state.tasks.length===0&&state.members.length<=3&&state.members.every(m=>['Ravi Kumar','Priya Sharma','Arjun Singh'].includes(m.name))&&notesState.notes.length===0;
+  const isDefault=state.tasks.length===0&&state.members.length<=3&&state.members.every(m=>['Ravi Kumar','Priya Sharma','Arjun Singh'].includes(m.name))&&notesState.notes.length===0&&perfState.entries.length===0;
   if(isDefault){showToast('⚠ Nothing to push — data appears empty','warn');return;}
   if(!fbDb||!fbSyncPath){showToast('Set sync password first','warn');return;}
   setSyncStatus('syncing','Pushing…');justPushed=true;
-  const payload={...state,notes:notesState,_updatedAt:Date.now()};
+  const payload={...state,notes:notesState,perf:perfState,_updatedAt:Date.now()};
   fbDb.ref(fbSyncPath).set(payload).then(()=>{setSyncStatus('synced','Synced');syncEnabled=true;showToast('✅ Pushed to cloud','success');}).catch(err=>{justPushed=false;setSyncStatus('offline','Push failed');showToast('Push failed: '+err.message,'warn');});
 }
 
@@ -1897,15 +2141,418 @@ function pullFromCloud(){
     if(cloud.nextTaskId!==undefined)state.nextTaskId=cloud.nextTaskId;
     if(cloud.nextMemberId!==undefined)state.nextMemberId=cloud.nextMemberId;
     if(cloud.nextTodayId!==undefined)state.nextTodayId=cloud.nextTodayId;
-    if(cloud.notes){if(cloud.notes.notes!==undefined)notesState.notes=cloud.notes.notes;if(cloud.notes.nextNoteId!==undefined)notesState.nextNoteId=cloud.notes.nextNoteId;}
-    _saveLocal();renderAll();if(currentModule==='notes'){renderNotesCategorySidebar();renderNotesDashboard();}
+    if(cloud.notes){if(cloud.notes.notes!==undefined)notesState.notes=cloud.notes.notes;if(cloud.notes.nextNoteId!==undefined)notesState.nextNoteId=cloud.notes.nextNoteId;if(cloud.notes.categories!==undefined)notesState.categories=cloud.notes.categories;}
+    if(cloud.perf){if(cloud.perf.members!==undefined)perfState.members=cloud.perf.members;if(cloud.perf.entries!==undefined)perfState.entries=cloud.perf.entries;if(cloud.perf.nextMemberId!==undefined)perfState.nextMemberId=cloud.perf.nextMemberId;if(cloud.perf.nextEntryId!==undefined)perfState.nextEntryId=cloud.perf.nextEntryId;}
+    _saveLocal();renderAll();
+    if(currentModule==='notes'){renderNotesCategorySidebar();renderNotesDashboard();}
+    if(currentModule==='perf'){renderPerfSidebar();showPerfDashboard();}
     setSyncStatus('synced','Synced');showToast('✅ Pulled from cloud','success');
   }).catch(err=>{setSyncStatus('offline','Pull failed');showToast('Pull failed: '+err.message,'warn');});
 }
 
 // ══════════════════════════════════════════════════════════════
-// INIT
+// PERFORMANCE MODULE
 // ══════════════════════════════════════════════════════════════
+const PERF_COLORS=['#5b8dee','#27c97e','#f0be30','#e84343','#9b6de8','#f07830','#2ec4b6','#f472b6','#84cc16','#fbbf24','#60a5fa','#34d399'];
+let perfFilter=null; // null=dashboard, memberId=detail
+let perfSelectedMembers=[]; // for multi-chip filter in detail view
+let perfEditingEntryId=null;
+let perfDragSrcIdx=-1;
+let perfExViewEntryId=null;
+
+function getPerfMember(id){return perfState.members.find(m=>m.id===id);}
+
+// ── Sidebar ────────────────────────────────────────────────────
+function renderPerfSidebar(){
+  const list=document.getElementById('perf-member-list');list.innerHTML='';
+  // Dashboard item
+  const dashItem=document.createElement('div');
+  dashItem.className='perf-member-item'+(perfFilter===null?' active':'');
+  dashItem.innerHTML=`<span style="font-size:14px">📊</span><span class="perf-member-name">Dashboard</span>`;
+  dashItem.onclick=()=>showPerfDashboard();
+  list.appendChild(dashItem);
+  // Label
+  const lbl=document.createElement('div');
+  lbl.style.cssText='font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 12px 3px;font-weight:700;opacity:.7';
+  lbl.textContent='Members';list.appendChild(lbl);
+  // Members
+  perfState.members.forEach((m,idx)=>{
+    const pos=perfState.entries.filter(e=>e.memberId===m.id&&e.indicator==='positive').length;
+    const neg=perfState.entries.filter(e=>e.memberId===m.id&&e.indicator==='negative').length;
+    const item=document.createElement('div');
+    item.className='perf-member-item'+(perfFilter===m.id?' active':'');
+    item.setAttribute('draggable','true');item.dataset.idx=idx;
+    item.innerHTML=`<span class="perf-drag-handle">⋮⋮</span><div class="perf-member-dot" style="background:${m.color}"></div><span class="perf-member-name">${escHtml(m.name)}</span><span class="perf-pos-badge">+${pos}</span><span class="perf-neg-badge">−${neg}</span>`;
+    item.onclick=e=>{if(e.target.classList.contains('perf-drag-handle'))return;showPerfDetail([m.id]);};
+    item.addEventListener('dragstart',e=>{perfDragSrcIdx=idx;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    item.addEventListener('dragend',()=>{item.classList.remove('dragging');list.querySelectorAll('.perf-member-item').forEach(i=>i.classList.remove('drag-over-above','drag-over-below'));});
+    item.addEventListener('dragover',e=>{e.preventDefault();const mid=item.getBoundingClientRect().top+item.getBoundingClientRect().height/2;item.classList.toggle('drag-over-above',e.clientY<mid);item.classList.toggle('drag-over-below',e.clientY>=mid);});
+    item.addEventListener('dragleave',()=>item.classList.remove('drag-over-above','drag-over-below'));
+    item.addEventListener('drop',e=>{
+      e.preventDefault();item.classList.remove('drag-over-above','drag-over-below');
+      const toIdx=parseInt(item.dataset.idx);if(perfDragSrcIdx===toIdx)return;
+      const mid=item.getBoundingClientRect().top+item.getBoundingClientRect().height/2;
+      const insertBefore=e.clientY<mid;
+      const moved=perfState.members.splice(perfDragSrcIdx,1)[0];
+      let dest=toIdx;if(perfDragSrcIdx<toIdx)dest--;if(!insertBefore)dest++;
+      perfState.members.splice(Math.max(0,Math.min(dest,perfState.members.length)),0,moved);
+      save();renderPerfSidebar();
+    });
+    list.appendChild(item);
+  });
+  // Update header stats
+  const totPos=perfState.entries.filter(e=>e.indicator==='positive').length;
+  const totNeg=perfState.entries.filter(e=>e.indicator==='negative').length;
+  const sp=document.getElementById('stat-perf-pos');const sn=document.getElementById('stat-perf-neg');
+  if(sp)sp.textContent=totPos;if(sn)sn.textContent=totNeg;
+}
+
+// ── Dashboard ──────────────────────────────────────────────────
+function showPerfDashboard(){
+  perfFilter=null;perfSelectedMembers=[];
+  document.getElementById('perf-dashboard').style.display='flex';
+  document.getElementById('perf-detail').style.display='none';
+  renderPerfSidebar();renderPerfDashboard();
+}
+
+function renderPerfDashboard(){
+  const scroll=document.getElementById('perf-dash-scroll');scroll.innerHTML='';
+  // Member cards
+  const cardSec=document.createElement('div');
+  const cardLabel=document.createElement('div');cardLabel.className='sec-title';cardLabel.innerHTML='<span>Member Overview</span>';cardSec.appendChild(cardLabel);
+  const cardGrid=document.createElement('div');cardGrid.className='perf-member-cards';
+  perfState.members.forEach(m=>{
+    const pos=perfState.entries.filter(e=>e.memberId===m.id&&e.indicator==='positive').length;
+    const neg=perfState.entries.filter(e=>e.memberId===m.id&&e.indicator==='negative').length;
+    const card=document.createElement('div');card.className='perf-card';
+    card.innerHTML=`<div class="perf-card-name"><div class="perf-member-dot" style="background:${m.color}"></div>${escHtml(m.name)}</div><div class="perf-card-counts"><div class="perf-card-cnt"><div class="perf-card-num-pos">${pos}</div><div class="perf-card-lbl">Positives</div></div><div class="perf-card-div"></div><div class="perf-card-cnt"><div class="perf-card-num-neg">${neg}</div><div class="perf-card-lbl">Negatives</div></div></div><div class="perf-card-link">View entries →</div>`;
+    card.onclick=()=>showPerfDetail([m.id]);
+    cardGrid.appendChild(card);
+  });
+  cardSec.appendChild(cardGrid);scroll.appendChild(cardSec);
+  // All entries summary table
+  const entries=[...perfState.entries].sort((a,b)=>(b.flaggedOn||'').localeCompare(a.flaggedOn||''));
+  if(entries.length===0){
+    const empty=document.createElement('div');empty.className='perf-empty';empty.innerHTML='<div style="font-size:28px;margin-bottom:8px">🏆</div><p>No performance entries yet. Click <strong>+ Add Entry</strong> to start.</p>';
+    scroll.appendChild(empty);return;
+  }
+  const tblSec=document.createElement('div');
+  const tblLabel=document.createElement('div');tblLabel.className='sec-title';tblLabel.innerHTML='<span>All Recent Entries</span>';tblSec.appendChild(tblLabel);
+  tblSec.appendChild(buildPerfTable(entries,true));
+  scroll.appendChild(tblSec);
+}
+
+// ── Detail View ────────────────────────────────────────────────
+function showPerfDetail(memberIds){
+  perfFilter='detail';
+  perfSelectedMembers=memberIds&&memberIds.length?memberIds:perfState.members.map(m=>m.id);
+  document.getElementById('perf-dashboard').style.display='none';
+  document.getElementById('perf-detail').style.display='flex';
+  renderPerfSidebar();renderPerfDetail();
+}
+
+function renderPerfDetail(){
+  // Title
+  const ids=perfSelectedMembers;
+  const names=ids.map(id=>getPerfMember(id)?.name||'').filter(Boolean);
+  document.getElementById('perf-detail-title').textContent=names.length===1?names[0]+' — Performance':'Multiple Members — Performance';
+  // Member chips
+  const chips=document.getElementById('perf-member-chips');chips.innerHTML='';
+  // All chip
+  const allChip=document.createElement('div');
+  allChip.className='perf-chip'+(ids.length===perfState.members.length?' active':'');
+  allChip.textContent='All';
+  allChip.onclick=()=>{perfSelectedMembers=perfState.members.map(m=>m.id);renderPerfDetail();};
+  chips.appendChild(allChip);
+  perfState.members.forEach(m=>{
+    const chip=document.createElement('div');
+    chip.className='perf-chip'+(ids.includes(m.id)?' active':'');
+    chip.textContent=m.name;
+    chip.onclick=()=>{
+      if(perfSelectedMembers.includes(m.id)){if(perfSelectedMembers.length>1)perfSelectedMembers=perfSelectedMembers.filter(x=>x!==m.id);}
+      else perfSelectedMembers.push(m.id);
+      renderPerfDetail();
+    };
+    chips.appendChild(chip);
+  });
+  // Tables
+  const scroll=document.getElementById('perf-detail-scroll');scroll.innerHTML='';
+  const filtered=perfState.entries.filter(e=>perfSelectedMembers.includes(e.memberId));
+  const positives=filtered.filter(e=>e.indicator==='positive').sort((a,b)=>(b.flaggedOn||'').localeCompare(a.flaggedOn||''));
+  const negatives=filtered.filter(e=>e.indicator==='negative').sort((a,b)=>(b.flaggedOn||'').localeCompare(a.flaggedOn||''));
+  // Positives
+  const posSec=document.createElement('div');
+  const posHdr=document.createElement('div');posHdr.className='perf-section-hdr';
+  posHdr.innerHTML=`<h4 class="perf-pos-hdr">✚ Positives (${positives.length})</h4>`;
+  const posSelRow=document.createElement('div');posSelRow.className='perf-sel-row';
+  posSelRow.innerHTML=`<input type="checkbox" id="sel-all-pos" onchange="selectAllPerf('pos',this.checked)"/> <label for="sel-all-pos" style="cursor:pointer">Select All</label><button class="perf-export-btn" onclick="exportPerfToExcel('pos')">📥 Export Selected</button>`;
+  posHdr.appendChild(posSelRow);posSec.appendChild(posHdr);
+  posSec.appendChild(positives.length?buildPerfTable(positives,false,'pos'):buildPerfEmpty('No positive entries.'));
+  scroll.appendChild(posSec);
+  // Negatives
+  const negSec=document.createElement('div');
+  const negHdr=document.createElement('div');negHdr.className='perf-section-hdr';
+  negHdr.innerHTML=`<h4 class="perf-neg-hdr">✖ Negatives (${negatives.length})</h4>`;
+  const negSelRow=document.createElement('div');negSelRow.className='perf-sel-row';
+  negSelRow.innerHTML=`<input type="checkbox" id="sel-all-neg" onchange="selectAllPerf('neg',this.checked)"/> <label for="sel-all-neg" style="cursor:pointer">Select All</label><button class="perf-export-btn" onclick="exportPerfToExcel('neg')">📥 Export Selected</button>`;
+  negHdr.appendChild(negSelRow);negSec.appendChild(negHdr);
+  negSec.appendChild(negatives.length?buildPerfTable(negatives,false,'neg'):buildPerfEmpty('No negative entries.'));
+  scroll.appendChild(negSec);
+}
+
+function buildPerfEmpty(msg){const d=document.createElement('div');d.className='perf-empty';d.textContent=msg;return d;}
+
+function buildPerfTable(entries,showMember,grp){
+  const wrap=document.createElement('div');wrap.className='perf-tbl-wrap';
+  const tbl=document.createElement('table');tbl.className='perf-tbl';if(grp)tbl.dataset.grp=grp;
+  const thead=document.createElement('thead');
+  thead.innerHTML=`<tr>${!showMember?'<th style="width:32px"></th>':''}${showMember?'<th>Member</th>':''}<th>Core Area</th><th>+/−</th><th style="min-width:200px">Performance Activity</th><th>Flagged On</th><th>Status</th><th style="min-width:160px">How Rectified / Continued</th><th>Resolved On</th><th>Examples</th><th>Actions</th></tr>`;
+  tbl.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  entries.forEach(entry=>{
+    const m=getPerfMember(entry.memberId);
+    const statusMap={resolved:'Resolved',continued:'Continued',pending:'Pending'};
+    const statusCls=entry.status||'pending';
+    const exCount=(entry.examples||[]).length;
+    const tr=document.createElement('tr');tr.dataset.entryId=entry.id;
+    let html=`${!showMember?`<td><input type="checkbox" class="perf-row-cb" data-grp="${grp||''}" data-id="${entry.id}"/></td>`:''}`;
+    if(showMember)html+=`<td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${m?.color||'var(--muted)'};display:inline-block"></span>${escHtml(m?.name||'—')}</span></td>`;
+    html+=`<td><span class="perf-core-tag">${escHtml(entry.coreArea||'—')}</span></td>`;
+    html+=`<td>${entry.indicator==='positive'?'<span class="pos-ind">✚ Positive</span>':'<span class="neg-ind">✖ Negative</span>'}</td>`;
+    html+=`<td style="max-width:220px;white-space:normal;line-height:1.4">${escHtml(entry.activity||'—')}</td>`;
+    html+=`<td style="white-space:nowrap;font-size:11px">${entry.flaggedOn?fmt(entry.flaggedOn):'—'}</td>`;
+    html+=`<td><span class="perf-status-pill ${statusCls}">${statusMap[statusCls]||'Pending'}</span></td>`;
+    html+=`<td style="max-width:180px;white-space:normal;font-size:11px;color:var(--muted)">${escHtml(entry.how||'—')}</td>`;
+    html+=`<td style="white-space:nowrap;font-size:11px">${entry.resolvedOn?fmt(entry.resolvedOn):'—'}</td>`;
+    html+=`<td>${exCount>0?Array.from({length:exCount},(_,i)=>`<span class="ex-pill" onclick="event.stopPropagation();openPerfExPopup(${entry.id})">Example ${i+1}</span>`).join(''):'<span style="color:var(--muted);font-size:10.5px">—</span>'}</td>`;
+    html+=`<td><div class="perf-row-actions"><button class="perf-row-btn edit" onclick="event.stopPropagation();openPerfAddModal(${entry.id})" title="Edit">✏️</button><button class="perf-row-btn del" onclick="event.stopPropagation();confirmPerfDelete(${entry.id})" title="Delete">🗑</button></div></td>`;
+    tr.innerHTML=html;tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);wrap.appendChild(tbl);return wrap;
+}
+
+function selectAllPerf(grp,checked){
+  document.querySelectorAll(`.perf-row-cb[data-grp="${grp}"]`).forEach(cb=>cb.checked=checked);
+}
+
+// ── Add/Edit Modal ─────────────────────────────────────────────
+let perfExampleCount=0;
+function openPerfAddModal(entryId){
+  perfEditingEntryId=entryId;
+  perfExampleCount=0;
+  document.getElementById('perf-modal-title').textContent=entryId?'✏️ Edit Performance Entry':'＋ Add Performance Entry';
+  // Populate member dropdown
+  const sel=document.getElementById('pf-member');sel.innerHTML='';
+  perfState.members.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;sel.appendChild(o);});
+  // Clear fields
+  document.getElementById('pf-core').value='';
+  document.getElementById('pf-indicator').value='positive';
+  document.getElementById('pf-activity').value='';
+  document.getElementById('pf-flagged').value='';
+  document.getElementById('pf-status').value='pending';
+  document.getElementById('pf-resolved-on').value='';
+  document.getElementById('pf-how').value='';
+  document.getElementById('pf-examples-container').innerHTML='';
+  if(entryId){
+    const e=perfState.entries.find(x=>x.id===entryId);if(!e)return;
+    sel.value=e.memberId;
+    document.getElementById('pf-core').value=e.coreArea||'';
+    document.getElementById('pf-indicator').value=e.indicator||'positive';
+    document.getElementById('pf-activity').value=e.activity||'';
+    document.getElementById('pf-flagged').value=e.flaggedOn||'';
+    document.getElementById('pf-status').value=e.status||'pending';
+    document.getElementById('pf-resolved-on').value=e.resolvedOn||'';
+    document.getElementById('pf-how').value=e.how||'';
+    (e.examples||[]).forEach(ex=>addPerfExample(ex));
+  }
+  openModal('perf-modal');
+}
+
+function addPerfExample(data){
+  perfExampleCount++;
+  const n=perfExampleCount;
+  const container=document.getElementById('pf-examples-container');
+  const div=document.createElement('div');
+  div.dataset.exNum=n;
+  div.innerHTML=`<div class="perf-ex-num">Example ${n}</div>
+  <div class="perf-example-row">
+    <div class="field"><label>📅 Date</label><input type="date" id="pf-ex-date-${n}" value="${escHtml(data?.date||'')}"/></div>
+    <div class="field"><label>Mail Sent</label><select id="pf-ex-mail-${n}"><option value="yes" ${data?.mailSent==='yes'?'selected':''}>Yes</option><option value="no" ${data?.mailSent!=='yes'?'selected':''}>No</option></select></div>
+    <div class="field"><label>📧 Mail Date & Time</label><input type="datetime-local" id="pf-ex-maildt-${n}" value="${escHtml(data?.mailDatetime||'')}"/></div>
+    <div class="field"><label>Impact</label><input type="text" id="pf-ex-impact-${n}" placeholder="Impact…" value="${escHtml(data?.impact||'')}"/></div>
+    <div class="field"><label>Rectified?</label><select id="pf-ex-rect-${n}"><option value="yes" ${data?.rectified==='yes'?'selected':''}>Yes</option><option value="no" ${data?.rectified==='no'?'selected':''}>No</option><option value="pending" ${(data?.rectified||'pending')==='pending'?'selected':''}>Pending</option></select></div>
+    <div class="field"><label>How Rectified</label><input type="text" id="pf-ex-how-${n}" placeholder="How…" value="${escHtml(data?.howRectified||'')}"/></div>
+    <button class="perf-del-ex-btn" onclick="this.closest('[data-ex-num]').remove()">🗑</button>
+  </div>`;
+  container.appendChild(div);
+}
+
+function savePerfEntry(){
+  const activity=document.getElementById('pf-activity').value.trim();
+  if(!activity){showToast('Performance activity is required','warn');return;}
+  const memberId=parseInt(document.getElementById('pf-member').value);
+  if(!memberId){showToast('Select a member','warn');return;}
+  // Collect examples
+  const exDivs=document.getElementById('pf-examples-container').querySelectorAll('[data-ex-num]');
+  const examples=[];
+  exDivs.forEach(div=>{
+    const n=div.dataset.exNum;
+    examples.push({
+      date:document.getElementById(`pf-ex-date-${n}`)?.value||'',
+      mailSent:document.getElementById(`pf-ex-mail-${n}`)?.value||'no',
+      mailDatetime:document.getElementById(`pf-ex-maildt-${n}`)?.value||'',
+      impact:document.getElementById(`pf-ex-impact-${n}`)?.value.trim()||'',
+      rectified:document.getElementById(`pf-ex-rect-${n}`)?.value||'pending',
+      howRectified:document.getElementById(`pf-ex-how-${n}`)?.value.trim()||''
+    });
+  });
+  const entryData={
+    memberId,
+    coreArea:document.getElementById('pf-core').value.trim(),
+    indicator:document.getElementById('pf-indicator').value,
+    activity,
+    flaggedOn:document.getElementById('pf-flagged').value||'',
+    status:document.getElementById('pf-status').value,
+    resolvedOn:document.getElementById('pf-resolved-on').value||'',
+    how:document.getElementById('pf-how').value.trim(),
+    examples,
+    updatedAt:new Date().toISOString()
+  };
+  if(perfEditingEntryId){
+    const idx=perfState.entries.findIndex(e=>e.id===perfEditingEntryId);
+    if(idx>=0)perfState.entries[idx]={...perfState.entries[idx],...entryData};
+  }else{
+    perfState.entries.unshift({...entryData,id:perfState.nextEntryId++,createdAt:new Date().toISOString()});
+  }
+  save();closeModal('perf-modal');renderPerfSidebar();
+  if(perfFilter===null)renderPerfDashboard();else renderPerfDetail();
+  showToast(perfEditingEntryId?'Entry updated':'Entry added','success');
+}
+
+function confirmPerfDelete(id){
+  const e=perfState.entries.find(x=>x.id===id);
+  showConfirm('🗑','Delete Entry',`Delete this performance entry for "${getPerfMember(e?.memberId)?.name||'member'}"?`,'Delete','var(--red)',()=>{
+    perfState.entries=perfState.entries.filter(x=>x.id!==id);
+    save();renderPerfSidebar();
+    if(perfFilter===null)renderPerfDashboard();else renderPerfDetail();
+    showToast('Entry deleted','info');
+  });
+}
+
+// ── Examples Popup ─────────────────────────────────────────────
+function openPerfExPopup(entryId){
+  const entry=perfState.entries.find(e=>e.id===entryId);if(!entry)return;
+  perfExViewEntryId=entryId;
+  document.getElementById('perf-ex-popup-title').textContent=`📎 Examples — "${(entry.activity||'').substring(0,60)}"`;
+  const body=document.getElementById('perf-ex-popup-body');body.innerHTML='';
+  (entry.examples||[]).forEach((ex,i)=>{
+    const block=document.createElement('div');block.className='perf-ex-block';
+    const rectMap={yes:'Resolved',no:'Continued',pending:'Pending'};
+    const rectCls={yes:'resolved',no:'continued',pending:'pending'};
+    block.innerHTML=`<div class="perf-ex-block-title">Example ${i+1}</div>
+    <div class="perf-ex-fields">
+      <div class="perf-ex-field"><div class="lbl">Date</div><div class="val">${ex.date?fmt(ex.date):'—'}</div></div>
+      <div class="perf-ex-field"><div class="lbl">Mail Sent</div><div class="val">${ex.mailSent==='yes'?'✅ Yes':'❌ No'}</div></div>
+      <div class="perf-ex-field"><div class="lbl">Mail Date & Time</div><div class="val">${ex.mailDatetime?new Date(ex.mailDatetime).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}</div></div>
+      <div class="perf-ex-field"><div class="lbl">Impact</div><div class="val">${escHtml(ex.impact||'—')}</div></div>
+      <div class="perf-ex-field"><div class="lbl">Rectified / Continued</div><div class="val"><span class="perf-status-pill ${rectCls[ex.rectified]||'pending'}">${rectMap[ex.rectified]||'Pending'}</span></div></div>
+      <div class="perf-ex-field"><div class="lbl">How Rectified</div><div class="val">${escHtml(ex.howRectified||'—')}</div></div>
+    </div>`;
+    body.appendChild(block);
+  });
+  if(!entry.examples||entry.examples.length===0){
+    body.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">No examples added.</div>';
+  }
+  openModal('perf-ex-overlay');
+}
+function handlePerfExBgClick(e){if(e.target===document.getElementById('perf-ex-overlay'))closeModal('perf-ex-overlay');}
+
+// ── Manage Members ─────────────────────────────────────────────
+function openPerfManageMembers(){renderPerfMemberList();openModal('perf-members-modal');}
+
+function renderPerfMemberList(){
+  const list=document.getElementById('perf-mm-list');list.innerHTML='';
+  let editingIdx=null;
+  perfState.members.forEach((m,idx)=>{
+    const row=document.createElement('div');row.className='perf-mm-row';row.setAttribute('draggable','true');row.dataset.idx=idx;
+    row.innerHTML=`<span style="cursor:grab;font-size:9px;color:var(--muted);letter-spacing:-2px;flex-shrink:0">⋮⋮</span><div style="width:10px;height:10px;border-radius:50%;background:${m.color};flex-shrink:0"></div><span style="flex:1;font-size:12.5px">${escHtml(m.name)}</span><button class="cat-edit-btn" onclick="startEditPerfMember(${idx})">✏️ Edit</button><button class="cat-del-btn" onclick="deletePerfMember(${idx})">🗑</button>`;
+    // drag
+    row.addEventListener('dragstart',e=>{perfDragSrcIdx=idx;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragend',()=>{row.classList.remove('dragging');list.querySelectorAll('.perf-mm-row').forEach(r=>r.classList.remove('drag-over-above','drag-over-below'));});
+    row.addEventListener('dragover',e=>{e.preventDefault();const mid=row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;row.classList.toggle('drag-over-above',e.clientY<mid);row.classList.toggle('drag-over-below',e.clientY>=mid);});
+    row.addEventListener('dragleave',()=>row.classList.remove('drag-over-above','drag-over-below'));
+    row.addEventListener('drop',e=>{
+      e.preventDefault();row.classList.remove('drag-over-above','drag-over-below');
+      const toIdx=parseInt(row.dataset.idx);if(perfDragSrcIdx===toIdx)return;
+      const mid=row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;
+      const insertBefore=e.clientY<mid;
+      const moved=perfState.members.splice(perfDragSrcIdx,1)[0];
+      let dest=toIdx;if(perfDragSrcIdx<toIdx)dest--;if(!insertBefore)dest++;
+      perfState.members.splice(Math.max(0,Math.min(dest,perfState.members.length)),0,moved);
+      save();renderPerfMemberList();renderPerfSidebar();
+    });
+    list.appendChild(row);
+  });
+}
+
+function startEditPerfMember(idx){
+  const m=perfState.members[idx];
+  const list=document.getElementById('perf-mm-list');
+  const rows=list.querySelectorAll('.perf-mm-row');
+  if(!rows[idx])return;
+  const row=rows[idx];
+  row.innerHTML=`<span style="font-size:9px;color:var(--muted);letter-spacing:-2px;flex-shrink:0">⋮⋮</span><div style="width:10px;height:10px;border-radius:50%;background:${m.color};flex-shrink:0"></div><input type="text" value="${escHtml(m.name)}" id="perf-edit-name-${idx}" style="flex:1"/><button class="cat-save-btn" onclick="savePerfMemberEdit(${idx})">✓ Save</button><button class="cat-del-btn" onclick="renderPerfMemberList()">✕</button>`;
+  const inp=document.getElementById(`perf-edit-name-${idx}`);if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter')savePerfMemberEdit(idx);};}
+}
+
+function savePerfMemberEdit(idx){
+  const inp=document.getElementById(`perf-edit-name-${idx}`);
+  const name=inp?inp.value.trim():'';
+  if(!name){showToast('Name cannot be empty','warn');return;}
+  perfState.members[idx].name=name;
+  save();renderPerfMemberList();renderPerfSidebar();showToast('Member updated','success');
+}
+
+function deletePerfMember(idx){
+  const m=perfState.members[idx];
+  showConfirm('👤','Delete Member',`Delete "${m.name}"? Their performance entries will also be deleted.`,'Delete','var(--red)',()=>{
+    perfState.entries=perfState.entries.filter(e=>e.memberId!==m.id);
+    perfState.members.splice(idx,1);
+    save();renderPerfMemberList();renderPerfSidebar();
+    if(perfFilter===m.id)showPerfDashboard();
+    showToast('Member deleted','info');
+  });
+}
+
+function addPerfMember(){
+  const inp=document.getElementById('perf-new-member-input');
+  const name=inp.value.trim();if(!name){showToast('Enter a name','warn');return;}
+  const color=PERF_COLORS[perfState.members.length%PERF_COLORS.length];
+  perfState.members.push({id:perfState.nextMemberId++,name,color});
+  inp.value='';save();renderPerfMemberList();renderPerfSidebar();showToast('Member added','success');
+}
+
+// ── Export to Excel ────────────────────────────────────────────
+function exportPerfToExcel(grp){
+  const checked=[...document.querySelectorAll(`.perf-row-cb[data-grp="${grp}"]:checked`)].map(cb=>parseInt(cb.dataset.id));
+  if(checked.length===0){showToast('Select at least one row to export','warn');return;}
+  const entries=perfState.entries.filter(e=>checked.includes(e.id));
+  // Build CSV rows
+  const header=['Member','Core Area','Indicator','Performance Activity','Flagged On','Status','How Rectified/Continued','Resolved On','Example #','Date','Mail Sent','Mail Date/Time','Impact','Rectified','How Rectified (Example)'];
+  const rows=[header];
+  entries.forEach(e=>{
+    const m=getPerfMember(e.memberId);
+    const base=[m?.name||'',e.coreArea||'',e.indicator==='positive'?'Positive':'Negative',e.activity||'',e.flaggedOn||'',e.status||'',e.how||'',e.resolvedOn||''];
+    if(!e.examples||e.examples.length===0){rows.push([...base,'','','','','','']);}
+    else{e.examples.forEach((ex,i)=>{rows.push([...base,`Example ${i+1}`,ex.date||'',ex.mailSent||'',ex.mailDatetime||'',ex.impact||'',ex.rectified||'',ex.howRectified||'']);});}
+  });
+  // Convert to CSV and download
+  const csv=rows.map(r=>r.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`performance-export-${today()}.csv`;a.click();
+  showToast(`Exported ${entries.length} entries to CSV`,'success');
+}
 function init(){
   renderAll();
   initFirebase();
