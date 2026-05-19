@@ -1732,7 +1732,7 @@ function populateCategoryDropdown(selectedCat){
 // ── Category Sidebar ──────────────────────────────────────────
 function renderNotesCategorySidebar(){
   const el=document.getElementById('notes-cat-list');el.innerHTML='';
-  const visibleNotes=notesState.notes.filter(n=>(n.title||'').trim()||(n.bodyText||'').trim());
+  const visibleNotes=notesState.notes.filter(n=>(n.title||'').trim().length>0||(n.bodyText||'').trim().length>0);
   const allItem=document.createElement('div');
   allItem.className='notes-cat-item'+(notesCatFilter===null?' active':'');
   allItem.innerHTML=`<span>📋</span><span style="flex:1">All Notes</span><span class="notes-cat-count">${visibleNotes.length}</span>`;
@@ -1755,7 +1755,7 @@ function renderNotesCategorySidebar(){
 function renderNotesDashboard(){
   const search=(document.getElementById('notes-search-input').value||'').toLowerCase();
   // Only show notes with title OR body filled
-  let notes=notesState.notes.filter(n=>(n.title||'').trim()||(n.bodyText||'').trim());
+  let notes=notesState.notes.filter(n=>(n.title||'').trim().length>0||(n.bodyText||'').trim().length>0);
   if(notesCatFilter!==null)notes=notes.filter(n=>(n.category||'(No Category)')===notesCatFilter);
   if(notesMonthFilter)notes=notes.filter(n=>{
     const d=n.meetingDate||n.mailDate||(n.updatedAt?n.updatedAt.substring(0,10):'');
@@ -1808,7 +1808,7 @@ function renderNotesDashboard(){
 
 function buildMonthStrip(){
   const strip=document.getElementById('notes-month-strip');strip.innerHTML='';
-  const visibleNotes=notesState.notes.filter(n=>(n.title||'').trim()||(n.bodyText||'').trim());
+  const visibleNotes=notesState.notes.filter(n=>(n.title||'').trim().length>0||(n.bodyText||'').trim().length>0);
   const allBtn=document.createElement('div');
   allBtn.className='month-bucket all-btn'+(notesMonthFilter===null?' active':'');
   allBtn.innerHTML=`All <span class="month-bucket-count">${visibleNotes.length}</span>`;
@@ -1874,9 +1874,23 @@ function confirmDeleteNoteById(id){
 
 // ── Note Editor ───────────────────────────────────────────────
 function createNewNote(){
-  const note={id:notesState.nextNoteId++,title:'',body:'',bodyText:'',category:'',meetingDate:'',mailDate:'',mailTime:'',participants:'',source:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
-  notesState.notes.unshift(note);
-  save();openNoteEditor(note.id);
+  // Create a temporary new note object but don't push to notesState yet.
+  // _doSaveNote will insert it on first save (currentNoteId=-1 signals new).
+  const tempId=-(Date.now()); // negative temp ID
+  const note={id:tempId,title:'',body:'',bodyText:'',category:'',meetingDate:'',mailDate:'',mailTime:'',participants:'',source:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  notesState.notes.unshift(note); // insert now so editor can find it by ID
+  currentNoteId=tempId;
+  document.getElementById('notes-dashboard').style.display='none';
+  document.getElementById('note-editor').style.display='flex';
+  document.getElementById('note-title-input').value='';
+  populateCategoryDropdown('');
+  document.getElementById('note-meeting-date').value='';
+  document.getElementById('note-mail-date').value='';
+  document.getElementById('note-mail-time').value='';
+  document.getElementById('note-participants').value='';
+  document.getElementById('note-source').value='';
+  document.getElementById('note-content-editor').innerHTML='';
+  markNoteSaved();
   setTimeout(()=>document.getElementById('note-title-input').focus(),100);
 }
 
@@ -1899,6 +1913,11 @@ function openNoteEditor(id){
 
 function exitNoteEditor(){
   if(noteUnsaved){if(!confirm('You have unsaved changes. Discard?'))return;}
+  // If temp unsaved note, remove it from state
+  if(currentNoteId&&currentNoteId<0){
+    notesState.notes=notesState.notes.filter(n=>n.id!==currentNoteId);
+    save();
+  }
   currentNoteId=null;noteUnsaved=false;
   document.getElementById('note-editor').style.display='none';
   document.getElementById('notes-dashboard').style.display='flex';
@@ -1922,11 +1941,18 @@ function saveCurrentNote(){
 
 function _doSaveNote(){
   if(!currentNoteId)return;
-  const note=notesState.notes.find(n=>n.id===currentNoteId);if(!note)return;
+  let note=notesState.notes.find(n=>n.id===currentNoteId);if(!note)return;
+  // If new note (temp negative ID), assign permanent ID now
+  if(currentNoteId<0){
+    const realId=notesState.nextNoteId++;
+    note.id=realId;
+    currentNoteId=realId;
+  }
   note.title=document.getElementById('note-title-input').value.trim();
   note.category=document.getElementById('note-category').value||'';
   note.body=document.getElementById('note-content-editor').innerHTML;
-  note.bodyText=document.getElementById('note-content-editor').innerText||'';
+  const rawText=(document.getElementById('note-content-editor').innerText||'').replace(/[\r\n\t]+/g,' ').trim();
+  note.bodyText=rawText;
   note.meetingDate=document.getElementById('note-meeting-date').value||'';
   note.mailDate=document.getElementById('note-mail-date').value||'';
   note.mailTime=document.getElementById('note-mail-time').value||'';
