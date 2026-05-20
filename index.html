@@ -1333,16 +1333,16 @@ function renderToday(){
   const pinSec=document.getElementById('t-pin-sec'),pinList=document.getElementById('t-pin-list');
   pinList.innerHTML='';pinSec.style.display=pinned.length?'':'none';
   pinned.forEach(t=>pinList.appendChild(makePinnedCard(t)));
-  // Today items — sort: undone first by priority order (high→medium→low→none), then done
-  const priOrder={high:0,medium:1,low:2,none:3,undefined:3};
+  // Today items — sort: undone first by priority (high→medium→low→none), then done
+  // But items currently being priority-edited (in _pendingPriSort) keep their position
+  const priOrder={high:0,medium:1,low:2,none:3};
   const sorted=[...todayItems].sort((a,b)=>{
     if(a.done!==b.done)return a.done?1:-1;
-    return (priOrder[a.priority||'none']||3)-(priOrder[b.priority||'none']||3);
+    return (priOrder[a.priority||'none']??3)-(priOrder[b.priority||'none']??3);
   });
   const qSec=document.getElementById('t-q-sec'),qList=document.getElementById('t-q-list');
   qList.innerHTML='';qSec.style.display=todayItems.length?'':'none';
   sorted.forEach(item=>qList.appendChild(buildTodayItemCard(item)));
-  // Enable drop zone on the list itself (for dropping after last item)
   qList.addEventListener('dragover',e=>e.preventDefault());
   qList.addEventListener('drop',e=>{e.preventDefault();handleTodayDrop(e,null);});
   document.getElementById('today-empty').style.display=(pinned.length||todayItems.length)?'none':'block';
@@ -1365,6 +1365,10 @@ function makePinnedCard(t){
 }
 
 let todayDragSrcId=null;
+// Debounce timer: after cycling priority, wait 1s before re-sorting the list
+let _priSortTimer=null;
+// Track which item's priority was last changed — suppress re-sort until timer fires
+let _priChangedId=null;
 
 function buildTodayItemCard(item){
   const pri=item.priority||'none';
@@ -1373,7 +1377,6 @@ function buildTodayItemCard(item){
   card.dataset.itemId=item.id;
   card.setAttribute('draggable','true');
 
-  // ── Drag events ──
   card.addEventListener('dragstart',e=>{
     todayDragSrcId=item.id;card.classList.add('tc-dragging');
     e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',item.id);
@@ -1386,9 +1389,7 @@ function buildTodayItemCard(item){
   card.addEventListener('dragleave',()=>card.classList.remove('tc-drag-over'));
   card.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();card.classList.remove('tc-drag-over');handleTodayDrop(e,item.id);});
 
-  // ── Normal display ──
-  const dragHandle=document.createElement('span');dragHandle.className='tc-drag-handle';dragHandle.textContent='⋮⋮';
-  dragHandle.title='Drag to reorder';
+  const dragHandle=document.createElement('span');dragHandle.className='tc-drag-handle';dragHandle.textContent='⋮⋮';dragHandle.title='Drag to reorder';
 
   const chk=document.createElement('div');chk.className='tc-check'+(item.done?' done':'');
   chk.onclick=e=>{e.stopPropagation();toggleTodayItem(item.id);};
@@ -1396,24 +1397,23 @@ function buildTodayItemCard(item){
   const txt=document.createElement('div');txt.className='tc-text';txt.textContent=item.text;
 
   const meta=document.createElement('div');meta.className='tc-meta';
-  // Priority pill — click cycles through priorities
+
+  // ── Member tag FIRST ──
+  const m=getMember(item.memberId);
+  if(m){const s=document.createElement('span');s.className='tc-tag';s.style.color=m.color;s.textContent=m.name;meta.appendChild(s);}
+
+  // ── Priority pill AFTER member ──
   const priLabels={none:'Priority',high:'🔴 High',medium:'🟡 Medium',low:'🟢 Low'};
   const priPill=document.createElement('span');
   priPill.className=`pri-pill ${pri}`;
   priPill.textContent=priLabels[pri]||'Priority';
   priPill.title='Click to change priority';
-  priPill.onclick=e=>{e.stopPropagation();cycleTodayPriority(item.id);};
+  priPill.onclick=e=>{e.stopPropagation();cycleTodayPriority(item.id,priPill,card);};
   meta.appendChild(priPill);
 
-  // Member tag
-  const m=getMember(item.memberId);
-  if(m){const s=document.createElement('span');s.className='tc-tag';s.style.color=m.color;s.textContent=m.name;meta.appendChild(s);}
-
-  // Edit button
   const editBtn=document.createElement('span');editBtn.className='tc-edit-btn';editBtn.textContent='✏️';editBtn.title='Edit';
   editBtn.onclick=e=>{e.stopPropagation();openTodayItemEdit(item.id,card);};
 
-  // Delete button
   const del=document.createElement('div');del.className='tc-del';del.textContent='✕';
   del.onclick=e=>{e.stopPropagation();deleteTodayItem(item.id);};
 
@@ -1421,24 +1421,44 @@ function buildTodayItemCard(item){
   return card;
 }
 
+function cycleTodayPriority(id, pill, card){
+  const item=state.todayItems.find(i=>i.id===id);if(!item)return;
+  const cycle=['none','high','medium','low'];
+  const cur=cycle.indexOf(item.priority||'none');
+  const next=cycle[(cur+1)%cycle.length];
+  item.priority=next;
+  // Update pill and card colour immediately (no re-render yet)
+  const priLabels={none:'Priority',high:'🔴 High',medium:'🟡 Medium',low:'🟢 Low'};
+  pill.className=`pri-pill ${next}`;
+  pill.textContent=priLabels[next];
+  card.classList.remove('pri-high','pri-medium','pri-low');
+  if(next!=='none')card.classList.add('pri-'+next);
+  // Save to storage immediately
+  _saveLocal();
+  // Debounce the re-sort: cancel any pending re-sort, set new 1s timer
+  _priChangedId=id;
+  clearTimeout(_priSortTimer);
+  _priSortTimer=setTimeout(()=>{
+    _priChangedId=null;
+    save(); // push to Firebase
+    renderAll(); // now re-sort
+  }, 1000);
+}
+
 function openTodayItemEdit(id,card){
   const item=state.todayItems.find(i=>i.id===id);if(!item)return;
-  // Replace card content with inline edit form
-  card.innerHTML='';
-  card.removeAttribute('draggable');
+  card.innerHTML='';card.removeAttribute('draggable');
+  // Clear any pending priority sort timer since we're editing
+  clearTimeout(_priSortTimer);_priChangedId=null;
   const row=document.createElement('div');row.className='tc-edit-row';
-  // Text input
   const inp=document.createElement('input');inp.type='text';inp.className='tc-edit-input';inp.value=item.text;
   inp.onkeydown=e=>{if(e.key==='Enter')saveTodayItemEdit(id,inp,memSel,priSel,card);if(e.key==='Escape')renderAll();};
-  // Member select
   const memSel=document.createElement('select');memSel.className='tc-edit-select';
   memSel.innerHTML='<option value="">— Member —</option>';
   state.members.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.name;if(m.id===item.memberId)o.selected=true;memSel.appendChild(o);});
-  // Priority select
   const priSel=document.createElement('select');priSel.className='tc-edit-select';
   priSel.innerHTML='<option value="none">No Priority</option><option value="high">🔴 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option>';
   priSel.value=item.priority||'none';
-  // Buttons
   const saveBtn=document.createElement('button');saveBtn.className='tc-save-btn';saveBtn.textContent='✓ Save';
   saveBtn.onclick=()=>saveTodayItemEdit(id,inp,memSel,priSel,card);
   const cancelBtn=document.createElement('button');cancelBtn.className='tc-cancel-btn';cancelBtn.textContent='✕';
@@ -1457,26 +1477,13 @@ function saveTodayItemEdit(id,inp,memSel,priSel,card){
   save();renderAll();
 }
 
-function cycleTodayPriority(id){
-  const item=state.todayItems.find(i=>i.id===id);if(!item)return;
-  const cycle=['none','high','medium','low'];
-  const cur=cycle.indexOf(item.priority||'none');
-  item.priority=cycle[(cur+1)%cycle.length];
-  save();renderAll();
-}
-
 function handleTodayDrop(e,targetId){
   if(!todayDragSrcId||todayDragSrcId===targetId)return;
   const srcIdx=state.todayItems.findIndex(i=>i.id===todayDragSrcId);
   if(srcIdx<0)return;
   const moved=state.todayItems.splice(srcIdx,1)[0];
-  if(targetId===null){
-    state.todayItems.push(moved);
-  }else{
-    const dstIdx=state.todayItems.findIndex(i=>i.id===targetId);
-    if(dstIdx<0){state.todayItems.push(moved);}
-    else{state.todayItems.splice(dstIdx,0,moved);}
-  }
+  if(targetId===null){state.todayItems.push(moved);}
+  else{const dstIdx=state.todayItems.findIndex(i=>i.id===targetId);if(dstIdx<0)state.todayItems.push(moved);else state.todayItems.splice(dstIdx,0,moved);}
   todayDragSrcId=null;
   save();renderAll();
 }
