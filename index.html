@@ -3005,6 +3005,23 @@ function generateChecklist(firstDue,frequency,validTill){
   return items;
 }
 
+// Helper: returns coloured status pill HTML
+function mcStatusPill(status){
+  const map={pending:'Pending',inprogress:'In Progress',completed:'Completed',missed:'Missed'};
+  return`<span class="mc-status-pill ${status||'pending'}">${map[status||'pending']}</span>`;
+}
+// Helper: colour the select border to match status
+function applyMcSelectColour(sel){
+  const colours={pending:'var(--border)',inprogress:'var(--yellow)',completed:'var(--green)',missed:'var(--red)'};
+  sel.style.borderColor=colours[sel.value]||'var(--border)';
+  // Also colour the row background subtly
+  const tr=sel.closest('tr');
+  if(tr){
+    const bgs={pending:'',inprogress:'rgba(240,190,48,.07)',completed:'rgba(39,201,126,.08)',missed:'rgba(232,67,67,.08)'};
+    tr.style.background=bgs[sel.value]||'';
+  }
+}
+
 function renderMcSidebar(type){
   const st=getMcState(type);
   const sb=document.getElementById(type+'-sb-list');sb.innerHTML='';
@@ -3018,7 +3035,8 @@ function renderMcSidebar(type){
   const monthSet={};
   st.items.forEach(item=>{(item.checklist||[]).forEach(cl=>{if(cl.dueDate){const ym=cl.dueDate.substring(0,7);if(!monthSet[ym])monthSet[ym]=0;monthSet[ym]++;}});});
   const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  Object.keys(monthSet).sort().reverse().forEach(ym=>{
+  // Sort descending — latest month first
+  Object.keys(monthSet).sort((a,b)=>b.localeCompare(a)).forEach(ym=>{
     const[y,m]=ym.split('-');
     const div=document.createElement('div');div.className='mc-sb-item';
     div.innerHTML=`<span>📅</span><span style="flex:1">${mo[parseInt(m)-1]} ${y}</span><span class="mc-sb-count">${monthSet[ym]}</span>`;
@@ -3053,11 +3071,15 @@ function renderMcContent(type,monthFilter){
       const colOffset=type==='compliance'?1:0;
       const sel=document.createElement('select');sel.className='mc-status-select';
       ['pending','inprogress','completed','missed'].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent={pending:'Pending',inprogress:'In Progress',completed:'Completed',missed:'Missed'}[s];if(cl.status===s)o.selected=true;sel.appendChild(o);});
-      sel.onchange=()=>{cl.status=sel.value;save();renderAlertRibbon();};
+      applyMcSelectColour(sel);
+      sel.onchange=()=>{cl.status=sel.value;applyMcSelectColour(sel);save();renderAlertRibbon();};
       tr.cells[4+colOffset].appendChild(sel);
       const rem=document.createElement('input');rem.type='text';rem.className='mc-remarks-input';rem.value=cl.remarks||'';rem.placeholder='Remarks…';
       rem.onchange=()=>{cl.remarks=rem.value.trim();save();};
       tr.cells[5+colOffset].appendChild(rem);
+      // Apply row background on initial render
+      const bgs={pending:'',inprogress:'rgba(240,190,48,.07)',completed:'rgba(39,201,126,.08)',missed:'rgba(232,67,67,.08)'};
+      tr.style.background=bgs[cl.status||'pending']||'';
       tbody.appendChild(tr);
     });
     tbl.appendChild(tbody);wrap.appendChild(tbl);content.appendChild(wrap);
@@ -3097,10 +3119,14 @@ function openMcDetail(type,id){
     tr.innerHTML=`<td style="color:var(--muted);font-size:11px;width:30px">${cl.n||ci+1}</td><td style="white-space:nowrap">${fmt(cl.dueDate)}</td><td></td><td></td>`;
     const sel=document.createElement('select');sel.className='mc-status-select';
     ['pending','inprogress','completed','missed'].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent={pending:'Pending',inprogress:'In Progress',completed:'Completed',missed:'Missed'}[s];if(cl.status===s)o.selected=true;sel.appendChild(o);});
-    sel.onchange=()=>{cl.status=sel.value;save();renderAlertRibbon();renderMcSidebar(type);};
+    applyMcSelectColour(sel);
+    sel.onchange=()=>{cl.status=sel.value;applyMcSelectColour(sel);save();renderAlertRibbon();renderMcSidebar(type);};
     tr.cells[2].appendChild(sel);
     const rem=document.createElement('input');rem.type='text';rem.className='mc-remarks-input';rem.style.width='200px';rem.value=cl.remarks||'';rem.placeholder='Remarks…';rem.onchange=()=>{cl.remarks=rem.value.trim();save();};
     tr.cells[3].appendChild(rem);
+    // Row background based on status
+    const bgs={pending:'',inprogress:'rgba(240,190,48,.07)',completed:'rgba(39,201,126,.08)',missed:'rgba(232,67,67,.08)'};
+    tr.style.background=bgs[cl.status||'pending']||'';
     tbody.appendChild(tr);
   });
   document.getElementById('mc-detail-edit-btn').onclick=()=>{closeModal('mc-detail-overlay');openMcModal(type,id);};
