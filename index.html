@@ -70,7 +70,7 @@ header h1 span{color:var(--accent);}
 
 /* ═══════════════════════════════ LAYOUT MODULES ═══════════════════════════════ */
 .module{display:none;min-height:0;}
-.module.active{display:flex;height:calc(100vh - 54px);overflow:hidden;}
+.module.active{display:flex;overflow:hidden;flex:1;}
 
 /* ═══════════════════════════════ TRACKER MODULE ═══════════════════════════════ */
 .sidebar{width:195px;min-width:195px;background:var(--surface);border-right:2px solid var(--border);padding:12px 0;overflow-y:auto;display:flex;flex-direction:column;transition:transform .3s;}
@@ -533,6 +533,79 @@ body.light .notes-dash-toolbar,body.light .notes-month-strip{background:#fff!imp
 body.light .note-popup{background:#fff!important;}
 body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!important;}
 
+/* ═══════════════════════════════ ALERT RIBBON ═══════════════════════════════ */
+.alert-ribbon{background:var(--surface2);border-bottom:2px solid var(--border);overflow:hidden;max-height:0;transition:max-height .35s ease;flex-shrink:0;}
+.alert-ribbon.has-alerts{max-height:80px;}
+.alert-ribbon-inner{padding:5px 14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.alert-ribbon-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-right:2px;flex-shrink:0;}
+.alert-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:14px;font-size:10.5px;font-weight:600;border:1.5px solid;white-space:nowrap;}
+.alert-chip.due-today{background:rgba(232,67,67,.15);border-color:rgba(232,67,67,.5);color:var(--red);}
+.alert-chip.due-1{background:rgba(240,120,48,.15);border-color:rgba(240,120,48,.5);color:var(--orange);}
+.alert-chip.due-5{background:rgba(240,190,48,.12);border-color:rgba(240,190,48,.5);color:var(--yellow);}
+
+/* ═══════════════════════════════ MIS / COMPLIANCE MODULE ═══════════════════════════════ */
+.mc-module{flex:1;display:flex;overflow:hidden;min-height:0;}
+.mc-sidebar{width:200px;min-width:200px;background:var(--surface);border-right:2px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.mc-sb-header{padding:10px 12px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:6px;}
+.mc-sb-header h3{font-family:'DM Serif Display',serif;font-size:13px;flex:1;}
+.mc-sb-list{flex:1;overflow-y:auto;padding:4px 0;}
+.mc-sb-item{display:flex;align-items:center;gap:7px;padding:7px 12px;cursor:pointer;border-left:3px solid transparent;transition:background .15s;font-size:12px;}
+.mc-sb-item:hover{background:var(--surface2);}
+.mc-sb-item.active{background:var(--surface2);border-left-color:var(--teal,#2ec4b6);font-weight:600;color:var(--teal,#2ec4b6);}
+.mc-sb-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 12px 3px;font-weight:700;opacity:.7;}
+.mc-sb-count{font-size:10px;padding:1px 5px;border-radius:8px;background:var(--surface3);border:1px solid var(--border);margin-left:auto;}
+.mc-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;min-width:0;background:var(--bg);}
+.mc-toolbar{padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--border);background:var(--surface);flex-shrink:0;flex-wrap:wrap;}
+.mc-toolbar-title{font-family:'DM Serif Display',serif;font-size:14px;flex:1;}
+.mc-content{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-height:0;}
+.mc-item-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:10px;}
+.mc-item-card:hover{border-color:var(--teal,#2ec4b6);transform:translateY(-1px);}
+.mc-item-card.overdue-card{border-left:3px solid var(--red);}
+.mc-item-card.duesoon-card{border-left:3px solid var(--yellow);}
+.mc-item-info{flex:1;min-width:0;}
+.mc-item-name{font-size:13px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mc-item-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted);align-items:center;}
+.mc-item-actions{display:flex;gap:4px;flex-shrink:0;}
+.mc-freq-pill{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(46,196,182,.12);border:1px solid rgba(46,196,182,.4);color:var(--teal,#2ec4b6);white-space:nowrap;}
+.mc-kw-pill{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(155,109,232,.12);border:1px solid rgba(155,109,232,.4);color:var(--purple);white-space:nowrap;}
+.mc-tbl-wrap{overflow-x:auto;}
+.mc-report-tbl{width:100%;border-collapse:collapse;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;min-width:720px;}
+.mc-report-tbl th{padding:7px 10px;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;background:var(--surface3);border-bottom:1.5px solid var(--border);border-right:1px solid var(--border);text-align:left;white-space:nowrap;color:var(--muted);}
+.mc-report-tbl th:last-child{border-right:none;}
+.mc-report-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);font-size:11.5px;vertical-align:middle;}
+.mc-report-tbl td:last-child{border-right:none;}
+.mc-report-tbl tr:last-child td{border-bottom:none;}
+.mc-report-tbl tr:hover td{background:var(--surface2);}
+.mc-status-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600;white-space:nowrap;}
+.mc-status-pill.completed{background:rgba(39,201,126,.12);border:1px solid rgba(39,201,126,.35);color:var(--green);}
+.mc-status-pill.inprogress{background:rgba(240,190,48,.12);border:1px solid rgba(240,190,48,.35);color:var(--yellow);}
+.mc-status-pill.missed{background:rgba(232,67,67,.12);border:1px solid rgba(232,67,67,.35);color:var(--red);}
+.mc-status-pill.pending{background:var(--surface3);border:1px solid var(--border);color:var(--muted);}
+.mc-status-select{background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;padding:3px 7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;outline:none;cursor:pointer;}
+.mc-remarks-input{background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;outline:none;width:120px;}
+.mc-remarks-input:focus,.mc-status-select:focus{border-color:var(--accent);}
+.mc-popup{background:var(--surface);border:2px solid var(--border);border-radius:14px;width:800px;max-width:97vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow);transform:translateY(10px);transition:transform .2s;}
+.overlay.show .mc-popup{transform:translateY(0);}
+.mc-popup-hdr{padding:13px 18px;border-bottom:2px solid var(--border);background:var(--surface2);border-radius:12px 12px 0 0;display:flex;align-items:center;gap:8px;}
+.mc-popup-hdr h3{font-family:'DM Serif Display',serif;font-size:16px;flex:1;}
+.mc-popup-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px;}
+.mc-popup-meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:12px 14px;}
+.mc-meta-field .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin-bottom:3px;}
+.mc-meta-field .val{font-size:12.5px;color:var(--text);}
+.mc-checklist-label{font-family:'DM Serif Display',serif;font-size:13px;color:var(--teal,#2ec4b6);margin-bottom:6px;}
+.mc-modal{background:var(--surface);border:2px solid var(--border);border-radius:14px;width:620px;max-width:97vw;max-height:92vh;overflow-y:auto;padding:22px;box-shadow:var(--shadow);transform:translateY(12px);transition:transform .22s;}
+.overlay.show .mc-modal{transform:translateY(0);}
+.mc-modal h2{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--border);}
+.mc-empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:12.5px;}
+/* Notes action pending row colouring */
+.note-row-ap-yes td{background:rgba(232,67,67,.07)!important;}
+.note-row-ap-no td{background:rgba(39,201,126,.07)!important;}
+body.light .note-row-ap-yes td{background:rgba(220,38,38,.06)!important;}
+body.light .note-row-ap-no td{background:rgba(22,163,74,.06)!important;}
+body.light .mc-sidebar,body.light .mc-toolbar{background:#fff!important;}
+body.light .mc-popup-hdr,body.light .mc-popup-meta{background:#f4f6fc!important;}
+body.light .mc-popup{background:#fff!important;}
+
 /* ═══════════════════════════════ MOBILE ═══════════════════════════════ */
 .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface)!important;border-top:2px solid var(--border);z-index:200;padding:4px 0 env(safe-area-inset-bottom,4px);box-shadow:0 -4px 20px rgba(0,0,0,.5);}
 .mob-nav-items{display:flex;justify-content:space-around;}
@@ -598,7 +671,9 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
   <div class="app-switcher">
     <button class="app-tab active" id="tab-tracker" onclick="switchModule('tracker')">📋 Tracker</button>
     <button class="app-tab" id="tab-notes" onclick="switchModule('notes')">📝 Notes</button>
-    <button class="app-tab" id="tab-perf" onclick="switchModule('perf')">🏆 Performance</button>
+    <button class="app-tab" id="tab-perf" onclick="switchModule('perf')">🏆 Perf</button>
+    <button class="app-tab" id="tab-mis" onclick="switchModule('mis')" style="color:var(--teal,#2ec4b6)">📊 MIS</button>
+    <button class="app-tab" id="tab-compliance" onclick="switchModule('compliance')" style="color:var(--purple)">✅ Compliance</button>
   </div>
   <h1 id="app-title">Work <span>Deliverables</span> Tracker</h1>
   <div class="header-stats" id="tracker-stats">
@@ -614,6 +689,12 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
     <div class="stat"><div class="stat-num sn-green" id="stat-perf-pos">0</div><div class="stat-label">Positives</div></div>
     <div class="stat"><div class="stat-num sn-red" id="stat-perf-neg">0</div><div class="stat-label">Negatives</div></div>
   </div>
+  <div class="header-stats" id="mis-stats" style="display:none">
+    <div class="stat"><div class="stat-num sn-blue" id="stat-mis-total">0</div><div class="stat-label">Reports</div></div>
+  </div>
+  <div class="header-stats" id="compliance-stats" style="display:none">
+    <div class="stat"><div class="stat-num sn-blue" id="stat-comp-total">0</div><div class="stat-label">Items</div></div>
+  </div>
   <div id="sync-bar" class="sync-bar" title="Sync status">
     <div class="sync-dot local" id="sync-dot"></div>
     <span id="sync-label">Local only</span>
@@ -627,6 +708,9 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
 </header>
 
 <div class="mob-overlay" id="mob-overlay" onclick="closeMobSidebar()"></div>
+<div style="display:flex;flex-direction:column;flex:1;overflow:hidden;height:calc(100vh - 54px)">
+<div class="alert-ribbon" id="alert-ribbon"><div class="alert-ribbon-inner" id="alert-ribbon-inner"></div></div>
+<div style="display:flex;flex:1;overflow:hidden;min-height:0">
 
 <!-- ═══════════════════════════════ TRACKER MODULE ═══════════════════════════════ -->
 <div class="module active" id="module-tracker">
@@ -748,6 +832,7 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
               <th style="color:var(--teal,#2ec4b6)">🔗 Source</th>
               <th onclick="sortNotes('updatedAt')" style="color:var(--muted)">🕐 Updated ▾</th>
               <th style="color:var(--muted);min-width:220px">📝 Body</th>
+              <th style="color:var(--red);white-space:nowrap">⚡ Action</th>
               <th style="color:var(--muted);width:60px">Actions</th>
             </tr></thead>
             <tbody id="notes-tbody"></tbody>
@@ -776,6 +861,13 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
           <div class="note-meta-field"><label>🕐 Mail Time:</label><input type="time" id="note-mail-time" oninput="markNoteUnsaved()"/></div>
           <div class="note-meta-field"><label>👥 Participants:</label><input type="text" id="note-participants" placeholder="Names…" oninput="markNoteUnsaved()"/></div>
           <div class="note-meta-field"><label>🔗 Source:</label><input type="text" id="note-source" placeholder="URL or reference…" oninput="markNoteUnsaved()"/></div>
+          <div class="note-meta-field"><label>⚡ Action Pending:</label>
+            <select id="note-action-pending" onchange="markNoteUnsaved()" style="width:90px">
+              <option value="">—</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
         </div>
         <div class="rte-toolbar">
           <select class="rte-select" onchange="rteExec('fontSize',this.value)">
@@ -941,6 +1033,132 @@ body.light .note-popup-header,body.light .note-popup-meta{background:#f4f6fc!imp
     <div class="modal-actions"><button class="btn-primary" onclick="closeModal('perf-members-modal')">Done</button></div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════ MIS REPORTS MODULE ═══════════════════════════════ -->
+<div class="module" id="module-mis">
+  <div class="mc-module">
+    <div class="mc-sidebar" id="mis-sidebar">
+      <div class="mc-sb-header">
+        <h3>📊 MIS Reports</h3>
+        <button class="btn-primary" style="padding:4px 9px;font-size:11px" onclick="openMcModal('mis',null)">＋</button>
+      </div>
+      <div class="mc-sb-list" id="mis-sb-list"></div>
+    </div>
+    <div class="mc-main">
+      <div class="mc-toolbar">
+        <div class="mc-toolbar-title" id="mis-toolbar-title">All MIS Reports</div>
+        <button class="btn-primary" onclick="openMcModal('mis',null)">＋ Add Report</button>
+      </div>
+      <div class="mc-content" id="mis-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ COMPLIANCE MANAGER MODULE ═══════════════════════════════ -->
+<div class="module" id="module-compliance">
+  <div class="mc-module">
+    <div class="mc-sidebar" id="compliance-sidebar">
+      <div class="mc-sb-header">
+        <h3>✅ Compliance</h3>
+        <button class="btn-primary" style="padding:4px 9px;font-size:11px" onclick="openMcModal('compliance',null)">＋</button>
+      </div>
+      <div class="mc-sb-list" id="compliance-sb-list"></div>
+    </div>
+    <div class="mc-main">
+      <div class="mc-toolbar">
+        <div class="mc-toolbar-title" id="compliance-toolbar-title">All Compliance Items</div>
+        <button class="btn-primary" onclick="openMcModal('compliance',null)">＋ Add Item</button>
+      </div>
+      <div class="mc-content" id="compliance-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MIS ADD/EDIT MODAL -->
+<div class="overlay" id="mis-modal">
+  <div class="mc-modal">
+    <h2 id="mis-modal-title">＋ Add MIS Report</h2>
+    <div class="m-grid full" style="margin-bottom:10px"><div class="field"><label>📊 Report Name</label><input type="text" id="mis-name" placeholder="e.g. Monthly P&L Report…"/></div></div>
+    <div class="m-grid" style="margin-bottom:10px">
+      <div class="field"><label>📅 First Due Date</label><input type="date" id="mis-duedate"/></div>
+      <div class="field"><label>🔁 Frequency</label>
+        <select id="mis-frequency">
+          <option value="weekly">Weekly</option>
+          <option value="monthly" selected>Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="halfyearly">Half Yearly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+    </div>
+    <div class="m-grid" style="margin-bottom:10px">
+      <div class="field"><label>📅 Valid Till</label><input type="date" id="mis-validtill"/></div>
+      <div class="field"><label>👤 Person Responsible</label><input type="text" id="mis-person" placeholder="Name…"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('mis-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveMcItem('mis')">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLIANCE ADD/EDIT MODAL -->
+<div class="overlay" id="compliance-modal">
+  <div class="mc-modal">
+    <h2 id="compliance-modal-title">＋ Add Compliance Item</h2>
+    <div class="m-grid full" style="margin-bottom:10px"><div class="field"><label>✅ Compliance Item Name</label><input type="text" id="comp-name" placeholder="e.g. GST Filing, TDS Return…"/></div></div>
+    <div class="m-grid" style="margin-bottom:10px">
+      <div class="field"><label>🏷 Keyword</label><input type="text" id="comp-keyword" placeholder="e.g. GST, TDS, ROC…"/></div>
+      <div class="field"><label>🔁 Frequency</label>
+        <select id="comp-frequency">
+          <option value="weekly">Weekly</option>
+          <option value="monthly" selected>Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="halfyearly">Half Yearly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+    </div>
+    <div class="m-grid" style="margin-bottom:10px">
+      <div class="field"><label>📅 First Due Date</label><input type="date" id="comp-duedate"/></div>
+      <div class="field"><label>📅 Valid Till</label><input type="date" id="comp-validtill"/></div>
+    </div>
+    <div class="m-grid full" style="margin-bottom:10px">
+      <div class="field"><label>👤 Person Responsible</label><input type="text" id="comp-person" placeholder="Name…"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('compliance-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveMcItem('compliance')">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MIS/COMPLIANCE DETAIL POPUP -->
+<div class="overlay" id="mc-detail-overlay" onclick="handleMcDetailBgClick(event)">
+  <div class="mc-popup">
+    <div class="mc-popup-hdr">
+      <h3 id="mc-detail-title"></h3>
+      <div style="display:flex;gap:6px">
+        <button class="ne-btn save-btn" id="mc-detail-edit-btn">✏️ Edit</button>
+        <button class="ne-btn del-btn" id="mc-detail-del-btn">🗑 Delete</button>
+        <button class="ne-btn" onclick="closeModal('mc-detail-overlay')">✕ Close</button>
+      </div>
+    </div>
+    <div class="mc-popup-body">
+      <div class="mc-popup-meta" id="mc-detail-meta"></div>
+      <div class="mc-checklist-label">📋 Checklist</div>
+      <div class="mc-tbl-wrap"><table class="mc-report-tbl" id="mc-detail-checklist">
+        <thead><tr>
+          <th>#</th><th>Due Date</th><th>Status</th><th>Remarks</th>
+        </tr></thead>
+        <tbody id="mc-detail-checklist-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /inner flex -->
+</div><!-- /outer flex column -->
 
 <!-- ═══════════════════════════════ MOBILE NAV ═══════════════════════════════ -->
 <nav class="mob-nav">
@@ -1166,6 +1384,12 @@ if(!notesState.categories) notesState.categories=[];
 let perfState = JSON.parse(localStorage.getItem('wdt-perf-v1')||'null') || {
   members:[], entries:[], nextMemberId:1, nextEntryId:1
 };
+let misState = JSON.parse(localStorage.getItem('wdt-mis-v1')||'null') || {
+  items:[], nextId:1
+};
+let complianceState = JSON.parse(localStorage.getItem('wdt-comp-v1')||'null') || {
+  items:[], nextId:1
+};
 
 let currentFilter='today', groupBy='none', showCompleted=false, editingTaskId=null;
 let taskType='manual', selectedTaskId=null, sortCol='added', sortDir=1;
@@ -1187,6 +1411,8 @@ function _saveLocal(){
   localStorage.setItem('wdt-v5', JSON.stringify(state));
   localStorage.setItem('wdt-notes-v1', JSON.stringify(notesState));
   localStorage.setItem('wdt-perf-v1', JSON.stringify(perfState));
+  localStorage.setItem('wdt-mis-v1', JSON.stringify(misState));
+  localStorage.setItem('wdt-comp-v1', JSON.stringify(complianceState));
 }
 function save(){
   _saveLocal();
@@ -1234,24 +1460,23 @@ applyTheme();
 // ══════════════════════════════════════════════════════════════
 function switchModule(mod){
   currentModule=mod;
-  ['tracker','notes','perf'].forEach(m=>{
+  ['tracker','notes','perf','mis','compliance'].forEach(m=>{
     const mel=document.getElementById('module-'+m);
     const tel=document.getElementById('tab-'+m);
     if(mel)mel.classList.toggle('active',m===mod);
     if(tel)tel.classList.toggle('active',m===mod);
   });
-  document.getElementById('tracker-stats').style.display=mod==='tracker'?'flex':'none';
-  document.getElementById('notes-stats').style.display=mod==='notes'?'flex':'none';
-  document.getElementById('perf-stats').style.display=mod==='perf'?'flex':'none';
-  const titles={tracker:'Work <span>Deliverables</span> Tracker',notes:'<span>Notes</span>',perf:'Team <span>Performance</span> Assessment'};
+  const statsIds=['tracker-stats','notes-stats','perf-stats','mis-stats','compliance-stats'];
+  const modStats={tracker:'tracker-stats',notes:'notes-stats',perf:'perf-stats',mis:'mis-stats',compliance:'compliance-stats'};
+  statsIds.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const active=document.getElementById(modStats[mod]);if(active)active.style.display='flex';
+  const titles={tracker:'Work <span>Deliverables</span> Tracker',notes:'<span>Notes</span>',perf:'Team <span>Performance</span> Assessment',mis:'<span>MIS</span> Reports Manager',compliance:'<span>Compliance</span> Manager'};
   document.getElementById('app-title').innerHTML=titles[mod]||'';
   document.getElementById('mob-menu-btn').onclick=mod==='tracker'?toggleMobSidebar:(mod==='notes'?toggleMobNotesSidebar:()=>{});
-  if(mod==='notes'){
-    document.getElementById('notes-dashboard').style.display='flex';
-    document.getElementById('note-editor').style.display='none';
-    renderNotesCategorySidebar();renderNotesDashboard();
-  }
+  if(mod==='notes'){document.getElementById('notes-dashboard').style.display='flex';document.getElementById('note-editor').style.display='none';renderNotesCategorySidebar();renderNotesDashboard();}
   if(mod==='perf'){renderPerfSidebar();showPerfDashboard();}
+  if(mod==='mis'){renderMcModule('mis');}
+  if(mod==='compliance'){renderMcModule('compliance');}
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1962,10 +2187,13 @@ function renderNotesDashboard(){
       <td>${sourceHtml}</td>
       <td style="white-space:nowrap;font-size:11px;color:var(--muted)">${updStr}</td>
       <td><div class="note-body-cell">${bodyPreview}</div></td>
+      <td style="white-space:nowrap;text-align:center">${n.actionPending==='yes'?'<span style="color:var(--red);font-weight:700;font-size:11px">⚡ Yes</span>':n.actionPending==='no'?'<span style="color:var(--green);font-weight:700;font-size:11px">✓ No</span>':'<span style="color:var(--muted);font-size:10.5px">—</span>'}</td>
       <td style="white-space:nowrap">
         <button class="notes-row-btn edit" onclick="event.stopPropagation();openNoteEditor(${n.id})" title="Edit">✏️</button>
         <button class="notes-row-btn del" onclick="event.stopPropagation();confirmDeleteNoteById(${n.id})" title="Delete">🗑</button>
       </td>`;
+    if(n.actionPending==='yes')tr.classList.add('note-row-ap-yes');
+    else if(n.actionPending==='no')tr.classList.add('note-row-ap-no');
     tr.onclick=()=>openNotePopup(n.id);
     tbody.appendChild(tr);
   });
@@ -2072,6 +2300,7 @@ function openNoteEditor(id){
   document.getElementById('note-mail-time').value=note.mailTime||'';
   document.getElementById('note-participants').value=note.participants||'';
   document.getElementById('note-source').value=note.source||'';
+  document.getElementById('note-action-pending').value=note.actionPending||'';
   document.getElementById('note-content-editor').innerHTML=note.body||'';
   markNoteSaved();
 }
@@ -2123,6 +2352,7 @@ function _doSaveNote(){
   note.mailTime=document.getElementById('note-mail-time').value||'';
   note.participants=document.getElementById('note-participants').value.trim();
   note.source=document.getElementById('note-source').value.trim();
+  note.actionPending=document.getElementById('note-action-pending').value||'';
   note.updatedAt=new Date().toISOString();
   save();
 }
@@ -2296,9 +2526,13 @@ function attachFirebaseListener(){
         if(cloud.perf.nextMemberId!==undefined)perfState.nextMemberId=cloud.perf.nextMemberId;
         if(cloud.perf.nextEntryId!==undefined)perfState.nextEntryId=cloud.perf.nextEntryId;
       }
+      if(cloud.mis){if(cloud.mis.items!==undefined)misState.items=cloud.mis.items;if(cloud.mis.nextId!==undefined)misState.nextId=cloud.mis.nextId;}
+      if(cloud.compliance){if(cloud.compliance.items!==undefined)complianceState.items=cloud.compliance.items;if(cloud.compliance.nextId!==undefined)complianceState.nextId=cloud.compliance.nextId;}
       _saveLocal();renderAll();
       if(currentModule==='notes'){renderNotesCategorySidebar();renderNotesDashboard();}
       if(currentModule==='perf'){renderPerfSidebar();showPerfDashboard();}
+      if(currentModule==='mis'||currentModule==='compliance'){renderMcModule(currentModule);}
+      renderAlertRibbon();
       setSyncStatus('synced','Synced');syncEnabled=true;
     }finally{isSyncing=false;appReady=true;}
     const lu=document.getElementById('sync-last-updated');
@@ -2312,11 +2546,11 @@ function attachFirebaseListener(){
 
 function pushToCloud(){
   // FIX: never push blank/default state
-  const isDefault=state.tasks.length===0&&state.members.length<=3&&state.members.every(m=>['Ravi Kumar','Priya Sharma','Arjun Singh'].includes(m.name))&&notesState.notes.length===0&&perfState.entries.length===0;
+  const isDefault=state.tasks.length===0&&state.members.length<=3&&state.members.every(m=>['Ravi Kumar','Priya Sharma','Arjun Singh'].includes(m.name))&&notesState.notes.length===0&&perfState.entries.length===0&&misState.items.length===0&&complianceState.items.length===0;
   if(isDefault){showToast('⚠ Nothing to push — data appears empty','warn');return;}
   if(!fbDb||!fbSyncPath){showToast('Set sync password first','warn');return;}
   setSyncStatus('syncing','Pushing…');justPushed=true;
-  const payload={...state,notes:notesState,perf:perfState,_updatedAt:Date.now()};
+  const payload={...state,notes:notesState,perf:perfState,mis:misState,compliance:complianceState,_updatedAt:Date.now()};
   fbDb.ref(fbSyncPath).set(payload).then(()=>{setSyncStatus('synced','Synced');syncEnabled=true;showToast('✅ Pushed to cloud','success');}).catch(err=>{justPushed=false;setSyncStatus('offline','Push failed');showToast('Push failed: '+err.message,'warn');});
 }
 
@@ -2334,9 +2568,13 @@ function pullFromCloud(){
     if(cloud.nextTodayId!==undefined)state.nextTodayId=cloud.nextTodayId;
     if(cloud.notes){if(cloud.notes.notes!==undefined)notesState.notes=cloud.notes.notes;if(cloud.notes.nextNoteId!==undefined)notesState.nextNoteId=cloud.notes.nextNoteId;if(cloud.notes.categories!==undefined)notesState.categories=cloud.notes.categories;}
     if(cloud.perf){if(cloud.perf.members!==undefined)perfState.members=cloud.perf.members;if(cloud.perf.entries!==undefined)perfState.entries=cloud.perf.entries;if(cloud.perf.nextMemberId!==undefined)perfState.nextMemberId=cloud.perf.nextMemberId;if(cloud.perf.nextEntryId!==undefined)perfState.nextEntryId=cloud.perf.nextEntryId;}
+    if(cloud.mis){if(cloud.mis.items!==undefined)misState.items=cloud.mis.items;if(cloud.mis.nextId!==undefined)misState.nextId=cloud.mis.nextId;}
+    if(cloud.compliance){if(cloud.compliance.items!==undefined)complianceState.items=cloud.compliance.items;if(cloud.compliance.nextId!==undefined)complianceState.nextId=cloud.compliance.nextId;}
     _saveLocal();renderAll();
     if(currentModule==='notes'){renderNotesCategorySidebar();renderNotesDashboard();}
     if(currentModule==='perf'){renderPerfSidebar();showPerfDashboard();}
+    if(currentModule==='mis'||currentModule==='compliance'){renderMcModule(currentModule);}
+    renderAlertRibbon();
     setSyncStatus('synced','Synced');showToast('✅ Pulled from cloud','success');
   }).catch(err=>{setSyncStatus('offline','Pull failed');showToast('Pull failed: '+err.message,'warn');});
 }
@@ -2744,8 +2982,224 @@ function exportPerfToExcel(grp){
   a.download=`performance-export-${today()}.csv`;a.click();
   showToast(`Exported ${entries.length} entries to CSV`,'success');
 }
+// ══════════════════════════════════════════════════════════════
+// MIS REPORTS & COMPLIANCE MANAGER
+// ══════════════════════════════════════════════════════════════
+const MC_FREQ_LABEL={weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',halfyearly:'Half Yearly',yearly:'Yearly'};
+let mcDetailItemId=null,mcDetailType=null,mcEditingId=null,mcEditingType=null;
+function getMcState(type){return type==='mis'?misState:complianceState;}
+
+function generateChecklist(firstDue,frequency,validTill){
+  if(!firstDue||!frequency||!validTill)return[];
+  const items=[];let d=new Date(firstDue);const end=new Date(validTill);let n=1;
+  while(d<=end){
+    items.push({n,dueDate:d.toISOString().substring(0,10),status:'pending',remarks:''});
+    const nd=new Date(d);
+    if(frequency==='weekly')nd.setDate(nd.getDate()+7);
+    else if(frequency==='monthly')nd.setMonth(nd.getMonth()+1);
+    else if(frequency==='quarterly')nd.setMonth(nd.getMonth()+3);
+    else if(frequency==='halfyearly')nd.setMonth(nd.getMonth()+6);
+    else nd.setFullYear(nd.getFullYear()+1);
+    if(+nd===+d)break;d=nd;n++;if(n>500)break;
+  }
+  return items;
+}
+
+function renderMcSidebar(type){
+  const st=getMcState(type);
+  const sb=document.getElementById(type+'-sb-list');sb.innerHTML='';
+  const allItem=document.createElement('div');
+  allItem.className='mc-sb-item';
+  allItem.innerHTML=`<span>📋</span><span style="flex:1">All ${type==='mis'?'Reports':'Items'}</span><span class="mc-sb-count">${st.items.length}</span>`;
+  allItem.onclick=()=>{renderMcContent(type);};
+  sb.appendChild(allItem);
+  const monthLabel=document.createElement('div');monthLabel.className='mc-sb-label';monthLabel.textContent='Monthly Report';
+  sb.appendChild(monthLabel);
+  const monthSet={};
+  st.items.forEach(item=>{(item.checklist||[]).forEach(cl=>{if(cl.dueDate){const ym=cl.dueDate.substring(0,7);if(!monthSet[ym])monthSet[ym]=0;monthSet[ym]++;}});});
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  Object.keys(monthSet).sort().reverse().forEach(ym=>{
+    const[y,m]=ym.split('-');
+    const div=document.createElement('div');div.className='mc-sb-item';
+    div.innerHTML=`<span>📅</span><span style="flex:1">${mo[parseInt(m)-1]} ${y}</span><span class="mc-sb-count">${monthSet[ym]}</span>`;
+    div.onclick=()=>renderMcContent(type,ym);
+    sb.appendChild(div);
+  });
+  const statEl=document.getElementById('stat-'+(type==='mis'?'mis-total':'comp-total'));
+  if(statEl)statEl.textContent=st.items.length;
+}
+
+function renderMcModule(type){renderMcSidebar(type);renderMcContent(type);}
+
+function renderMcContent(type,monthFilter){
+  const st=getMcState(type);
+  const content=document.getElementById(type+'-content');content.innerHTML='';
+  const toolbar=document.getElementById(type+'-toolbar-title');
+  if(monthFilter){
+    const[y,m]=monthFilter.split('-');
+    const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if(toolbar)toolbar.textContent=`${mo[parseInt(m)-1]} ${y} — ${type==='mis'?'MIS':'Compliance'} Status`;
+    const rows=[];
+    st.items.forEach(item=>{(item.checklist||[]).forEach((cl,ci)=>{if((cl.dueDate||'').startsWith(monthFilter))rows.push({item,cl,ci});});});
+    if(rows.length===0){const e=document.createElement('div');e.className='mc-empty';e.innerHTML='<div style="font-size:28px;margin-bottom:8px">📅</div><p>No checklist items for this month.</p>';content.appendChild(e);return;}
+    const wrap=document.createElement('div');wrap.className='mc-tbl-wrap';
+    const tbl=document.createElement('table');tbl.className='mc-report-tbl';
+    tbl.innerHTML=`<thead><tr><th>${type==='mis'?'Report Name':'Compliance Item'}</th>${type==='compliance'?'<th>Keyword</th>':''}<th>Person Responsible</th><th>Frequency</th><th>Due Date</th><th>Status</th><th>Remarks</th></tr></thead>`;
+    const tbody=document.createElement('tbody');
+    rows.forEach(({item,cl})=>{
+      const tr=document.createElement('tr');
+      const kwCell=type==='compliance'?`<td>${item.keyword?`<span class="mc-kw-pill">${escHtml(item.keyword)}</span>`:'—'}</td>`:'';
+      tr.innerHTML=`<td style="font-weight:600">${escHtml(item.name)}</td>${kwCell}<td>${escHtml(item.person||'—')}</td><td><span class="mc-freq-pill">${MC_FREQ_LABEL[item.frequency]||item.frequency}</span></td><td style="white-space:nowrap">${fmt(cl.dueDate)}</td><td></td><td></td>`;
+      const colOffset=type==='compliance'?1:0;
+      const sel=document.createElement('select');sel.className='mc-status-select';
+      ['pending','inprogress','completed','missed'].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent={pending:'Pending',inprogress:'In Progress',completed:'Completed',missed:'Missed'}[s];if(cl.status===s)o.selected=true;sel.appendChild(o);});
+      sel.onchange=()=>{cl.status=sel.value;save();renderAlertRibbon();};
+      tr.cells[4+colOffset].appendChild(sel);
+      const rem=document.createElement('input');rem.type='text';rem.className='mc-remarks-input';rem.value=cl.remarks||'';rem.placeholder='Remarks…';
+      rem.onchange=()=>{cl.remarks=rem.value.trim();save();};
+      tr.cells[5+colOffset].appendChild(rem);
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);wrap.appendChild(tbl);content.appendChild(wrap);
+  }else{
+    if(toolbar)toolbar.textContent=`All ${type==='mis'?'MIS Reports':'Compliance Items'}`;
+    if(st.items.length===0){const e=document.createElement('div');e.className='mc-empty';e.innerHTML=`<div style="font-size:32px;margin-bottom:8px">${type==='mis'?'📊':'✅'}</div><p>No ${type==='mis'?'MIS reports':'compliance items'} yet. Click <strong>＋ Add</strong> to create one.</p>`;content.appendChild(e);return;}
+    st.items.forEach(item=>{
+      const nextDue=getNextMcDue(item);
+      const daysLeft=nextDue?Math.ceil((new Date(nextDue)-new Date())/86400000):null;
+      const done=(item.checklist||[]).filter(c=>c.status==='completed').length;
+      const total=(item.checklist||[]).length;
+      const card=document.createElement('div');
+      card.className='mc-item-card'+(daysLeft!==null&&daysLeft<0?' overdue-card':daysLeft!==null&&daysLeft<=5?' duesoon-card':'');
+      card.innerHTML=`<div class="mc-item-info"><div class="mc-item-name">${escHtml(item.name)}</div><div class="mc-item-meta"><span class="mc-freq-pill">${MC_FREQ_LABEL[item.frequency]||''}</span>${type==='compliance'&&item.keyword?`<span class="mc-kw-pill">${escHtml(item.keyword)}</span>`:''}<span>👤 ${escHtml(item.person||'—')}</span><span>📅 Next: ${nextDue?fmt(nextDue):'—'}</span><span>✅ ${done}/${total}</span><span>Valid till: ${item.validTill?fmt(item.validTill):'—'}</span></div></div><div class="mc-item-actions"><button class="perf-row-btn edit" onclick="event.stopPropagation();openMcModal('${type}','${item.id}')" title="Edit">✏️</button><button class="perf-row-btn del" onclick="event.stopPropagation();deleteMcItem('${type}','${item.id}',false)" title="Delete">🗑</button></div>`;
+      card.onclick=()=>openMcDetail(type,item.id);
+      content.appendChild(card);
+    });
+  }
+}
+
+function getNextMcDue(item){
+  const pending=(item.checklist||[]).filter(c=>c.status!=='completed'&&c.status!=='missed');
+  if(!pending.length)return null;
+  return pending.sort((a,b)=>a.dueDate.localeCompare(b.dueDate))[0].dueDate;
+}
+
+function openMcDetail(type,id){
+  const st=getMcState(type);const item=st.items.find(x=>x.id===id);if(!item)return;
+  document.getElementById('mc-detail-title').textContent=(type==='mis'?'📊 ':'✅ ')+item.name;
+  const meta=document.getElementById('mc-detail-meta');meta.innerHTML='';
+  const fields=[['Frequency',MC_FREQ_LABEL[item.frequency]||item.frequency],['First Due',item.firstDue?fmt(item.firstDue):'—'],['Valid Till',item.validTill?fmt(item.validTill):'—'],['Person Responsible',item.person||'—']];
+  if(type==='compliance'&&item.keyword)fields.push(['Keyword',item.keyword]);
+  fields.forEach(([l,v])=>{const d=document.createElement('div');d.className='mc-meta-field';d.innerHTML=`<div class="lbl">${l}</div><div class="val">${escHtml(String(v))}</div>`;meta.appendChild(d);});
+  const tbody=document.getElementById('mc-detail-checklist-body');tbody.innerHTML='';
+  (item.checklist||[]).forEach((cl,ci)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="color:var(--muted);font-size:11px;width:30px">${cl.n||ci+1}</td><td style="white-space:nowrap">${fmt(cl.dueDate)}</td><td></td><td></td>`;
+    const sel=document.createElement('select');sel.className='mc-status-select';
+    ['pending','inprogress','completed','missed'].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent={pending:'Pending',inprogress:'In Progress',completed:'Completed',missed:'Missed'}[s];if(cl.status===s)o.selected=true;sel.appendChild(o);});
+    sel.onchange=()=>{cl.status=sel.value;save();renderAlertRibbon();renderMcSidebar(type);};
+    tr.cells[2].appendChild(sel);
+    const rem=document.createElement('input');rem.type='text';rem.className='mc-remarks-input';rem.style.width='200px';rem.value=cl.remarks||'';rem.placeholder='Remarks…';rem.onchange=()=>{cl.remarks=rem.value.trim();save();};
+    tr.cells[3].appendChild(rem);
+    tbody.appendChild(tr);
+  });
+  document.getElementById('mc-detail-edit-btn').onclick=()=>{closeModal('mc-detail-overlay');openMcModal(type,id);};
+  document.getElementById('mc-detail-del-btn').onclick=()=>deleteMcItem(type,id,true);
+  openModal('mc-detail-overlay');
+}
+function handleMcDetailBgClick(e){if(e.target===document.getElementById('mc-detail-overlay'))closeModal('mc-detail-overlay');}
+
+function openMcModal(type,id){
+  mcEditingId=id;mcEditingType=type;
+  const isEdit=!!id;
+  if(type==='mis'){
+    document.getElementById('mis-modal-title').textContent=isEdit?'✏️ Edit MIS Report':'＋ Add MIS Report';
+    document.getElementById('mis-name').value='';document.getElementById('mis-duedate').value='';document.getElementById('mis-frequency').value='monthly';document.getElementById('mis-validtill').value='';document.getElementById('mis-person').value='';
+    if(isEdit){const item=misState.items.find(x=>x.id===id);if(item){document.getElementById('mis-name').value=item.name||'';document.getElementById('mis-duedate').value=item.firstDue||'';document.getElementById('mis-frequency').value=item.frequency||'monthly';document.getElementById('mis-validtill').value=item.validTill||'';document.getElementById('mis-person').value=item.person||'';}}
+    openModal('mis-modal');
+  }else{
+    document.getElementById('compliance-modal-title').textContent=isEdit?'✏️ Edit Compliance Item':'＋ Add Compliance Item';
+    document.getElementById('comp-name').value='';document.getElementById('comp-keyword').value='';document.getElementById('comp-duedate').value='';document.getElementById('comp-frequency').value='monthly';document.getElementById('comp-validtill').value='';document.getElementById('comp-person').value='';
+    if(isEdit){const item=complianceState.items.find(x=>x.id===id);if(item){document.getElementById('comp-name').value=item.name||'';document.getElementById('comp-keyword').value=item.keyword||'';document.getElementById('comp-duedate').value=item.firstDue||'';document.getElementById('comp-frequency').value=item.frequency||'monthly';document.getElementById('comp-validtill').value=item.validTill||'';document.getElementById('comp-person').value=item.person||'';}}
+    openModal('compliance-modal');
+  }
+}
+
+function saveMcItem(type){
+  const isEdit=!!mcEditingId;
+  let name,firstDue,frequency,validTill,person,keyword='';
+  if(type==='mis'){name=document.getElementById('mis-name').value.trim();firstDue=document.getElementById('mis-duedate').value;frequency=document.getElementById('mis-frequency').value;validTill=document.getElementById('mis-validtill').value;person=document.getElementById('mis-person').value.trim();}
+  else{name=document.getElementById('comp-name').value.trim();keyword=document.getElementById('comp-keyword').value.trim();firstDue=document.getElementById('comp-duedate').value;frequency=document.getElementById('comp-frequency').value;validTill=document.getElementById('comp-validtill').value;person=document.getElementById('comp-person').value.trim();}
+  if(!name){showToast('Name is required','warn');return;}
+  if(!firstDue||!validTill){showToast('Due date and Valid Till are required','warn');return;}
+  const st=getMcState(type);
+  if(isEdit){
+    const item=st.items.find(x=>x.id===mcEditingId);if(!item)return;
+    const needsRegen=item.firstDue!==firstDue||item.frequency!==frequency||item.validTill!==validTill;
+    item.name=name;item.firstDue=firstDue;item.frequency=frequency;item.validTill=validTill;item.person=person;
+    if(type==='compliance')item.keyword=keyword;
+    if(needsRegen){const oldByDate={};(item.checklist||[]).forEach(c=>oldByDate[c.dueDate]={status:c.status,remarks:c.remarks});item.checklist=generateChecklist(firstDue,frequency,validTill);item.checklist.forEach(c=>{if(oldByDate[c.dueDate]){c.status=oldByDate[c.dueDate].status;c.remarks=oldByDate[c.dueDate].remarks;}});}
+  }else{
+    const newItem={id:st.nextId++,name,firstDue,frequency,validTill,person,keyword,checklist:generateChecklist(firstDue,frequency,validTill),createdAt:new Date().toISOString()};
+    st.items.push(newItem);
+  }
+  save();closeModal(type+'-modal');renderMcModule(type);renderAlertRibbon();
+  showToast(isEdit?'Updated':'Added','success');
+}
+
+function deleteMcItem(type,id,fromPopup){
+  const st=getMcState(type);const item=st.items.find(x=>x.id===id);
+  showConfirm('🗑','Delete Item',`Delete "${item?.name||'this item'}"? All checklist data will be lost.`,'Delete','var(--red)',()=>{
+    st.items=st.items.filter(x=>x.id!==id);
+    if(fromPopup)closeModal('mc-detail-overlay');
+    save();renderMcModule(type);renderAlertRibbon();showToast('Deleted','info');
+  });
+}
+
+// ── Alert Ribbon ───────────────────────────────────────────────
+function renderAlertRibbon(){
+  const ribbon=document.getElementById('alert-ribbon');if(!ribbon)return;
+  const inner=document.getElementById('alert-ribbon-inner');inner.innerHTML='';
+  const todayStr=today();
+  const t=new Date();
+  const d1=new Date(t);d1.setDate(d1.getDate()+1);const d1Str=`${d1.getFullYear()}-${String(d1.getMonth()+1).padStart(2,'0')}-${String(d1.getDate()).padStart(2,'0')}`;
+  const d5=new Date(t);d5.setDate(d5.getDate()+5);const d5Str=`${d5.getFullYear()}-${String(d5.getMonth()+1).padStart(2,'0')}-${String(d5.getDate()).padStart(2,'0')}`;
+  const alerts=[];
+  [[misState,'MIS'],[complianceState,'Compliance']].forEach(([st,label])=>{
+    st.items.forEach(item=>{
+      (item.checklist||[]).forEach(cl=>{
+        if(cl.status==='completed'||cl.status==='missed')return;
+        const dd=cl.dueDate;
+        let cls='',tag='';
+        if(dd===todayStr){cls='due-today';tag='🔴 Due Today';}
+        else if(dd===d1Str){cls='due-1';tag='🟠 Due Tomorrow';}
+        else if(dd===d5Str){cls='due-5';tag='🟡 Due in 5 days';}
+        if(cls)alerts.push({cls,tag,name:item.name,person:item.person||'',due:fmt(dd),label});
+      });
+    });
+  });
+  if(alerts.length===0){ribbon.classList.remove('has-alerts');return;}
+  ribbon.classList.add('has-alerts');
+  const lbl=document.createElement('span');lbl.className='alert-ribbon-label';lbl.textContent='⚠ Upcoming:';inner.appendChild(lbl);
+  alerts.forEach(a=>{
+    const chip=document.createElement('span');chip.className=`alert-chip ${a.cls}`;
+    chip.innerHTML=`${a.tag} — <strong>${escHtml(a.name)}</strong> · ${escHtml(a.person)} · ${a.due} <span style="font-size:9px;opacity:.7">[${a.label}]</span>`;
+    inner.appendChild(chip);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// NOTES — Action Pending field (patch into renderNotesDashboard)
+// ══════════════════════════════════════════════════════════════
+// Wrapped after the notes table header to add Action Pending column
+// The actual row colouring and field is handled via note.actionPending
+// We patch the notes table header and row building here:
+const _origBuildNotesTable=window._buildNotesTablePatched;
+// Notes action pending is injected inline — see renderNotesDashboard override below
+
 function init(){
   renderAll();
+  renderAlertRibbon();
   initFirebase();
   // PWA manifest
   try{
