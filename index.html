@@ -3035,11 +3035,22 @@ function renderMcSidebar(type){
   const monthSet={};
   st.items.forEach(item=>{(item.checklist||[]).forEach(cl=>{if(cl.dueDate){const ym=cl.dueDate.substring(0,7);if(!monthSet[ym])monthSet[ym]=0;monthSet[ym]++;}});});
   const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  // Sort descending — latest month first
-  Object.keys(monthSet).sort((a,b)=>b.localeCompare(a)).forEach(ym=>{
+  // Sort: current month first, then future months ascending, then past months ascending
+  const nowYM=today().substring(0,7);
+  const sortedMonths=Object.keys(monthSet).sort((a,b)=>{
+    const aIsFuture=a>=nowYM, bIsFuture=b>=nowYM;
+    if(a===nowYM)return-1;
+    if(b===nowYM)return 1;
+    if(aIsFuture&&bIsFuture)return a.localeCompare(b); // both future: ascending
+    if(!aIsFuture&&!bIsFuture)return a.localeCompare(b); // both past: ascending
+    return aIsFuture?-1:1; // future before past
+  });
+  sortedMonths.forEach(ym=>{
     const[y,m]=ym.split('-');
+    const isCurrent=ym===nowYM;
     const div=document.createElement('div');div.className='mc-sb-item';
-    div.innerHTML=`<span>📅</span><span style="flex:1">${mo[parseInt(m)-1]} ${y}</span><span class="mc-sb-count">${monthSet[ym]}</span>`;
+    div.innerHTML=`<span>📅</span><span style="flex:1">${mo[parseInt(m)-1]} ${y}${isCurrent?' ●':''}</span><span class="mc-sb-count">${monthSet[ym]}</span>`;
+    if(isCurrent)div.style.cssText+='font-weight:700;';
     div.onclick=()=>renderMcContent(type,ym);
     sb.appendChild(div);
   });
