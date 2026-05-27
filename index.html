@@ -3118,7 +3118,8 @@ function getNextMcDue(item){
 }
 
 function openMcDetail(type,id){
-  const st=getMcState(type);const item=st.items.find(x=>x.id===id);if(!item)return;
+  const numId=parseInt(id);
+  const st=getMcState(type);const item=st.items.find(x=>x.id===numId);if(!item)return;
   document.getElementById('mc-detail-title').textContent=(type==='mis'?'📊 ':'✅ ')+item.name;
   const meta=document.getElementById('mc-detail-meta');meta.innerHTML='';
   const fields=[['Frequency',MC_FREQ_LABEL[item.frequency]||item.frequency],['First Due',item.firstDue?fmt(item.firstDue):'—'],['Valid Till',item.validTill?fmt(item.validTill):'—'],['Person Responsible',item.person||'—']];
@@ -3147,17 +3148,18 @@ function openMcDetail(type,id){
 function handleMcDetailBgClick(e){if(e.target===document.getElementById('mc-detail-overlay'))closeModal('mc-detail-overlay');}
 
 function openMcModal(type,id){
-  mcEditingId=id;mcEditingType=type;
-  const isEdit=!!id;
+  const numId=id?parseInt(id):null;
+  mcEditingId=numId;mcEditingType=type;
+  const isEdit=!!numId;
   if(type==='mis'){
     document.getElementById('mis-modal-title').textContent=isEdit?'✏️ Edit MIS Report':'＋ Add MIS Report';
     document.getElementById('mis-name').value='';document.getElementById('mis-duedate').value='';document.getElementById('mis-frequency').value='monthly';document.getElementById('mis-validtill').value='';document.getElementById('mis-person').value='';
-    if(isEdit){const item=misState.items.find(x=>x.id===id);if(item){document.getElementById('mis-name').value=item.name||'';document.getElementById('mis-duedate').value=item.firstDue||'';document.getElementById('mis-frequency').value=item.frequency||'monthly';document.getElementById('mis-validtill').value=item.validTill||'';document.getElementById('mis-person').value=item.person||'';}}
+    if(isEdit){const item=misState.items.find(x=>x.id===numId);if(item){document.getElementById('mis-name').value=item.name||'';document.getElementById('mis-duedate').value=item.firstDue||'';document.getElementById('mis-frequency').value=item.frequency||'monthly';document.getElementById('mis-validtill').value=item.validTill||'';document.getElementById('mis-person').value=item.person||'';}}
     openModal('mis-modal');
   }else{
     document.getElementById('compliance-modal-title').textContent=isEdit?'✏️ Edit Compliance Item':'＋ Add Compliance Item';
     document.getElementById('comp-name').value='';document.getElementById('comp-keyword').value='';document.getElementById('comp-duedate').value='';document.getElementById('comp-frequency').value='monthly';document.getElementById('comp-validtill').value='';document.getElementById('comp-person').value='';
-    if(isEdit){const item=complianceState.items.find(x=>x.id===id);if(item){document.getElementById('comp-name').value=item.name||'';document.getElementById('comp-keyword').value=item.keyword||'';document.getElementById('comp-duedate').value=item.firstDue||'';document.getElementById('comp-frequency').value=item.frequency||'monthly';document.getElementById('comp-validtill').value=item.validTill||'';document.getElementById('comp-person').value=item.person||'';}}
+    if(isEdit){const item=complianceState.items.find(x=>x.id===numId);if(item){document.getElementById('comp-name').value=item.name||'';document.getElementById('comp-keyword').value=item.keyword||'';document.getElementById('comp-duedate').value=item.firstDue||'';document.getElementById('comp-frequency').value=item.frequency||'monthly';document.getElementById('comp-validtill').value=item.validTill||'';document.getElementById('comp-person').value=item.person||'';}}
     openModal('compliance-modal');
   }
 }
@@ -3171,7 +3173,7 @@ function saveMcItem(type){
   if(!firstDue||!validTill){showToast('Due date and Valid Till are required','warn');return;}
   const st=getMcState(type);
   if(isEdit){
-    const item=st.items.find(x=>x.id===mcEditingId);if(!item)return;
+    const item=st.items.find(x=>x.id===mcEditingId);if(!item){showToast('Item not found','warn');return;}
     const needsRegen=item.firstDue!==firstDue||item.frequency!==frequency||item.validTill!==validTill;
     item.name=name;item.firstDue=firstDue;item.frequency=frequency;item.validTill=validTill;item.person=person;
     if(type==='compliance')item.keyword=keyword;
@@ -3185,9 +3187,10 @@ function saveMcItem(type){
 }
 
 function deleteMcItem(type,id,fromPopup){
-  const st=getMcState(type);const item=st.items.find(x=>x.id===id);
+  const numId=parseInt(id);
+  const st=getMcState(type);const item=st.items.find(x=>x.id===numId);
   showConfirm('🗑','Delete Item',`Delete "${item?.name||'this item'}"? All checklist data will be lost.`,'Delete','var(--red)',()=>{
-    st.items=st.items.filter(x=>x.id!==id);
+    st.items=st.items.filter(x=>x.id!==numId);
     if(fromPopup)closeModal('mc-detail-overlay');
     save();renderMcModule(type);renderAlertRibbon();showToast('Deleted','info');
   });
